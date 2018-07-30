@@ -10,7 +10,7 @@ Depends: R (>= 3.4.0)
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: pdist(>= 1.2), Matrix(>= 1.2.14), PrevMap(>= 1.4.1), raster(>= 2.6.7), sp(>= 1.2.7), spatstat(>= 1.55.1), splancs(>= 2.1.40), svMisc(>= 1.0.2), bigstatsr(>= 0.3.4), doParallel(>= 1.0.11), methods(>= 3.4.4), foreach(>= 1.4.4), maptools(>= 0.9.2), plyr(>= 1.8.4), utils(>= 3.4.4)
+Imports: pdist(>= 1.2), Matrix(>= 1.2.14), PrevMap(>= 1.4.1), raster(>= 2.6.7), sp(>= 1.2.7), spatstat(>= 1.55.1), splancs(>= 2.1.40), methods(>= 3.4.4), maptools(>= 0.9.2), plyr(>= 1.8.4), utils(>= 3.4.4)
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown

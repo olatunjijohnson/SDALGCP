@@ -31,7 +31,7 @@ This document present a simple tutorial code from SDALGCP package to make infere
 
 load the package
 ```{r}
-devtools::load_all("/home/johnsono/Documents/Lancaster/Lancaster PhD Work/Lancaster PhD Work/RPackage/SDALGCP")
+require(SDALGCP)
 ```
 load the data
 ```{r}

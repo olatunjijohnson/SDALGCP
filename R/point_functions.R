@@ -2,7 +2,7 @@
 ##' @importFrom methods is
 ##' @importFrom stats coef dist glm loess median model.frame model.matrix model.offset
 ##' model.response optimize pnorm predict printCoefmat qchisq qnorm rnorm runif sd splinefun
-if(getRversion() >= "2.15.1") utils::globalVariables(c("j"))
+#if(getRversion() >= "2.15.1") utils::globalVariables(c("j"))
 ##' @title Generating points inside each polygon in the entire domain using Simple Sequential Inhibition (SSI) process
 ##' @description This function generate a random point pattern using Simple Sequential Inhibition (SSI) process.
 ##' @param poly polygon in which to generate the points.
@@ -442,7 +442,6 @@ SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighte
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @importFrom pdist pdist
-##' @importFrom svMisc progress
 ##' @importFrom utils setTxtProgressBar txtProgressBar
 ##' @seealso \code{\link{SDALGCPpolygonpoints}}, 
 ##' @export
@@ -456,7 +455,6 @@ precomputeCorrMatrix <- function(S.coord, phi){
   R= array(NA, dim = c(n.distr, n.distr, n.phi))
   if (weight==TRUE){
     for (i in 1:n.distr){
-      #svMisc::progress(i, progress.bar = TRUE)
       utils::setTxtProgressBar(pb,i, label=paste( round(i/n.distr*100, 0), "% done"))
       Sys.sleep(0.01)
       for (j in i:n.distr){
@@ -472,7 +470,6 @@ precomputeCorrMatrix <- function(S.coord, phi){
     attr(R, 'S_coord') <-   S.coord   
   }else{
     for (i in 1:n.distr){
-      #svMisc::progress(i, progress.bar = TRUE)
       utils::setTxtProgressBar(pb,i, label=paste( round(i/n.distr*100, 0), "% done"))
       Sys.sleep(0.01)
       for (j in i:n.distr){
@@ -852,12 +849,8 @@ SDADiscretePred <- function(para_est, control.mcmc=NULL,
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @importFrom sp spsample coordinates
 ##' @importFrom Matrix solve chol
-##' @importFrom parallel makeCluster stopCluster
-##' @importFrom bigstatsr FBM
 ##' @importFrom pdist pdist 
-##' @importFrom doParallel registerDoParallel
 ##' @importFrom stats median
-##' @importFrom foreach foreach %:% %dopar%
 ##' @export
 
 SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NULL,
@@ -931,47 +924,20 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
     return(R)
   }
   ################
-  cov.matrix.x.A3=function(pred.loc, S.coord, phi){
-    n.pred.loc <- nrow(pred.loc)
-    n.distr <- length(S.coord)
-    R= bigstatsr::FBM(n.pred.loc, n.distr)
-    cl <- parallel::makeCluster(2) #number of nodes is 2
-    doParallel::registerDoParallel(cl)
-    tmp3 <- foreach::foreach(i = 1:n.pred.loc, .combine = 'c') %:% foreach::foreach(j = 1:n.distr, .combine = 'c') %dopar% {
-        U <- as.matrix(pdist::pdist(pred.loc[i,],
-                                    as.matrix(S.coord[[j]]$xy)))
-        R[i,j] <-  mean(exp(-U/phi))
-        NULL
-      }
-    parallel::stopCluster(cl)
-    return(R[])
-  }
-  ####################
-  cov.matrix.x.A4=function(pred.loc, S.coord, phi){
-    n.pred.loc <- nrow(pred.loc)
-    n.distr <- length(S.coord)
-    R= bigstatsr::FBM(n.pred.loc, n.distr)
-    cl <- parallel::makeCluster(2) #number of nodes is 2
-    doParallel::registerDoParallel(cl)
-    tmp3 <- foreach::foreach(i = 1:n.pred.loc, .combine = 'c') %:% foreach::foreach(j = 1:n.distr, .combine = 'c') %dopar% {
-        U <- as.matrix(pdist::pdist(pred.loc[i,],
-                                    as.matrix(S.coord[[j]]$xy)))
-        R[i,j] <-  sum(S.coord[[j]]$weight*exp(-U/phi))
-        NULL
-      }
-    parallel::stopCluster(cl)
-    return(R[])
-  }
   ##################
   if (weight==TRUE){
     if (parallel==TRUE){
-      Sigma.x.A2 <- sigma2*cov.matrix.x.A4(pred.loc, S.coord, phi)
+      cat("The parallel option will be available once bigstatsr package is submitted on cran, see readme file on github for more info")
+      NULL
+      #Sigma.x.A2 <- sigma2*cov.matrix.x.A4(pred.loc, S.coord, phi)
     }else{
       Sigma.x.A2 <- sigma2*cov.matrix.x.A(pred.loc, S.coord, phi)
     }
   } else{
     if (parallel==TRUE){
-      Sigma.x.A2 <- sigma2*cov.matrix.x.A3(pred.loc, S.coord, phi)
+      cat("The parallel option will be available once bigstatsr package is submitted on cran, see readme file on github for more info")
+      NULL
+      #Sigma.x.A2 <- sigma2*cov.matrix.x.A3(pred.loc, S.coord, phi)
     }else{
       Sigma.x.A2 <- sigma2*cov.matrix.x.A2(pred.loc, S.coord, phi)
     }
@@ -1118,11 +1084,8 @@ SDALGCPMCML <- function(data, formula, my_shp, delta, phi=NULL, method=1, pop_sh
 ##' @references Banerjee, S., Carlin, B. P., & Gelfand, A. E. (2014). Hierarchical modeling and analysis for spatial data. CRC press.
 ##' @importFrom sp spsample coordinates
 ##' @importFrom Matrix solve chol
-##' @importFrom parallel makeCluster stopCluster
 ##' @importFrom pdist pdist 
-##' @importFrom doParallel registerDoParallel
 ##' @importFrom stats median
-##' @importFrom foreach foreach %:% %dopar%
 ##' @export
 SDALGCPPred <- function(para_est, cellsize, continuous=TRUE, control.mcmc=NULL, pred.loc=NULL,
                         divisor=1, plot.correlogram=F, messages=TRUE, parallel=FALSE){
