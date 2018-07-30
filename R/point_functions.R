@@ -1119,7 +1119,6 @@ SDALGCPMCML <- function(data, formula, my_shp, delta, phi=NULL, method=1, pop_sh
 ##' @importFrom sp spsample coordinates
 ##' @importFrom Matrix solve chol
 ##' @importFrom parallel makeCluster stopCluster
-##' @importFrom bigstatsr FBM
 ##' @importFrom pdist pdist 
 ##' @importFrom doParallel registerDoParallel
 ##' @importFrom stats median

@@ -14,12 +14,12 @@ knitr::opts_chunk$set(echo = TRUE)
 # SDALGCP
 An R Package to make spatially continuous inference with spatially aggregated disease count
 
-To install SDALGCP, you need to install the latest release of \code{bigstatsr} package first using
+To install SDALGCP, you need to install the latest release of bigstatsr package first using
 ```{r}
 devtools::install_github("privefl/bigstatsr")
 ```
 
-then you can now install \code{SDALGCP} package using
+then you can now install SDALGCP package using
 ```{r}
 devtools::install_github("olatunjijohnson/SDALGCP")
 ```
