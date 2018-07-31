@@ -5,9 +5,9 @@ Authors@R: c(
     person("Olatunji", "Johnson", email = "olatunjijohnson21111@gmail.com", role = c("aut", "cre")),
     person("Emanuele", "Giorgi", email = "e.giorgi@lancaster.ac.uk", role = "aut"),
     person("Peter", "Diggle", email = "p.diggle@lancaster.ac.uk", role = "aut"))
-Description: Log-Gaussian Cox Processes (LGCP) has been used for aggregated count data but it is computationally intensive. Can we do better by approximating the intensity of LGCP over the region without sacrificing statistical efficiency for computational efficiency? Yes! SDA-LGCP uses Monte Carlo Maximum Likelihood and comes out to be about 5-15 times faster than LGCP model for aggregated count data.
+Description: Log-Gaussian Cox Processes (LGCP) has been used for aggregated count data but it is computationally intensive. Can we do better by approximating the intensity of LGCP over the region without sacrificing statistical efficiency for computational efficiency? Yes! SDALGCP uses Monte Carlo Maximum Likelihood and comes out to be about 5-15 times faster than LGCP model for aggregated count data.
 Depends: R (>= 3.4.0)
-License: GPL-3 + file LICENSE
+License: GPL-2 | GPL-3 
 Encoding: UTF-8
 LazyData: true
 Imports: pdist(>= 1.2), Matrix(>= 1.2.14), PrevMap(>= 1.4.1), raster(>= 2.6.7), sp(>= 1.2.7), spatstat(>= 1.55.1), splancs(>= 2.1.40), methods(>= 3.4.4), maptools(>= 0.9.2), plyr(>= 1.8.4), utils(>= 3.4.4)

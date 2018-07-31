@@ -1010,6 +1010,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' @return \code{call}: the matched call.
 ##' @examples
 ##' \donttest{
+##' data(PBCshp)
 ##' data <- as.data.frame(PBCshp@data)
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 ##' Environment +  offset(log(pop))

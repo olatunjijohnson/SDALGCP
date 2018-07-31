@@ -80,6 +80,7 @@ The Monte Carlo maximum likelihood method uses conditional simulation from the d
 }
 \examples{
 \donttest{
+data(PBCshp)
 data <- as.data.frame(PBCshp@data)
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 Environment +  offset(log(pop))
