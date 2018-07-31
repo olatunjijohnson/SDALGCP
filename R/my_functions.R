@@ -16,6 +16,11 @@
 ##' @param giveup Number of rejected proposals after which the algorithm should terminate.
 ##' @details This algorithm generates points inside the polygon using Simple Sequential Inhibition (SSI) process.
 ##' @return It returns a list of the coordinates of the points created in each polygon.
+##' @examples 
+##' \dontrun{
+##' data(PBCshp)
+##' My_SSIP(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
+##' }
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
 ##' @importFrom spatstat as.owin ppp
@@ -148,6 +153,11 @@ My_SSIP <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
 ##' @param bound Spatial object; the boundary of the polygon
 ##' @details This algorithm generates points inside the polygon using a uniform sampling or completely spatial random sampling.
 ##' @return It returns a list of the coordinates of the points created in each polygon.
+##' @examples 
+##' \dontrun{
+##' data(PBCshp)
+##' My_UNIF(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
+##' }
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
 ##' @importFrom spatstat as.owin ppp
@@ -252,6 +262,11 @@ My_UNIF <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
 ##' @param bound Spatial object; the boundary of the polygon
 ##' @details This algorithm generates points inside the polygon using a regular (systematically aligned) sampling.
 ##' @return It returns a list of the coordinates of the points created in each polygon.
+##' @examples 
+##' \dontrun{
+##' data(PBCshp)
+##' My_REG(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
+##' }
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
 ##' @importFrom spatstat as.owin ppp
@@ -297,6 +312,11 @@ My_REG <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, po
 ##' @param giveup Number of rejected proposals after which the algorithm should terminate.
 ##' @details This algorithm generates points inside the polygon using three algorithms specified in the method. 
 ##' @return It returns a list of the coordinates of the points created in each polygon and it has an associated attribute weighted which is either TRUE or FALSE to indicate if the population density is used or not.
+##' @examples 
+##' \dontrun{
+##' data(PBCshp)
+##' create_points(my_shp=PBCshp, delta=100)
+##' }
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
 ##' @importFrom spatstat as.owin ppp
@@ -372,15 +392,10 @@ create_points <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, pop=NUL
 ##' @importFrom spatstat as.owin ppp
 ##' @importFrom sp SpatialPolygons Polygons Polygon spsample
 ##' @importFrom splancs areapl csr
-##' @examples
-##' \donttest{
-##' x <- c(1,0,0,1)
-##' y <- c(0,0,1,1)
-##' poly <- cbind(x, y)
-##' lambdamax <- 6835
-##' delta <- 0.1
-##' pop_shp <- load('population_density.RData') # raster file of population density
-##' xy <- Rej_SSIP(poly, delta, pop_shp, lambdamax, rho=0.55, giveup=1000)
+##' @examples 
+##' \dontrun{
+##' data(PBCshp)
+##' SDALGCPpolygonpoints(my_shp=PBCshp, delta=100)
 ##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
@@ -433,10 +448,11 @@ SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighte
 ##' @details This function precompute the covariance matrix using the exponential covariance function
 ##' @return return an array of the covariance matrix for the specified vectors of phi
 ##' @examples
-##' \donttest{
-##' load(popshape.RData)
-##' xy <- gridPointsSSIP(shp=popshape, delta, rho=0.55, giveup=1000, divisor=1)
-##' pre.matrix <- precompute.corr.matrix(S.coord=xy, phi=c(1:5))
+##' \dontrun{
+##' data(PBCshp)
+##' S.coord <- SDALGCPpolygonpoints(my_shp=PBCshp, delta=100)
+##' phi <- seq(1, 10, 1)
+##' pre.matrix <- precomputeCorrMatrix(S.coord=S.coord, phi=phi)
 ##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
@@ -508,7 +524,7 @@ precomputeCorrMatrix <- function(S.coord, phi){
 ##' @references Christensen, O. F. (2004). Monte carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
 ##' @importFrom stats nlminb 
 ##' @importFrom PrevMap Laplace.sampling
-##' @export
+##' @keywords internal
 ##' @seealso \code{\link{controlmcmcSDA}}
 
 Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc) {
@@ -520,10 +536,6 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc) {
   mu0 <- as.numeric(D%*%beta0)
   sigma2.0 <- par0[p+1]
   Sigma0 <- sigma2.0 * corr
-  # S.sim.res <- PrevMap::Laplace.sampling(mu0, Sigma0, y, m, control.mcmc,
-  #                                        plot.correlogram=TRUE,messages=TRUE,
-  #                                        poisson.llik=TRUE)
-  
   repeat {
     S.sim.res <- tryCatch(PrevMap::Laplace.sampling(mu0, Sigma0, y, m, control.mcmc,
                                                     plot.correlogram=TRUE,messages=TRUE,
@@ -696,6 +708,17 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc) {
 ##' @return \code{par0}: the initial parameter of the fixed effects beta and the variance sigmasq used in the estimation
 ##' @return \code{control.mcmc}:  the burnin, thining, the number of iteration and the turning parameters used see \code{\link{controlmcmcSDA}}.
 ##' @return \code{call}: the matched call.
+##' @examples
+##' \dontrun{
+##' data(PBCshp)
+##' S.coord <- SDALGCPpolygonpoints(my_shp=PBCshp, delta=100)
+##' phi <- seq(1, 10, 1)
+##' pre.matrix <- precomputeCorrMatrix(S.coord=S.coord, phi=phi)
+##' data <- PBCshp@data
+##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
+##' Environment +  offset(log(pop))
+##' SDAParaEst(formula=FORM , data=data, corr=pre.matrix)
+##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
@@ -788,6 +811,18 @@ SDAParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, plot_p
 ##' @return SEincidence: Standard errror of the region-specific incidence
 ##' @return CovRR: the prediction of the relative risk
 ##' @return SECovRR: the standard error of the relative risk
+##' @examples
+##' \dontrun{
+##' data(PBCshp)
+##' S.coord <- SDALGCPpolygonpoints(my_shp=PBCshp, delta=100)
+##' phi <- seq(1, 10, 1)
+##' pre.matrix <- precomputeCorrMatrix(S.coord=S.coord, phi=phi)
+##' data <- PBCshp@data
+##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
+##' Environment +  offset(log(pop))
+##' est <- SDAParaEst(formula=FORM , data=data, corr=pre.matrix)
+##' SDADiscretePred(para_est=est)
+##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
@@ -844,6 +879,18 @@ SDADiscretePred <- function(para_est, control.mcmc=NULL,
 ##' @return pred: the prediction of the relative risk
 ##' @return predSD: the standard error of the prediction
 ##' @return Pred.loc: The cordinates of the predictive locations
+##' @examples
+##' \dontrun{
+##' data(PBCshp)
+##' S.coord <- SDALGCPpolygonpoints(my_shp=PBCshp, delta=100)
+##' phi <- seq(1, 10, 1)
+##' pre.matrix <- precomputeCorrMatrix(S.coord=S.coord, phi=phi)
+##' data <- PBCshp@data
+##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
+##' Environment +  offset(log(pop))
+##' est <- SDAParaEst(formula=FORM , data=data, corr=pre.matrix)
+##' SDAContinuousPred(para_est=est, cellsize=300)
+##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
@@ -1009,7 +1056,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' @return \code{control.mcmc}: the burnin, thining, the number of iteration and the turning parameters used see \code{\link{controlmcmcSDA}}.
 ##' @return \code{call}: the matched call.
 ##' @examples
-##' \donttest{
+##' \dontrun{
 ##' data(PBCshp)
 ##' data <- as.data.frame(PBCshp@data)
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
@@ -1067,7 +1114,7 @@ SDALGCPMCML <- function(data, formula, my_shp, delta, phi=NULL, method=1, pop_sh
 ##' @return predSD: the standard error of the prediction
 ##' @return Pred.loc: The cordinates of the predictive locations
 ##' @examples
-##' \donttest{
+##' \dontrun{
 ##' load("PBCshp")
 ##' data <- as.data.frame(PBCshp@data)
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
@@ -1341,6 +1388,19 @@ plot.Pred.SDALGCP <- function(x,  type='relrisk', continuous=TRUE, thresholds=NU
 ##' @param ... additional argument(s) for methods.
 ##' @seealso \link{confint.lm}, \link{confint.default}, \link{SDALGCPMCML}
 ##' @return A matrix (or vector) with columns giving lower and upper confidence limits for each parameter. These will be labelled as (1-level)/2 and 1 - (1-level)/2 in % (by default 2.5% and 97.5%).
+##' @examples
+##' \dontrun{
+##' data(PBCshp)
+##' data <- as.data.frame(PBCshp@data)
+##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
+##' Environment +  offset(log(pop))
+##' phi <- seq(500, 1700, length.out = 20)
+##' control.mcmc <- list(n.sim = 110000, burnin = 10000, thin= 10, h=1.65/(545^(1/6)),
+##'                     c1.h = 0.01, c2.h = 1e-04)
+##' my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=100, phi=phi, method=1, 
+##'                      weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
+##' confint(my_est)
+##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
@@ -1374,7 +1434,7 @@ confint.SDALGCP <- function(object, parm, level = 0.95, dp=3, ...){
 ##' @details To be used in SDA
 ##' @return A list with processed arguments to be passed to the main function.
 ##' @examples
-##' \donttest{
+##' \dontrun{
 ##' n <- 545
 ##' h <- 1.65/(n^(1/6))
 ##' control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 

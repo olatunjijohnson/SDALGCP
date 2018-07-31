@@ -1,7 +1,7 @@
 SDALGCP
 =======
 
-An R Package to make spatially continuous inference with spatially aggregated disease count
+SDALGCP provides a computationally efficient discrete approximation to log-Gaussian Cox process (LGCP) model for spatially aggregated disease count data. It uses Monte Carlo Maximum Likelihood for model parameter estimation and delivers prediction of spatially discrete and continuous relative risk.
 
 Installation
 ============

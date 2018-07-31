@@ -5,7 +5,7 @@ Authors@R: c(
     person("Olatunji", "Johnson", email = "olatunjijohnson21111@gmail.com", role = c("aut", "cre")),
     person("Emanuele", "Giorgi", email = "e.giorgi@lancaster.ac.uk", role = "aut"),
     person("Peter", "Diggle", email = "p.diggle@lancaster.ac.uk", role = "aut"))
-Description: Log-Gaussian Cox Processes (LGCP) has been used for aggregated count data but it is computationally intensive. Can we do better by approximating the intensity of LGCP over the region without sacrificing statistical efficiency for computational efficiency? Yes! SDALGCP uses Monte Carlo Maximum Likelihood and comes out to be about 5-15 times faster than LGCP model for aggregated count data.
+Description: SDALGCP provides a computationally efficient discrete approximation to log-Gaussian Cox process (LGCP) model for spatially aggregated disease count data. It uses Monte Carlo Maximum Likelihood for model parameter estimation and delivers prediction of spatially discrete and continuous relative risk.
 Depends: R (>= 3.4.0)
 License: GPL-2 | GPL-3 
 Encoding: UTF-8
