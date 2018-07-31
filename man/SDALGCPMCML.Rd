@@ -17,7 +17,7 @@ SDALGCPMCML(formula, data, my_shp, delta, phi = NULL, method = 1,
 
 \item{delta}{distance between points}
 
-\item{phi}{the discretised values of the scale parameter phi. if not supplied, it uses the default.}
+\item{phi}{the discretised values of the scale parameter phi. if not supplied, it uses the default, which is 20 phis' which ranges from size of the smallest region to the one-tenth of the size of the entire domain.}
 
 \item{method}{To specify which method to use to sample the points, the options are 1 for Simple Sequential Inhibition (SSI) process, 2 for Uniform sampling and 3 for regular grid. 1 is the default}
 
@@ -27,7 +27,7 @@ SDALGCPMCML(formula, data, my_shp, delta, phi = NULL, method = 1,
 
 \item{plot}{To display the plot of the points inside the polygon, default to TRUE}
 
-\item{par0}{the initial parameter of the fixed effects beta and the variance sigmasq, specified as c(beta, sigma2)}
+\item{par0}{the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi). Default; beta, the estimates from the glm; sigma2, variance of the residual; phi, the median of the supplied phi.}
 
 \item{control.mcmc}{list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.}
 
@@ -85,10 +85,15 @@ data <- as.data.frame(PBCshp@data)
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 Environment +  offset(log(pop))
 phi <- seq(500, 1700, length.out = 20)
+model <- glm(formula, family="poisson", data=data)
+beta.start <-coef(model)
+sigma2.start <- mean(model$residuals^2)
+phi.start <- median(phi)
+par0 <- c(beta.start, sigma2.start, phi.start)
 control.mcmc <- list(n.sim = 110000, burnin = 10000, thin= 10, h=1.65/(545^(1/6)),
                     c1.h = 0.01, c2.h = 1e-04)
 my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
-                     weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
+                     weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
 }
 }
 \references{

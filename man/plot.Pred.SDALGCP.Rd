@@ -4,7 +4,7 @@
 \alias{plot.Pred.SDALGCP}
 \title{plot.Pred.SDALGCP function}
 \usage{
-\method{plot}{Pred.SDALGCP}(x, type = "relrisk", continuous = TRUE,
+\method{plot}{Pred.SDALGCP}(x, type = "relrisk", continuous = NULL,
   thresholds = NULL, bound = NULL, ...)
 }
 \arguments{

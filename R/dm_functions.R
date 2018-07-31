@@ -1068,13 +1068,13 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' @param data  data frame containing the variables in the model.
 ##' @param my_shp A SpatialPolygons orSpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
 ##' @param delta distance between points
-##' @param phi the discretised values of the scale parameter phi. if not supplied, it uses the default.
+##' @param phi the discretised values of the scale parameter phi. if not supplied, it uses the default, which is 20 phis' which ranges from size of the smallest region to the one-tenth of the size of the entire domain.
 ##' @param pop_shp Optional, The raster of population density map for population weighted approach
 ##' @param rho Optional, The packing density, default set to 0.55
 ##' @param weighted To specify if you want to use the population density, default to FALSE, i.e population density is not used.
 ##' @param plot To display the plot of the points inside the polygon, default to TRUE
 ##' @param method To specify which method to use to sample the points, the options are 1 for Simple Sequential Inhibition (SSI) process, 2 for Uniform sampling and 3 for regular grid. 1 is the default
-##' @param par0 the initial parameter of the fixed effects beta and the variance sigmasq, specified as c(beta, sigma2)
+##' @param par0 the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi). Default; beta, the estimates from the glm; sigma2, variance of the residual; phi, the median of the supplied phi.
 ##' @param control.mcmc list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.
 ##' @param plot_profile logical; if TRUE the profile-likelihood is plotted. default is FALSE
 ##' @details This function performs parameter estimation for a SDA-LGCP Model
@@ -1105,10 +1105,15 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 ##' Environment +  offset(log(pop))
 ##' phi <- seq(500, 1700, length.out = 20)
+##' model <- glm(formula, family="poisson", data=data)
+##' beta.start <-coef(model)
+##' sigma2.start <- mean(model$residuals^2)
+##' phi.start <- median(phi)
+##' par0 <- c(beta.start, sigma2.start, phi.start)
 ##' control.mcmc <- list(n.sim = 110000, burnin = 10000, thin= 10, h=1.65/(545^(1/6)),
 ##'                     c1.h = 0.01, c2.h = 1e-04)
 ##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
-##'                      weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
+##'                      weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
 ##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
@@ -1191,7 +1196,8 @@ SDALGCPPred <- function(para_est, cellsize, continuous=TRUE, control.mcmc=NULL, 
                         divisor=1, plot.correlogram=F, messages=TRUE, parallel=FALSE){
   #############prediction
   if(class(para_est)!="SDALGCP") stop("para_est must be of class 'SDALGCP', that is be an output of SDALGCPMCML function")
-  if (continuous==TRUE){
+  if(continuous && length(cellsize)==0) stop("if continuous is TRUE, cellsize must be provided")
+  if (continuous){
     Con_pred <- SDAContinuousPred(para_est=para_est,  cellsize=cellsize, pred.loc=pred.loc, parallel = parallel, divisor = divisor, 
                                   plot.correlogram = plot.correlogram, messages = messages, control.mcmc = control.mcmc)
   }else{
@@ -1343,6 +1349,8 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', ...){
       s <- raster::stack(r1, r2)
       sp::spplot(s, colorkey=list(space="bottom"), ..., sp.layout=bound)
     }
+  }else if (type=="incidence" | type=="CovAdjRelRisk"){
+    plot_discrete(obj=obj, type=type, ...)
   }
 }
 ################################
@@ -1414,7 +1422,10 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @export
-plot.Pred.SDALGCP <- function(x,  type='relrisk', continuous=TRUE, thresholds=NULL, bound=NULL, ...){
+plot.Pred.SDALGCP <- function(x,  type='relrisk', continuous=NULL, thresholds=NULL, bound=NULL, ...){
+  if(is.null(continuous)){
+    continuous <- attr(x, 'continuous')
+  }
   if(continuous){
     if(is.null(thresholds)){
       plot_continuous(obj=x, bound=bound, type=type, ...)
