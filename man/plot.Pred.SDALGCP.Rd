@@ -26,8 +26,11 @@ The function does not return any value.
 \description{
 Simple plotting function for both discrete and conituous prediction from the object of class "Pred.SDALGCP".
 }
+\details{
+This function plots the inference from \code{\link{SDALGCPPred}} function. It plots for region-specific inference; incidence and covariate adjusted relative risk while for spatially continuous inference it plots the relative risk. It can as well plot the exceedance probability for spatially discrete and continuous inference.
+}
 \seealso{
-\link{SDALGCPPred}, \link{plot_continuous}, \link{plot_discrete}, \link{plot_SDALGCPexceedance}
+\link{SDALGCPPred}, \link{plot_continuous}, \link{plot_discrete}, \link{plot_SDALGCPexceedance}, \link{SDALGCPexceedance}
 }
 \author{
 Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}

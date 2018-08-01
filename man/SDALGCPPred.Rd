@@ -40,7 +40,7 @@ Pred.loc: The cordinates of the predictive locations
 This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDA-LGCP model.
 }
 \details{
-The function returns the prediction of the relative risk exp(S(x))
+The function perform prediction of the spatially discrete incidence and covariate adjusted relative risk, and spatially continuous relative risk. The discrete inference uses the Metropolis-Adjusted Langevin Hasting sampling from \code{\link{Laplace.sampling}}. And the continuous inference is typically change of support inference.
 }
 \examples{
 \dontrun{
@@ -49,8 +49,8 @@ data <- as.data.frame(PBCshp@data)
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 Environment +  offset(log(pop))
 phi <- seq(500, 1700, length.out = 20)
-control.mcmc <- list(n.sim = 110000, burnin = 10000, thin= 10, h=1.65/(545^(1/6)),
-                    c1.h = 0.01, c2.h = 1e-04)
+control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
+                            thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
                      weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
 Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)

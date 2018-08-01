@@ -29,7 +29,7 @@
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
-##' @export
+##' @keywords internal
 ##' 
 My_SSIP <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, pop=NULL, n= NULL, rho=NULL, giveup=NULL){
   if (weighted==TRUE){
@@ -166,7 +166,7 @@ My_SSIP <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
-##' @export
+##' @keywords internal
 ##' 
 My_UNIF <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, pop=NULL, n= NULL, rho=NULL, giveup=NULL, 
                     bound=NULL){
@@ -275,7 +275,7 @@ My_UNIF <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
-##' @export
+##' @keywords internal
 ##' 
 My_REG <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, pop=NULL, n= NULL, rho=NULL, giveup=NULL,
                    bound=NULL){
@@ -326,7 +326,7 @@ My_REG <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, po
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
-##' @export
+##' @keywords internal
 create_points <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, pop=NULL, pop_shp=NULL, n=NULL, method=1,
                           plot=FALSE, rho=NULL, giveup=NULL){
   #################################################
@@ -400,7 +400,7 @@ create_points <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, pop=NUL
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
-##' @export
+##' @keywords internal
 SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighted=FALSE, rho=NULL, plot=TRUE){
   if(weighted == TRUE & is.null(pop_shp)) stop('please insert the raster file of the population density or change argument weights==FALSE if you do not plan to use population density')
   if(weighted==FALSE){
@@ -461,7 +461,7 @@ SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighte
 ##' @importFrom pdist pdist
 ##' @importFrom utils setTxtProgressBar txtProgressBar
 ##' @seealso \code{\link{SDALGCPpolygonpoints}}, 
-##' @export
+##' @keywords internal
 
 precomputeCorrMatrix <- function(S.coord, phi){
   weight=attr(S.coord, 'weighted')
@@ -717,7 +717,7 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
 ##' @references Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08.
 ##' @references Christensen, O. F. (2004). Monte carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
 ##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}}
-##' @export
+##' @keywords internal
 
 SDAParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, plot_profile=FALSE){
   cat("\n Now preparing for parameter estimation!\n")
@@ -869,7 +869,7 @@ SDAParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, plot_p
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
-##' @export
+##' @keywords internal
 ##' @importFrom sp spsample
 ##' @importFrom Matrix solve chol
 SDADiscretePred <- function(para_est, control.mcmc=NULL,
@@ -941,7 +941,7 @@ SDADiscretePred <- function(para_est, control.mcmc=NULL,
 ##' @importFrom Matrix solve chol
 ##' @importFrom pdist pdist 
 ##' @importFrom stats median
-##' @export
+##' @keywords internal
 
 SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NULL,
                               divisor=1, plot.correlogram=F, messages=TRUE, parallel=FALSE){
@@ -1063,7 +1063,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 }
 ##########################################################################
 ##' @title Parameter estimation for SDA-LGCP Using Monte Carlo Maximum likelihood
-##' @description This function provides the maximum likelihood estimation of the parameter given the precomputed correlation matrices for different values of scale parameter, phi
+##' @description This function provides the maximum likelihood estimation of the parameter given a set of values of scale parameter of the Guassian process, phi.
 ##' @param formula an object of class \code{\link{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted.
 ##' @param data  data frame containing the variables in the model.
 ##' @param my_shp A SpatialPolygons orSpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
@@ -1079,7 +1079,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' @param plot_profile logical; if TRUE the profile-likelihood is plotted. default is FALSE
 ##' @details This function performs parameter estimation for a SDA-LGCP Model
 ##' \bold{Monte Carlo Maximum likelihood.}
-##' The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensiional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic epression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}} 
+##' The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensiional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic epression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}. The first stage of estimation is generating locations inside the polygon, followed by precomputing the correlation matrices, then optimising the likelihood. 
 ##' @return An object of class "PrevMap".
 ##' The function \code{\link{summary.PrevMap}} is used to print a summary of the fitted model.
 ##' The object is a list with the following components:
@@ -1105,13 +1105,13 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 ##' Environment +  offset(log(pop))
 ##' phi <- seq(500, 1700, length.out = 20)
-##' model <- glm(formula, family="poisson", data=data)
+##' model <- glm(formula=FORM, family="poisson", data=data)
 ##' beta.start <-coef(model)
 ##' sigma2.start <- mean(model$residuals^2)
 ##' phi.start <- median(phi)
 ##' par0 <- c(beta.start, sigma2.start, phi.start)
-##' control.mcmc <- list(n.sim = 110000, burnin = 10000, thin= 10, h=1.65/(545^(1/6)),
-##'                     c1.h = 0.01, c2.h = 1e-04)
+##' control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
+##'                  thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 ##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
 ##'                      weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
 ##' }
@@ -1165,7 +1165,7 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_sh
 ##' @param plot.correlogram ogical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.
 ##' @param messages logical; if messages=TRUE then status messages are printed on the screen (or output device) while the function is running. Default is messages=TRUE.
 ##' @param parallel to parallelize some part of the function.
-##' @details The function returns the prediction of the relative risk exp(S(x))
+##' @details The function perform prediction of the spatially discrete incidence and covariate adjusted relative risk, and spatially continuous relative risk. The discrete inference uses the Metropolis-Adjusted Langevin Hasting sampling from \code{\link{Laplace.sampling}}. And the continuous inference is typically change of support inference. 
 ##' @return pred.draw: the samples of the prediction
 ##' @return pred: the prediction of the relative risk
 ##' @return predSD: the standard error of the prediction
@@ -1177,8 +1177,8 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_sh
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 ##' Environment +  offset(log(pop))
 ##' phi <- seq(500, 1700, length.out = 20)
-##' control.mcmc <- list(n.sim = 110000, burnin = 10000, thin= 10, h=1.65/(545^(1/6)),
-##'                     c1.h = 0.01, c2.h = 1e-04)
+##' control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
+##'                             thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 ##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
 ##'                      weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
 ##' Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)
@@ -1287,7 +1287,7 @@ print.summary.SDALGCP <- function(x, ...){
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @importFrom sp spplot
-##' @export
+##' @keywords internal
 plot_discrete <- function(obj, type='incidence', ...){
   obj$my_shp$incidence  <- obj$my_shp$pMean_RR
   obj$my_shp$SEincidence  <- obj$my_shp$pSD_RR
@@ -1309,7 +1309,7 @@ plot_discrete <- function(obj, type='incidence', ...){
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @importFrom sp spplot
-##' @export
+##' @keywords internal
 plot_continuous <- function(obj, bound=NULL, type='relrisk', ...){
   obj$relrisk  <- obj$pred
   obj$SErelrisk <- obj$predSD
@@ -1360,6 +1360,20 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', ...){
 ##' @param thresholds either a vector  of numbers or a vector of single value.
 ##' @param continuous logical; TRUE for spatially continuous relative risk and FALSE for region specific relative risk. default is TRUE
 ##' @return A vector or dataframe(for more than one value of the threshold) of the exceedance probability
+##' @examples
+##' \dontrun{
+##' load("PBCshp")
+##' data <- as.data.frame(PBCshp@data)
+##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
+##' Environment +  offset(log(pop))
+##' phi <- seq(500, 1700, length.out = 20)
+##' control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
+##'                             thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
+##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
+##'                      weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
+##' Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)
+##' ExceedanceProb <- SDALGCPexceedance(obj=Con_pred, thresholds=2, continuous=TRUE)
+##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
@@ -1388,7 +1402,7 @@ SDALGCPexceedance <- function(obj , thresholds, continuous=TRUE) {
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
-##' @export
+##' @keywords internal
 plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE, ...){
   if (continuous){
     obj$prob <- SDALGCPexceedance(obj, thresholds=thresholds, continuous=TRUE)
@@ -1416,7 +1430,8 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
 ##' @param thresholds optional; (only used if you want to plot the exceedance probability) either a vector  of numbers or a vector of single value.
 ##' @param bound optional; it gives the boundary of the region, only useful when the predictive location is supplied in \link{SDALGCPPred}
 ##' @param ... further arguments passed to \link{plot}.
-##' @seealso \link{SDALGCPPred}, \link{plot_continuous}, \link{plot_discrete}, \link{plot_SDALGCPexceedance}
+##' @details This function plots the inference from \code{\link{SDALGCPPred}} function. It plots for region-specific inference; incidence and covariate adjusted relative risk while for spatially continuous inference it plots the relative risk. It can as well plot the exceedance probability for spatially discrete and continuous inference.
+##' @seealso \link{SDALGCPPred}, \link{plot_continuous}, \link{plot_discrete}, \link{plot_SDALGCPexceedance}, \link{SDALGCPexceedance}
 ##' @return The function does not return any value.
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
