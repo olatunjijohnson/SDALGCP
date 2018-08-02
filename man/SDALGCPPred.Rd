@@ -59,6 +59,9 @@ Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)
 \references{
 Banerjee, S., Carlin, B. P., & Gelfand, A. E. (2014). Hierarchical modeling and analysis for spatial data. CRC press.
 }
+\seealso{
+\link{plot.Pred.SDALGCP}, \link{SDAContinuousPred}, \link{SDADiscretePred}, \link{plot_continuous}, \link{plot_discrete}
+}
 \author{
 Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
 

@@ -84,7 +84,7 @@ My_SSIP <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
           delsq <- (delta*delta)
         }
         ################
-        #this to further reduce the computational burden if it is not accepting
+        #this to further reduces the computational burden if it is not accepting
         if (k > 20){
           wei <- 1/n
           prob <- vdv/max(as.numeric(pop_shp@data@values), na.rm = TRUE)
@@ -1122,7 +1122,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' @importFrom sp bbox
 ##' @references Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08
 ##' @references Christensen, O. F. (2004). Monte carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
-##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}}
+##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}},  \link{summary.SDALGCP}
 ##' @export
 SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_shp=NULL, 
                         weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=NULL, plot_profile=FALSE, rho=NULL){
@@ -1187,6 +1187,7 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_sh
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @references Banerjee, S., Carlin, B. P., & Gelfand, A. E. (2014). Hierarchical modeling and analysis for spatial data. CRC press.
+##' @seealso \link{plot.Pred.SDALGCP}, \link{SDAContinuousPred}, \link{SDADiscretePred}, \link{plot_continuous}, \link{plot_discrete}
 ##' @importFrom sp spsample coordinates
 ##' @importFrom Matrix solve chol
 ##' @importFrom pdist pdist 
@@ -1276,8 +1277,8 @@ print.summary.SDALGCP <- function(x, ...){
   cat("sigma^2 is the variance of the Gaussian process")
 }
 ##########################################
-##' @title Plot of the spatially discrete prediction over the region
-##' @description This function plots the region specific incidence and covariate adjusted relative risk and their corresponding standard error using the output from \code{\link{SDALGCPPred}} function.
+##' @title plot_discrete
+##' @description A generic function for mapping spatially discrete prediction for \code{\link{SDALGCPPred}} function in \link{SDALGCP} package. Not for general purposes
 ##' @param obj an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}
 ##' @param type Character string: what type of plot to produce. Choices are "incidence" (=exp(mu+S)); "SEincidence" (standard error of incidence); "CovAdjRelRisk" (=exp(S)); or "SECovAdjRelRisk" (standard error of covariate adjusted relative risk);. 
 ##' @param ... further arguments passed to \code{\link{plot}}.
@@ -1297,8 +1298,8 @@ plot_discrete <- function(obj, type='incidence', ...){
 }
 
 ###################################################################
-##' @title Plot of the spatially continuous prediction over the entire region
-##' @description This function plots the region specific incidence and covariate adjusted relative risk and their corresponding standard error using the output from \code{\link{SDALGCPPred}} function.
+##' @title plot_continuous
+##' @description A generic function for mapping spatially continuous prediction for \code{\link{SDALGCPPred}} function in \link{SDALGCP} package. Not for general purposes
 ##' @param obj an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}
 ##' @param type Character string: what type of plot to produce. Choices are "relrisk" (=exp(S)); "SErelrisk" (standard error of the relative risk).
 ##' @param bound the boundary of the predictive grid, not required if predictive grid is not supplied
@@ -1390,8 +1391,8 @@ SDALGCPexceedance <- function(obj , thresholds, continuous=TRUE) {
   return(out)
 }
 
-##' @title Plot the exceedance probability map
-##' @description Plot the exceedance probability map for a given threshold of the spatially continuous relative risk or the region specific relative risk from the object of class "Pred.SDALGCP".
+##' @title plot_SDALGCPexceedance
+##' @description A generic function for mapping the exceedance probability for a given threshold of the spatially continuous relative risk or the region specific relative risk from the object of class "Pred.SDALGCP". Not for general purposes.
 ##' @param obj an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}.
 ##' @param thresholds either a vector  of numbers or a vector of single value.
 ##' @param bound optional; it gives the boundary of the region, only useful when the predictive location is supplied in \link{SDALGCPPred}.
@@ -1423,7 +1424,7 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
 
 ###############################
 ##' @title plot.Pred.SDALGCP function
-##' @description Simple plotting function for both discrete and conituous prediction from the object of class "Pred.SDALGCP".
+##' @description Simple plotting function for both discrete and continuous prediction from the object of class "Pred.SDALGCP".
 ##' @param x an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}.
 ##' @param type Character string: what type of plot to produce. For discrete inference choices are "incidence" (=exp(mu+S)); "SEincidence" (standard error of incidence); "CovAdjRelRisk" (=exp(S)); or "SECovAdjRelRisk" (standard error of covariate adjusted relative risk); while for continuous inference, choices are "relrisk" (=exp(S)); "SErelrisk" (standard error of the relative risk).
 ##' @param continuous logical; TRUE for spatially continuous relative risk and FALSE for region specific relative risk. default is TRUE

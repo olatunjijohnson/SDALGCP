@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{plot_discrete}
 \alias{plot_discrete}
-\title{Plot of the spatially discrete prediction over the region}
+\title{plot_discrete}
 \usage{
 plot_discrete(obj, type = "incidence", ...)
 }
@@ -17,7 +17,7 @@ plot_discrete(obj, type = "incidence", ...)
 The function does not return any value.
 }
 \description{
-This function plots the region specific incidence and covariate adjusted relative risk and their corresponding standard error using the output from \code{\link{SDALGCPPred}} function.
+A generic function for mapping spatially discrete prediction for \code{\link{SDALGCPPred}} function in \link{SDALGCP} package. Not for general purposes
 }
 \seealso{
 \code{\link{SDALGCPPred}}

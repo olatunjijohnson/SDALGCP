@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{plot_SDALGCPexceedance}
 \alias{plot_SDALGCPexceedance}
-\title{Plot the exceedance probability map}
+\title{plot_SDALGCPexceedance}
 \usage{
 plot_SDALGCPexceedance(obj, thresholds, bound = NULL, continuous = TRUE,
   ...)
@@ -22,7 +22,7 @@ plot_SDALGCPexceedance(obj, thresholds, bound = NULL, continuous = TRUE,
 The plot of the exceedance probability map
 }
 \description{
-Plot the exceedance probability map for a given threshold of the spatially continuous relative risk or the region specific relative risk from the object of class "Pred.SDALGCP".
+A generic function for mapping the exceedance probability for a given threshold of the spatially continuous relative risk or the region specific relative risk from the object of class "Pred.SDALGCP". Not for general purposes.
 }
 \seealso{
 \link{SDALGCPPred}

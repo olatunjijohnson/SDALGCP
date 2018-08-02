@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{plot_continuous}
 \alias{plot_continuous}
-\title{Plot of the spatially continuous prediction over the entire region}
+\title{plot_continuous}
 \usage{
 plot_continuous(obj, bound = NULL, type = "relrisk", ...)
 }
@@ -19,7 +19,7 @@ plot_continuous(obj, bound = NULL, type = "relrisk", ...)
 The function does not return any value.
 }
 \description{
-This function plots the region specific incidence and covariate adjusted relative risk and their corresponding standard error using the output from \code{\link{SDALGCPPred}} function.
+A generic function for mapping spatially continuous prediction for \code{\link{SDALGCPPred}} function in \link{SDALGCP} package. Not for general purposes
 }
 \seealso{
 \code{\link{SDALGCPPred}}

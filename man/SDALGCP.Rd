@@ -6,16 +6,18 @@
 \alias{SDALGCP-package}
 \title{SDALGCP: A package to make continuous inference from spatially aggregated disease count data.}
 \description{
-The SDALGCP package provides three categories of important functions:
+The SDALGCP package provides two categories of important functions:
 \code{SDALGCPMCML} and \code{SDALGCPPred}.
 }
 \section{SDALGCP functions}{
 
-The SDALGCPMCML function uses Monte Carlo Maximum Likelihood to estimate the parameter of a 
+The \link{SDALGCPMCML} function uses Monte Carlo Maximum Likelihood to estimate the parameter of a 
 poisson log-linear model with spatially continuous random effect.
 
-The SDALGCPPred function delivers spatially discrete prediction of the incidence and the 
+The \link{SDALGCPPred} function delivers spatially discrete prediction of the incidence and the 
 covariate adjusted relative risk and spatially continuous prediction of the covariate adjusted relative risk.
+
+Functions such as \link{summary}, \link{confint}  and \link{print} also can be applied to the output.
 }
 
 \references{

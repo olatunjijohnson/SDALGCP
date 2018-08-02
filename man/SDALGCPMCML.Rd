@@ -102,7 +102,7 @@ Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping
 Christensen, O. F. (2004). Monte carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
 }
 \seealso{
-\link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}}
+\link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}},  \link{summary.SDALGCP}
 }
 \author{
 Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
