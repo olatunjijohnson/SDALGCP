@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{Aggregated_poisson_log_MCML}
 \alias{Aggregated_poisson_log_MCML}
-\title{Monte Carlo Maximum Likelihood estimation for the Poisson model of aggregated data}
+\title{Aggregated_poisson_log_MCML function}
 \usage{
 Aggregated_poisson_log_MCML(y, D, m, corr, par0, control.mcmc, S.sim,
   Denominator)

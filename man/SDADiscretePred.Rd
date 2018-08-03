@@ -2,13 +2,13 @@
 % Please edit documentation in R/dm_functions.R
 \name{SDADiscretePred}
 \alias{SDADiscretePred}
-\title{Spatial Discrete predictions of the relative risk using plug-in of MCML estimates}
+\title{SDADiscretePred function}
 \usage{
 SDADiscretePred(para_est, control.mcmc = NULL, divisor = 1,
   plot.correlogram = FALSE, messages = TRUE)
 }
 \arguments{
-\item{para_est}{an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDAParaEst}}.}
+\item{para_est}{an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.}
 
 \item{control.mcmc}{output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation}
 
@@ -46,7 +46,7 @@ pre.matrix <- precomputeCorrMatrix(S.coord=S.coord, phi=phi)
 data <- PBCshp@data
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 Environment +  offset(log(pop))
-est <- SDAParaEst(formula=FORM , data=data, corr=pre.matrix)
+est <- SDALGCPMCML(formula=FORM , data=data, corr=pre.matrix)
 SDADiscretePred(para_est=est)
 }
 }

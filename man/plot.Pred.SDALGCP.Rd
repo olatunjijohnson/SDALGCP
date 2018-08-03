@@ -29,6 +29,28 @@ Simple plotting function for both discrete and continuous prediction from the ob
 \details{
 This function plots the inference from \code{\link{SDALGCPPred}} function. It plots for region-specific inference; incidence and covariate adjusted relative risk while for spatially continuous inference it plots the relative risk. It can as well plot the exceedance probability for spatially discrete and continuous inference.
 }
+\examples{
+\dontrun{
+load("PBCshp")
+data <- as.data.frame(PBCshp@data)
+FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
+Environment +  offset(log(pop))
+phi <- seq(500, 1700, length.out = 20)
+control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
+                            thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
+my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
+                     weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
+Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)
+#to plot the spatially continuous relative risk
+plot(Con_pred, type="relrisk")
+#to plot the incidence
+plot(Con_pred, type="incidence", continuous=FALSE)
+#to plot the exceedance probability of the relative risk
+plot(Con_pred, type="relrisk", thresholds= 2)
+#to plot the exceedance probability of the incidence
+plot(Con_pred, type="incidence", continuous=FALSE, thresholds= 0.001)
+}
+}
 \seealso{
 \link{SDALGCPPred}, \link{plot_continuous}, \link{plot_discrete}, \link{plot_SDALGCPexceedance}, \link{SDALGCPexceedance}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{SDALGCPpolygonpoints}
 \alias{SDALGCPpolygonpoints}
-\title{Generating points inside each polygon in the entire domain}
+\title{SDALGCPpolygonpoints function}
 \usage{
 SDALGCPpolygonpoints(my_shp, delta, method = 1, pop_shp = NULL,
   weighted = FALSE, rho = NULL, plot = TRUE)
@@ -36,6 +36,9 @@ This algorithm generates points inside the polygon using three algorithms specif
 data(PBCshp)
 SDALGCPpolygonpoints(my_shp=PBCshp, delta=100)
 }
+}
+\seealso{
+\link{SDALGCPCreatePoint}, \link{SDALGCPSSIPoint}, \link{SDALGCPUniformPoint}, \link{SDALGCPRegularPoint}
 }
 \author{
 Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{precomputeCorrMatrix}
 \alias{precomputeCorrMatrix}
-\title{Pre-compute the covariance matrix}
+\title{precomputeCorrMatrix function}
 \usage{
 precomputeCorrMatrix(S.coord, phi)
 }

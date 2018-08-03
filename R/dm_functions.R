@@ -2,9 +2,8 @@
 ##' @importFrom methods is
 ##' @importFrom stats coef dist glm loess median model.frame model.matrix model.offset
 ##' model.response optimize pnorm predict printCoefmat qchisq qnorm rnorm runif sd splinefun
-#if(getRversion() >= "2.15.1") utils::globalVariables(c("j"))
-##' @title Generating points inside each polygon in the entire domain using Simple Sequential Inhibition (SSI) process
-##' @description This function generate a random point pattern using Simple Sequential Inhibition (SSI) process.
+##' @title SDALGCPSSIPoint function 
+##' @description This function generate a random point pattern using Simple Sequential Inhibition (SSI) process. An internal function for \code{\link{SDALGCP}} package.
 ##' @param poly polygon in which to generate the points.
 ##' @param delta distance between points.
 ##' @param weighted To specify if you want to use the population density, default to FALSE, i.e population density is not used.
@@ -19,7 +18,7 @@
 ##' @examples 
 ##' \dontrun{
 ##' data(PBCshp)
-##' My_SSIP(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
+##' SDALGCPSSIPoint(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
 ##' }
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
@@ -31,7 +30,7 @@
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @keywords internal
 ##' 
-My_SSIP <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, pop=NULL, n= NULL, rho=NULL, giveup=NULL){
+SDALGCPSSIPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, pop=NULL, n= NULL, rho=NULL, giveup=NULL){
   if (weighted==TRUE){
     if (is.null(rho)) rho <- 0.55
     if (is.null(giveup))  giveup <- 1000
@@ -139,8 +138,8 @@ My_SSIP <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
   }
 }
 ####################################
-##' @title Generating points inside each polygon in the entire domain using a uniform sampling or completely spatial random sampling.
-##' @description This function generate a random point pattern using a uniform sampling or completely spatial random sampling.
+##' @title SDALGCPUniformPoint function
+##' @description This function generate a random point pattern using a uniform sampling or completely spatial random sampling. An internal function for \code{\link{SDALGCP}} package.
 ##' @param poly polygon in which to generate the points
 ##' @param delta distance between points
 ##' @param weighted To specify if you want to use the population density, default to FALSE, i.e population density is not used.
@@ -156,7 +155,7 @@ My_SSIP <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
 ##' @examples 
 ##' \dontrun{
 ##' data(PBCshp)
-##' My_UNIF(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
+##' SDALGCPUniformPoint(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
 ##' }
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
@@ -168,7 +167,7 @@ My_SSIP <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @keywords internal
 ##' 
-My_UNIF <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, pop=NULL, n= NULL, rho=NULL, giveup=NULL, 
+SDALGCPUniformPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, pop=NULL, n= NULL, rho=NULL, giveup=NULL, 
                     bound=NULL){
   if (weighted==TRUE){
     if (is.null(rho)) rho <- 0.55
@@ -248,8 +247,8 @@ My_UNIF <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
 }
 
 ###########################
-##' @title Generating points inside each polygon in the entire domain using a regular (systematically aligned) sampling.
-##' @description This function generate a random point pattern using a regular (systematically aligned) sampling.
+##' @title SDALGCPRegularPoint function
+##' @description This function generate a random point pattern using a regular (systematically aligned) sampling. An internal function for \code{\link{SDALGCP}} package.
 ##' @param poly polygon in which to generate the points
 ##' @param delta distance between points
 ##' @param weighted To specify if you want to use the population density, default to FALSE, i.e population density is not used.
@@ -265,7 +264,7 @@ My_UNIF <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
 ##' @examples 
 ##' \dontrun{
 ##' data(PBCshp)
-##' My_REG(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
+##' SDALGCPRegularPoint(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
 ##' }
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
@@ -277,7 +276,7 @@ My_UNIF <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, p
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @keywords internal
 ##' 
-My_REG <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, pop=NULL, n= NULL, rho=NULL, giveup=NULL,
+SDALGCPRegularPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, pop=NULL, n= NULL, rho=NULL, giveup=NULL,
                    bound=NULL){
   if (weighted==TRUE){
     stop("There is no option to use regular grid with population density. Please use uniform or SSIP")
@@ -297,8 +296,8 @@ My_REG <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, po
   }
 }
 ########################################################
-##' @title The wrapper function for the three methods to be used to create points inside the polygon
-##' @description This function generate a random point pattern using Simple Sequential Inhibition (SSI) process, uniform sampling and regular grid point.
+##' @title SDALGCPCreatePoint function
+##' @description This wrapper function generate a random point pattern using Simple Sequential Inhibition (SSI) process, uniform sampling and regular grid point.
 ##' @param my_shp A SpatialPolygons orSpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
 ##' @param delta distance between points
 ##' @param weighted To specify if you want to use the population density, default to FALSE, i.e population density is not used.
@@ -312,10 +311,11 @@ My_REG <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, po
 ##' @param giveup Number of rejected proposals after which the algorithm should terminate.
 ##' @details This algorithm generates points inside the polygon using three algorithms specified in the method. 
 ##' @return It returns a list of the coordinates of the points created in each polygon and it has an associated attribute weighted which is either TRUE or FALSE to indicate if the population density is used or not.
+##' @seealso \link{SDALGCPSSIPoint}, \link{SDALGCPUniformPoint}, \link{SDALGCPRegularPoint}
 ##' @examples 
 ##' \dontrun{
 ##' data(PBCshp)
-##' create_points(my_shp=PBCshp, delta=100)
+##' SDALGCPCreatePoint(my_shp=PBCshp, delta=100)
 ##' }
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
@@ -327,7 +327,7 @@ My_REG <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax=NULL, po
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @keywords internal
-create_points <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, pop=NULL, pop_shp=NULL, n=NULL, method=1,
+SDALGCPCreatePoint <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, pop=NULL, pop_shp=NULL, n=NULL, method=1,
                           plot=FALSE, rho=NULL, giveup=NULL){
   #################################################
   if (method==1){
@@ -351,14 +351,14 @@ create_points <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, pop=NUL
   #check lambdamax if it is supposed to be set at this value or to stop
   #if (is.null(lambdamax)) lambdamax <- max(as.numeric(pop_shp@data@values), na.rm = TRUE)
   if (SSI==TRUE){
-    xycand <- My_SSIP(poly=poly, delta=delta, pop_shp=pop_shp, lambdamax=lambdamax, pop=pop,
+    xycand <- SDALGCPSSIPoint(poly=poly, delta=delta, pop_shp=pop_shp, lambdamax=lambdamax, pop=pop,
                       n = n, rho=rho, giveup=giveup, weighted=weighted)
     
   } else if (uniform==TRUE){
-    xycand <- My_UNIF(poly=poly, delta=delta, pop_shp=pop_shp, lambdamax=lambdamax, pop=pop,
+    xycand <- SDALGCPUniformPoint(poly=poly, delta=delta, pop_shp=pop_shp, lambdamax=lambdamax, pop=pop,
                       n = n, rho=rho, giveup=giveup, weighted=weighted, bound=bound)
   } else{
-    xycand <- My_REG(poly=poly, delta=delta, pop_shp=pop_shp, lambdamax=lambdamax, pop=pop,
+    xycand <- SDALGCPRegularPoint(poly=poly, delta=delta, pop_shp=pop_shp, lambdamax=lambdamax, pop=pop,
                      n = n, rho=rho, giveup=giveup, weighted=weighted, bound=bound)
   }
   
@@ -376,7 +376,7 @@ create_points <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, pop=NUL
 }
 
 #########################################
-##' @title Generating points inside each polygon in the entire domain
+##' @title SDALGCPpolygonpoints function
 ##' @description This function generate a random point pattern using Simple Sequential Inhibition (SSI) process, uniform sampling and regular grid point.
 ##' @param my_shp A SpatialPolygons orSpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
 ##' @param delta distance between points
@@ -387,6 +387,7 @@ create_points <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, pop=NUL
 ##' @param method To specify which method to use to sample the points, the options are 1 for Simple Sequential Inhibition (SSI) process, 2 for Uniform sampling and 3 for regular grid. 1 is the default
 ##' @details This algorithm generates points inside the polygon using three algorithms specified in the method. 
 ##' @return It returns a list of the coordinates of the points created in each polygon and it has an associated attribute weighted which is either TRUE or FALSE to indicate if the population density is used or not.
+##' @seealso \link{SDALGCPCreatePoint}, \link{SDALGCPSSIPoint}, \link{SDALGCPUniformPoint}, \link{SDALGCPRegularPoint}
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
 ##' @importFrom spatstat as.owin ppp
@@ -406,7 +407,7 @@ SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighte
   if(weighted==FALSE){
     my_list <- list()
     for (i in 1:length(my_shp)){
-      my_list[[i]] <- create_points(my_shp = my_shp@polygons[[i]]@Polygons[[1]], 
+      my_list[[i]] <- SDALGCPCreatePoint(my_shp = my_shp@polygons[[i]]@Polygons[[1]], 
                                     pop_shp = pop_shp, delta=delta, method=method,
                                     plot=plot, lambdamax=NULL, pop=NULL, rho=NULL, weighted=weighted)
       cat('creating points inside region', i, 'out of', length(my_shp), 'regions', '\n')
@@ -430,7 +431,7 @@ SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighte
     my_pop_lsoa_max <- unlist(lapply(pop_lsoa,FUN = max.mat))
     my_list <- list()
     for (i in 1:length(my_shp)){
-      my_list[[i]] <- create_points(my_shp = my_shp@polygons[[i]]@Polygons[[1]], 
+      my_list[[i]] <- SDALGCPCreatePoint(my_shp = my_shp@polygons[[i]]@Polygons[[1]], 
                                     pop_shp = pop_shp, delta=delta, method=method, rho=rho,
                                     plot=plot, lambdamax=my_pop_lsoa_max[i], pop=my_pop_lsoa[i], weighted=weighted)
       cat('creating points inside region', i, 'out of', length(my_shp), 'regions', '\n')
@@ -442,7 +443,7 @@ SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighte
 }
 
 ###############################################################
-##' @title Pre-compute the covariance matrix
+##' @title precomputeCorrMatrix function
 ##' @description This function precomputes the covariance matrix 
 ##' @param S.coord The list of the coordinates of the points created in each polygon
 ##' @param phi The vector of the scale parameter
@@ -506,7 +507,7 @@ precomputeCorrMatrix <- function(S.coord, phi){
 }
 
 ##################################################################################
-##' @title Monte Carlo Maximum Likelihood estimation for the Poisson model of aggregated data
+##' @title Aggregated_poisson_log_MCML function
 ##' @description This function performs Monte Carlo maximum likelihood (MCML) estimation for the geostatistical Poisson model with log link function.
 ##' @param y the data
 ##' @param D the design matrix
@@ -668,8 +669,8 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
 }
 
 ######################################################################
-##' @title Parameter estimation for SDA-LGCP 
-##' @description This function provides the maximum likelihood estimation of the parameter given the precomputed correlation matrices for different values of scale parameter, phi
+##' @title SDALGCPParaEst function.
+##' @description This function provides the maximum likelihood estimation of the parameter given the precomputed correlation matrices for different values of scale parameter, phi. An internal function for \code{\link{SDALGCP}} package
 ##' @param formula an object of class \code{\link{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted.
 ##' @param data  data frame containing the variables in the model.
 ##' @param corr the array of the precomputed correlation matrix for each value of the scale parameter.
@@ -707,7 +708,7 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
 ##' data <- PBCshp@data
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 ##' Environment +  offset(log(pop))
-##' SDAParaEst(formula=FORM , data=data, corr=pre.matrix)
+##' SDALGCPParaEst(formula=FORM , data=data, corr=pre.matrix)
 ##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
@@ -719,7 +720,7 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
 ##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}}
 ##' @keywords internal
 
-SDAParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, plot_profile=FALSE){
+SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, plot_profile=FALSE){
   cat("\n Now preparing for parameter estimation!\n")
   mf <- model.frame(formula=formula,data=data)
   y <- as.numeric(model.response(mf))
@@ -840,9 +841,9 @@ SDAParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, plot_p
 }
 ######################
 #######################################################################################
-##' @title Spatial Discrete predictions of the relative risk using plug-in of MCML estimates
+##' @title SDADiscretePred function
 ##' @description This function performs spatial discrete prediction for a fixed the model parameters at the Monte Carlo maximum likelihood estimates of a SDA-LGCP model.
-##' @param para_est an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDAParaEst}}.
+##' @param para_est an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.
 ##' @param control.mcmc output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation
 ##' @param divisor optional, if the coordinate of the shapefile is rescaled, default is 1
 ##' @param plot.correlogram logical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.
@@ -863,7 +864,7 @@ SDAParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, plot_p
 ##' data <- PBCshp@data
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 ##' Environment +  offset(log(pop))
-##' est <- SDAParaEst(formula=FORM , data=data, corr=pre.matrix)
+##' est <- SDALGCPMCML(formula=FORM , data=data, corr=pre.matrix)
 ##' SDADiscretePred(para_est=est)
 ##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
@@ -907,9 +908,9 @@ SDADiscretePred <- function(para_est, control.mcmc=NULL,
   return(out)
 }
 #################################################
-##' @title Spatial continuous predictions of the relative risk using plug-in of MCML estimates
+##' @title SDAContinuousPred function
 ##' @description This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDA-LGCP model.
-##' @param para_est an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDAParaEst}}.
+##' @param para_est an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.
 ##' @param cellsize the size of the computational grid 
 ##' @param control.mcmc output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation
 ##' @param pred.loc optional, the dataframe of the predictive grid.
@@ -931,7 +932,7 @@ SDADiscretePred <- function(para_est, control.mcmc=NULL,
 ##' data <- PBCshp@data
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 ##' Environment +  offset(log(pop))
-##' est <- SDAParaEst(formula=FORM , data=data, corr=pre.matrix)
+##' est <- SDALGCPMCML(formula=FORM , data=data, corr=pre.matrix)
 ##' SDAContinuousPred(para_est=est, cellsize=300)
 ##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
@@ -1145,7 +1146,7 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_sh
   }
 
   #############estimate parameter
-  my_est <- SDAParaEst(formula=formula, data=data, corr= my_preMatrix, par0=par0, 
+  my_est <- SDALGCPParaEst(formula=formula, data=data, corr= my_preMatrix, par0=par0, 
                        control.mcmc=control.mcmc, plot_profile=plot_profile)
   my_est$call <- match.call()
   attr(my_est, 'SDALGCPMCML') <- TRUE
@@ -1217,6 +1218,7 @@ SDALGCPPred <- function(para_est, cellsize, continuous=TRUE, control.mcmc=NULL, 
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
+##' @method print SDALGCP
 ##' @export
 ###############################
 print.SDALGCP <- function(x, ...) {
@@ -1264,6 +1266,7 @@ summary.SDALGCP <- function(object, ...) {
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
+##' @method print summary.SDALGCP
 ##' @export
 print.summary.SDALGCP <- function(x, ...){
   cat("Call: \n")
@@ -1434,6 +1437,28 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
 ##' @details This function plots the inference from \code{\link{SDALGCPPred}} function. It plots for region-specific inference; incidence and covariate adjusted relative risk while for spatially continuous inference it plots the relative risk. It can as well plot the exceedance probability for spatially discrete and continuous inference.
 ##' @seealso \link{SDALGCPPred}, \link{plot_continuous}, \link{plot_discrete}, \link{plot_SDALGCPexceedance}, \link{SDALGCPexceedance}
 ##' @return The function does not return any value.
+##' @method plot Pred.SDALGCP
+##' @examples
+##' \dontrun{
+##' load("PBCshp")
+##' data <- as.data.frame(PBCshp@data)
+##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
+##' Environment +  offset(log(pop))
+##' phi <- seq(500, 1700, length.out = 20)
+##' control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
+##'                             thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
+##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
+##'                      weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
+##' Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)
+##' #to plot the spatially continuous relative risk
+##' plot(Con_pred, type="relrisk")
+##' #to plot the incidence
+##' plot(Con_pred, type="incidence", continuous=FALSE)
+##' #to plot the exceedance probability of the relative risk
+##' plot(Con_pred, type="relrisk", thresholds= 2)
+##' #to plot the exceedance probability of the incidence
+##' plot(Con_pred, type="incidence", continuous=FALSE, thresholds= 0.001)
+##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
@@ -1468,6 +1493,7 @@ plot.Pred.SDALGCP <- function(x,  type='relrisk', continuous=NULL, thresholds=NU
 ##' @param ... additional argument(s) for methods.
 ##' @seealso \link{confint.lm}, \link{confint.default}, \link{SDALGCPMCML}
 ##' @return A matrix (or vector) with columns giving lower and upper confidence limits for each parameter. These will be labelled as (1-level)/2 and 1 - (1-level)/2 in % (by default 2.5% and 97.5%).
+##' @method confint SDALGCP
 ##' @examples
 ##' \dontrun{
 ##' data(PBCshp)
