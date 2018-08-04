@@ -5,7 +5,7 @@
 \title{SDALGCPpolygonpoints function}
 \usage{
 SDALGCPpolygonpoints(my_shp, delta, method = 1, pop_shp = NULL,
-  weighted = FALSE, rho = NULL, plot = TRUE)
+  weighted = FALSE, rho = NULL, plot = FALSE, giveup = NULL)
 }
 \arguments{
 \item{my_shp}{A SpatialPolygons orSpatialPolygonsDataFrame  object containing the polygons (i.e each regions).}
@@ -21,6 +21,8 @@ SDALGCPpolygonpoints(my_shp, delta, method = 1, pop_shp = NULL,
 \item{rho}{Optional, The packing density, default set to 0.55}
 
 \item{plot}{To display the plot of the points inside the polygon, default to TRUE}
+
+\item{giveup}{Number of rejected proposals after which the algorithm should terminate.}
 }
 \value{
 It returns a list of the coordinates of the points created in each polygon and it has an associated attribute weighted which is either TRUE or FALSE to indicate if the population density is used or not.

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Olatunji Johnson" />
 
-<meta name="date" content="2018-07-30" />
+<meta name="date" content="2018-08-04" />
 
 <title>A Spatially Discrete Approximation to Log-Gaussian Cox Processes for Modelling Aggregated Disease Count Data</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">A Spatially Discrete Approximation to Log-Gaussian Cox Processes for Modelling Aggregated Disease Count Data</h1>
 <h4 class="author"><em>Olatunji Johnson</em></h4>
-<h4 class="date"><em>2018-07-30</em></h4>
+<h4 class="date"><em>2018-08-04</em></h4>
 
 
 <div id="TOC">
@@ -83,31 +83,40 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="#sdalgcp-i-population-weighted">SDALGCP I (population weighted)</a></li>
 <li><a href="#sdalgcp-ii-unweighted">SDALGCP II (Unweighted)</a></li>
 </ul></li>
+<li><a href="#discussion">Discussion</a></li>
 </ul>
 </div>
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>This document present a simple tutorial code from SDALGCP package to make inference on spatially aggregated disease count data when one assume that the disease risk is spatially continious.</p>
+<p>This document presents a simple tutorial code from SDALGCP package to make inference on spatially aggregated disease count data when one assume that the disease risk is spatially continious. There are two main functions provided by the package, SDALGCPMCML for parameter estimation and SDALGCPPred for prediction.</p>
 <div id="model" class="section level2">
 <h2>Model</h2>
+Our goal is to analyse of diease count data, more specifically when disease cases are aggregated over a partition, say <span class="math inline">\((\mathcal{R}_{1}, \ldots, \mathcal{R}_{n})\)</span>, of the area of interest, <span class="math inline">\(A\)</span>, which can be written mathematically as
+<span class="math display">\[\begin{eqnarray}
+\label{eq:data}
+\mathcal{D} = \left\{(y_{i}, d_{i}, \mathcal{R}_{i}):  i=1,\ldots,n\right\}
+\end{eqnarray}\]</span>
+<p>where <span class="math inline">\(y_{i}\)</span> and <span class="math inline">\(d_{i}\)</span> are the number of reported cases and a vector of explanatory variables associated with <span class="math inline">\(i\)</span>-th region <span class="math inline">\(\mathcal{R}_{i}\)</span>, respectively. Hence, we model <span class="math inline">\(y_{i}\)</span> conditional on the stochastic process <span class="math inline">\(S(X)\)</span> as poission distribution with mean <span class="math inline">\(\lambda_i= m_{i} \exp\{d_{i}\beta^* + S_{i}^*\}\)</span>. Then we assume that <span class="math inline">\(S^* \sim MVN(0, \Sigma)\)</span>, where <span class="math display">\[\Sigma_{ij} = \sigma^2 \int_{\mathcal{R}_{i}} \int_{\mathcal{R}_{j}} w(x) w(x') \: \rho(\|x-x'\|; \phi) \:  dx \: dx'\]</span></p>
 </div>
 <div id="inference" class="section level2">
 <h2>Inference</h2>
+<p>We used Monte Carlo Maximum Likelihood for inference. The likelihood function for this class of model is usually intractible, hence we approximate the likelihood function as <span class="math display">\[\frac{1}{N}~ \sum_{j=1}^N~\frac{f(\eta_{(j)}; \psi)}{f(\eta_{(j)}; \psi_0)}.\]</span>, where <span class="math inline">\(\psi\)</span> is the vector of the parameters.</p>
 </div>
 </div>
 <div id="tutorial" class="section level1">
 <h1>Tutorial</h1>
+<p>This part illustrates how to fit an SDALGCP model to spatially aggregated data. We used the example dataset that is supplied in the package.</p>
 <p>load the package</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">load_all</span>(<span class="st">&quot;/home/johnsono/Documents/Lancaster/Lancaster PhD Work/Lancaster PhD Work/RPackage/SDALGCP&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(SDALGCP)</code></pre></div>
 <p>load the data</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;~/Documents/Lancaster/Lancaster PhD Work/Lancaster PhD Work/Spatial Structure for Lattice data/popshape_liver.RData&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;PBCshp&quot;</span>)</code></pre></div>
 <p>extract the dataframe containing data from the object loaded</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(popshape@data)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(PBCshp@data)</code></pre></div>
 <p>load the population density raster</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;~/Documents/Lancaster/Lancaster PhD Work/Lancaster PhD Work/Spatial Structure for Lattice data/pop.RData&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;pop_den&quot;</span>)</code></pre></div>
 <p>set any population density that is NA to zero</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">s[<span class="kw">is.na</span>(s[])] &lt;-<span class="st"> </span><span class="dv">0</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pop_den[<span class="kw">is.na</span>(pop_den[])] &lt;-<span class="st"> </span><span class="dv">0</span></code></pre></div>
 <p>write a formula of the model you want to fit</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">FORM &lt;-<span class="st"> </span>X ~<span class="st"> </span>propmale +<span class="st"> </span>Income +<span class="st"> </span>Employment +<span class="st"> </span>Education +<span class="st"> </span>Barriers +<span class="st"> </span>Crime +<span class="st"> </span>
 <span class="st">  </span>Environment +<span class="st">  </span><span class="kw">offset</span>(<span class="kw">log</span>(pop2))</code></pre></div>
@@ -116,10 +125,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h2>SDALGCP I (population weighted)</h2>
 <p>Here we estimate the parameters of the model</p>
 <p>Discretise the value of scale parameter <span class="math inline">\(\phi\)</span></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">phi &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">500</span>, <span class="dv">1700</span>, <span class="dt">length.out =</span> <span class="dv">1</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">phi &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">500</span>, <span class="dv">1700</span>, <span class="dt">length.out =</span> <span class="dv">20</span>)</code></pre></div>
 <p>estimate the parameter using MCML</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_est &lt;-<span class="st"> </span><span class="kw">SDALGCPMCML</span>(<span class="dt">data=</span>data, <span class="dt">formula=</span>FORM, <span class="dt">my_shp=</span>popshape, <span class="dt">delta=</span><span class="dv">300</span>, <span class="dt">phi=</span>phi, <span class="dt">method=</span><span class="dv">1</span>, <span class="dt">pop_shp=</span>s, 
-                      <span class="dt">weighted=</span><span class="ot">TRUE</span>,  <span class="dt">plot=</span><span class="ot">TRUE</span>, <span class="dt">par0=</span><span class="ot">NULL</span>, <span class="dt">control.mcmc=</span><span class="ot">NULL</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_est &lt;-<span class="st"> </span><span class="kw">SDALGCPMCML</span>(<span class="dt">data=</span>data, <span class="dt">formula=</span>FORM, <span class="dt">my_shp=</span>PBCshp, <span class="dt">delta=</span><span class="dv">300</span>, <span class="dt">phi=</span>phi, <span class="dt">method=</span><span class="dv">1</span>, <span class="dt">pop_shp=</span>pop_den, 
+                      <span class="dt">weighted=</span><span class="ot">TRUE</span>, <span class="dt">par0=</span><span class="ot">NULL</span>, <span class="dt">control.mcmc=</span><span class="ot">NULL</span>)</code></pre></div>
 <p>To print the summary of the parameter estimates as well as the confidence interval, use;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(my_est)
 <span class="co">#and for confidence interval use</span>
@@ -145,7 +154,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <ol start="2" style="list-style-type: decimal">
 <li>If interested in spatially continuous prediction of the covariate adjusted relative risk. This is achieved by simply setting  in the  function.</li>
 </ol>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Con_pred &lt;-<span class="st"> </span><span class="kw">SDALGCPPred</span>(<span class="dt">para_est=</span>my_est,  <span class="dt">continuous=</span><span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Con_pred &lt;-<span class="st"> </span><span class="kw">SDALGCPPred</span>(<span class="dt">para_est=</span>my_est, <span class="dt">cellsize =</span> <span class="dv">300</span>, <span class="dt">continuous=</span><span class="ot">TRUE</span>)</code></pre></div>
 <p>Then we map the spatially continuous covariate adjusted relative risk.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#to map the covariate adjusted relative risk</span>
 <span class="kw">plot</span>(Con_pred, <span class="dt">type=</span><span class="st">&quot;relrisk&quot;</span>)
@@ -157,8 +166,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="sdalgcp-ii-unweighted" class="section level2">
 <h2>SDALGCP II (Unweighted)</h2>
 <p>As for the unweighted which is typically by taking the simple average of the intensity an LGCP model, the entire code in the weighted can be used by just setting  in the line below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_est &lt;-<span class="st"> </span><span class="kw">SDALGCPMCML</span>(<span class="dt">data=</span>data, <span class="dt">formula=</span>FORM, <span class="dt">my_shp=</span>popshape, <span class="dt">delta=</span><span class="dv">300</span>, <span class="dt">phi=</span>phi, <span class="dt">method=</span><span class="dv">1</span>, <span class="dt">pop_shp=</span>s, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_est &lt;-<span class="st"> </span><span class="kw">SDALGCPMCML</span>(<span class="dt">data=</span>data, <span class="dt">formula=</span>FORM, <span class="dt">my_shp=</span>PBCshp, <span class="dt">delta=</span><span class="dv">300</span>, <span class="dt">phi=</span>phi, <span class="dt">method=</span><span class="dv">1</span>, 
                       <span class="dt">weighted=</span><span class="ot">FALSE</span>,  <span class="dt">plot=</span><span class="ot">TRUE</span>, <span class="dt">par0=</span><span class="ot">NULL</span>, <span class="dt">control.mcmc=</span><span class="ot">NULL</span>)</code></pre></div>
+</div>
+</div>
+<div id="discussion" class="section level1">
+<h1>Discussion</h1>
+<p>Using SDALGCP package for analysis of spatially aggregated data provides two main advantages. One is that it allows the user to make spatially continous inference irrespective of the level of aggregation of the data. Second is more computationally efficient than the lgcp model for aggregated data that was implemented in  package.</p>
 <!-- Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format: -->
 <!-- - Never uses retina figures -->
 <!-- - Has a smaller default figure size -->
@@ -189,7 +203,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <!-- Also a quote using `>`: -->
 <!-- > "He who gives up [code] safety for [code] speed deserves neither." -->
 <!-- ([via](https://twitter.com/hadleywickham/status/504368538874703872)) -->
-</div>
 </div>
 
 

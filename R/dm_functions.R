@@ -92,7 +92,7 @@ SDALGCPSSIPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax
         #########termination criteria
         if (k >= giveup) {
           len.xy <- n
-          warning(paste("Gave up after", k, "attempts with only",
+          warning(paste("Move to the next polygon after", k, "attempts with only",
                         dim(xy)[1], "points placed out of", n))
         }
       }
@@ -124,7 +124,7 @@ SDALGCPSSIPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax
         #########termination criteria
         if (k >= giveup) {
           len.xy <- n
-          warning(paste("Gave up after", k, "attempts with only",
+          warning(paste("Move to the next polygon after", k, "attempts with only",
                         dim(xy)[1], "points placed out of", n))
         }
       }
@@ -218,7 +218,7 @@ SDALGCPUniformPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambd
         #########termination criteria
         if (k >= giveup) {
           len.xy <- n
-          warning(paste("Gave up after", k, "attempts with only",
+          warning(paste("Move to the next polygon after", k, "attempts with only",
                         dim(xy)[1], "points placed out of", n))
         }
       }
@@ -385,6 +385,7 @@ SDALGCPCreatePoint <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, po
 ##' @param weighted To specify if you want to use the population density, default to FALSE, i.e population density is not used.
 ##' @param plot To display the plot of the points inside the polygon, default to TRUE
 ##' @param method To specify which method to use to sample the points, the options are 1 for Simple Sequential Inhibition (SSI) process, 2 for Uniform sampling and 3 for regular grid. 1 is the default
+##' @param giveup Number of rejected proposals after which the algorithm should terminate.
 ##' @details This algorithm generates points inside the polygon using three algorithms specified in the method. 
 ##' @return It returns a list of the coordinates of the points created in each polygon and it has an associated attribute weighted which is either TRUE or FALSE to indicate if the population density is used or not.
 ##' @seealso \link{SDALGCPCreatePoint}, \link{SDALGCPSSIPoint}, \link{SDALGCPUniformPoint}, \link{SDALGCPRegularPoint}
@@ -402,21 +403,27 @@ SDALGCPCreatePoint <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, po
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @keywords internal
-SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighted=FALSE, rho=NULL, plot=TRUE){
+SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighted=FALSE, rho=NULL, plot=FALSE,
+                                 giveup=NULL){
+  pb <- progress::progress_bar$new(
+    format = "creating points inside region :current out of :total  regions [:bar:] :percent",
+    clear = FALSE, total = length(my_shp), width = 70)
   if(weighted == TRUE & is.null(pop_shp)) stop('please insert the raster file of the population density or change argument weights==FALSE if you do not plan to use population density')
   if(weighted==FALSE){
     my_list <- list()
     for (i in 1:length(my_shp)){
       my_list[[i]] <- SDALGCPCreatePoint(my_shp = my_shp@polygons[[i]]@Polygons[[1]], 
                                     pop_shp = pop_shp, delta=delta, method=method,
-                                    plot=plot, lambdamax=NULL, pop=NULL, rho=NULL, weighted=weighted)
-      cat('creating points inside region', i, 'out of', length(my_shp), 'regions', '\n')
+                                    plot=plot, lambdamax=NULL, pop=NULL, rho=rho, weighted=weighted,
+                                    giveup=giveup)
+      pb$tick(1)
+      #cat('creating points inside region', i, 'out of', length(my_shp), 'regions', '\n')
     }
     attr(my_list, 'weighted') <- FALSE
     attr(my_list, 'my_shp') <- my_shp
     return(my_list)
   } else{
-    cat("Extracting the population density for each polygon")
+    cat("\n Extracting the population density for each polygon \n")
     pop_lsoa <- raster::extract(pop_shp, my_shp, weights=weighted,normalizeWeights=F)
     summ.mat <- function(my_mat) {
       #my_answer <- my_mat[,1] %*% my_mat[,2]
@@ -433,8 +440,10 @@ SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighte
     for (i in 1:length(my_shp)){
       my_list[[i]] <- SDALGCPCreatePoint(my_shp = my_shp@polygons[[i]]@Polygons[[1]], 
                                     pop_shp = pop_shp, delta=delta, method=method, rho=rho,
-                                    plot=plot, lambdamax=my_pop_lsoa_max[i], pop=my_pop_lsoa[i], weighted=weighted)
-      cat('creating points inside region', i, 'out of', length(my_shp), 'regions', '\n')
+                                    plot=plot, lambdamax=my_pop_lsoa_max[i], pop=my_pop_lsoa[i],
+                                    weighted=weighted, giveup=giveup)
+      pb$tick(1)
+      #cat('\n creating points inside region', i, 'out of', length(my_shp), 'regions', '\n')
     }
     attr(my_list, 'weighted') <- TRUE
     attr(my_list, 'my_shp') <- my_shp
@@ -468,12 +477,16 @@ precomputeCorrMatrix <- function(S.coord, phi){
   weight=attr(S.coord, 'weighted')
   n.distr <- length(S.coord)
   n.phi <- length(phi)
-  cat("\n Start precomputing the correlation matrix!\n")
-  pb = utils::txtProgressBar(min = 0, max = n.distr, initial = 0) 
+  cat("\n Start precomputing the correlation matrix! \n")
+  #pb = utils::txtProgressBar(min = 0, max = n.distr, initial = 0) 
+  pb <- progress::progress_bar$new(
+    format = "[:bar:] :percent",
+    clear = FALSE, total = n.distr, width = 70)
   R= array(NA, dim = c(n.distr, n.distr, n.phi))
   if (weight==TRUE){
     for (i in 1:n.distr){
-      utils::setTxtProgressBar(pb,i, label=paste( round(i/n.distr*100, 0), "% done"))
+      #utils::setTxtProgressBar(pb,i, label=paste( round(i/n.distr*100, 0), "% done"))
+      pb$tick(1)
       Sys.sleep(0.01)
       for (j in i:n.distr){
         U <- as.matrix(pdist::pdist(as.matrix(S.coord[[i]]$xy), as.matrix(S.coord[[j]]$xy)))
@@ -488,7 +501,8 @@ precomputeCorrMatrix <- function(S.coord, phi){
     attr(R, 'S_coord') <-   S.coord   
   }else{
     for (i in 1:n.distr){
-      utils::setTxtProgressBar(pb,i, label=paste( round(i/n.distr*100, 0), "% done"))
+      #utils::setTxtProgressBar(pb,i, label=paste( round(i/n.distr*100, 0), "% done"))
+      pb$tick(1)
       Sys.sleep(0.01)
       for (j in i:n.distr){
         U <- as.matrix(pdist::pdist(as.matrix(S.coord[[i]]$xy), as.matrix(S.coord[[j]]$xy)))
@@ -501,7 +515,6 @@ precomputeCorrMatrix <- function(S.coord, phi){
     attr(R, 'my_shp') <-   attr(S.coord, 'my_shp')
     attr(R, 'S_coord') <-   S.coord   
   }
-  close(pb)
   cat("\n Done precomputing the correlation matrix!\n")
   return(list(R=R, phi=phi))
 }
@@ -517,7 +530,8 @@ precomputeCorrMatrix <- function(S.coord, phi){
 ##' @param control.mcmc output from \code{\link{controlmcmcSDA}}.
 ##' @param S.sim the posterior sample of the linear predictor given the initial parameters
 ##' @param Denominator the value of the denominator of the likelihood
-##' @details The function helps to obtain the MCML estimate for a given value of correlation matrix, i.e for a given value of the scale parameter phi.
+##' @param messages logical; if message=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.
+##' @details The function helps to obtain the MCML estimate for a given value of correlation matrix, i.e for a given value of the scale parameter phi. 
 ##' @return \code{estimate}: estimates of the model parameters; beta's and with sigma2 on the log scale
 ##' @return \code{covariance}: covariance matrix of the MCML estimates.
 ##' @return \code{log.lik}: maximum value of the log-likelihood.
@@ -533,7 +547,7 @@ precomputeCorrMatrix <- function(S.coord, phi){
 ##' @seealso \code{\link{controlmcmcSDA}}
 
 Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim,
-                                        Denominator) {
+                                        Denominator, messages) {
   n <- length(y)
   p <- ncol(D)
   
@@ -656,7 +670,7 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
   
   result <- stats::nlminb(new.par,function(x) -Monte.Carlo.Log.Lik(x),
                           function(x) -grad.Monte.Carlo.Log.Lik(x),
-                          function(x) -hess.Monte.Carlo.Log.Lik(x),control=list(trace=0))
+                          function(x) -hess.Monte.Carlo.Log.Lik(x),control=list(trace=1*messages))
   #i can change trace =0, so that it doesn't print result
   output$estimate <- result$par
   output$covariance <- solve(-hess.Monte.Carlo.Log.Lik(result$par))
@@ -677,6 +691,7 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
 ##' @param par0 the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi)
 ##' @param control.mcmc list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.
 ##' @param plot_profile logical; if TRUE the profile-likelihood is plotted. default is FALSE
+##' @param messages logical; if message=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.
 ##' @details This function performs parameter estimation for a SDA-LGCP Model
 ##' \bold{Monte Carlo Maximum likelihood.}
 ##' The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensiional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic epression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}} 
@@ -720,7 +735,7 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
 ##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}}
 ##' @keywords internal
 
-SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, plot_profile=FALSE){
+SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, plot_profile=FALSE, messages=FALSE){
   cat("\n Now preparing for parameter estimation!\n")
   mf <- model.frame(formula=formula,data=data)
   y <- as.numeric(model.response(mf))
@@ -761,14 +776,11 @@ SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, pl
   sigma2.0 <- par0[p+1]
   Sigma0 <- sigma2.0 * corr0
   cat("\n Simulating the linear predictor given the initial parameter \n")
-  repeat {
-    S.sim.res <- tryCatch(PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y, units.m=m, 
+  S.sim.res <- tryCatch(PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y, units.m=m, 
                                                     control.mcmc=control.mcmc,
-                                                    plot.correlogram=FALSE,messages=FALSE,
+                                                    plot.correlogram=FALSE, messages=messages,
                                                     poisson.llik=TRUE), error=identity)
-    if (!is(S.sim.res, "error"))
-      break
-  }
+  if (is(S.sim.res, "error"))   stop("Error from simulating the linear predictor, change the initial value of the scale parameters, phi in par0 argument")
   S.sim <- S.sim.res$samples
   R.inv0 <- solve(corr0)
   ldetR0 <- determinant(corr0)$modulus
@@ -795,9 +807,10 @@ SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, pl
   
   ######################################
   func <- function(x){
+    cat("\n For phi = ", phi[x], "\n")
     result <- Aggregated_poisson_log_MCML(y=y, D=D, m=m, corr= R[,,x], par0=par0, 
                                           control.mcmc=control.mcmc, S.sim=S.sim, 
-                                          Denominator = Den.Monte.Carlo.Log.Lik)
+                                          Denominator = Den.Monte.Carlo.Log.Lik, messages=messages)
     result$estimate[p+1] <- exp(result$estimate[p+1])
     return(list(par=c(phi[x], result$value, as.numeric(result$estimate)), cov=result$covariance))
   }
@@ -811,7 +824,7 @@ SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, pl
   ##########
   colnames(output) <- c('phi', 'value', predictorsnames, 'sigma2')
   #i need to redo the col name when par0 is specified 
-  if (plot_profile==TRUE) plot(output[,1], output[,2], type='l', ylab='loglik', xlab='phi')
+  if (plot_profile) plot(output[,1], output[,2], type='l', ylab='loglik', xlab='phi', col="red")
   max.ind <- which.max(output[,'value'])
   max.res=output[max.ind,]
   colnames(max.res) <- c('phi', 'value', predictorsnames, 'sigma2')
@@ -910,7 +923,7 @@ SDADiscretePred <- function(para_est, control.mcmc=NULL,
 #################################################
 ##' @title SDAContinuousPred function
 ##' @description This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDA-LGCP model.
-##' @param para_est an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.
+##' @param para_est an object of class "SDALGCP" obtained as a result of a capar0=NULL, control.mcmc=NULL, ll to \code{\link{SDALGCPMCML}}.
 ##' @param cellsize the size of the computational grid 
 ##' @param control.mcmc output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation
 ##' @param pred.loc optional, the dataframe of the predictive grid.
@@ -984,10 +997,14 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
   #Sigma x
   Sigma.x2 <- sigma2*exp(-U.pred/phi)
   #########
+  cat("\n computing the correlation matrix of the predictive locations and the regions \n")
   #Sigma_x_A
   cov.matrix.x.A=function(pred.loc, S.coord, phi){
     n.pred.loc <- nrow(pred.loc)
     n.distr <- length(S.coord)
+    pb <- progress::progress_bar$new(
+      format = "[:bar:] :percent",
+      clear = FALSE, total = n.pred.loc, width = 70)
     R= matrix(NA, nrow = n.pred.loc, ncol = n.distr)
     for (i in 1:n.pred.loc){
       for (j in 1:n.distr){
@@ -995,7 +1012,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
                                   as.matrix(S.coord[[j]]$xy)))
         R[i,j] =  sum(S.coord[[j]]$weight*exp(-U/phi))
       }
-      cat('iter', i, '\n')
+      pb$tick(1)
     }
     return(R)
   }
@@ -1003,6 +1020,9 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
   cov.matrix.x.A2=function(pred.loc, S.coord, phi){
     n.pred.loc <- nrow(pred.loc)
     n.distr <- length(S.coord)
+    pb <- progress::progress_bar$new(
+      format = "[:bar:] :percent",
+      clear = FALSE, total = n.pred.loc, width = 70)
     R= matrix(NA, nrow = n.pred.loc, ncol = n.distr)
     for (i in 1:n.pred.loc){
       for (j in 1:n.distr){
@@ -1010,7 +1030,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
                                   as.matrix(S.coord[[j]]$xy)))
         R[i,j] =  mean(exp(-U/phi))
       }
-      cat('iter', i, '\n')
+      pb$tick(1)
     }
     return(R)
   }
@@ -1071,13 +1091,15 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' @param delta distance between points
 ##' @param phi the discretised values of the scale parameter phi. if not supplied, it uses the default, which is 20 phis' which ranges from size of the smallest region to the one-tenth of the size of the entire domain.
 ##' @param pop_shp Optional, The raster of population density map for population weighted approach
-##' @param rho Optional, The packing density, default set to 0.55
 ##' @param weighted To specify if you want to use the population density, default to FALSE, i.e population density is not used.
-##' @param plot To display the plot of the points inside the polygon, default to TRUE
 ##' @param method To specify which method to use to sample the points, the options are 1 for Simple Sequential Inhibition (SSI) process, 2 for Uniform sampling and 3 for regular grid. 1 is the default
 ##' @param par0 the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi). Default; beta, the estimates from the glm; sigma2, variance of the residual; phi, the median of the supplied phi.
 ##' @param control.mcmc list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.
+##' @param rho Optional, the packing density, default set to 0.55
+##' @param giveup Optional, number of rejected proposals after which the algorithm should terminate, defualt set to 1000
+##' @param plot To display the plot of the points inside the polygon, default to TRUE
 ##' @param plot_profile logical; if TRUE the profile-likelihood is plotted. default is FALSE
+##' @param messages logical; if messages=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.
 ##' @details This function performs parameter estimation for a SDA-LGCP Model
 ##' \bold{Monte Carlo Maximum likelihood.}
 ##' The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensiional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic epression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}. The first stage of estimation is generating locations inside the polygon, followed by precomputing the correlation matrices, then optimising the likelihood. 
@@ -1126,7 +1148,8 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}},  \link{summary.SDALGCP}
 ##' @export
 SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_shp=NULL, 
-                        weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=NULL, plot_profile=FALSE, rho=NULL){
+                        weighted=FALSE, par0=NULL, control.mcmc=NULL, plot=FALSE, plot_profile=TRUE, rho=NULL,
+                        giveup=NULL, messages=FALSE){
   if(any(is.na(data))) stop("missing values are not accepted")
   if(class(formula)!="formula") stop("formula must be a 'formula' object that indicates the variables of the fitted model.")
   if(!is.null(control.mcmc) & length(control.mcmc) != 6) stop("please check the input of the controlmcmc argument")
@@ -1136,7 +1159,7 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_sh
   }
   #############create point
   my_list <- SDALGCPpolygonpoints(my_shp=my_shp, delta=delta, method=1, pop_shp=pop_shp, 
-                                  weighted=weighted, plot=plot, rho=rho)
+                                  weighted=weighted, plot=plot, rho=rho, giveup = giveup)
   #############precompute matrix
   if(is.null(par0)){
     my_preMatrix <- precomputeCorrMatrix(S.coord = my_list, phi = phi)
@@ -1147,7 +1170,7 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_sh
 
   #############estimate parameter
   my_est <- SDALGCPParaEst(formula=formula, data=data, corr= my_preMatrix, par0=par0, 
-                       control.mcmc=control.mcmc, plot_profile=plot_profile)
+                       control.mcmc=control.mcmc, plot_profile=plot_profile, messages=messages)
   my_est$call <- match.call()
   attr(my_est, 'SDALGCPMCML') <- TRUE
   class(my_est) <- "SDALGCP"
@@ -1556,6 +1579,13 @@ confint.SDALGCP <- function(object, parm, level = 0.95, dp=3, ...){
 ##' 
 
 controlmcmcSDA <- function(n.sim, burnin, thin, h, c1.h, c2.h){
+  if(length(h)==0) h <- Inf #set it to infinity
+  if(n.sim < burnin) stop("Please check, n.sim cannot be less than burnin.")
+  if(thin <= 0) stop("Please check, thin must be greater than zero")
+  if((n.sim-burnin)%%thin!=0) stop("Please check the combination of n.sim, burning and thin supplied, thin must be a divisor of (n.sim-burnin)")
+  if(h < 0) stop("h cannot be negative.")
+  if(c1.h < 0) stop("c1.h cannot be negative.")
+  if(c2.h < 0 | c2.h > 1) stop("c2.h must take a value between 0 and 1.")
   control.mcmc <- list(n.sim = n.sim, burnin = burnin, thin= thin, h=h, c1.h = c1.h, c2.h = c2.h)
   return(control.mcmc)
 }

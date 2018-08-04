@@ -12,18 +12,14 @@ To install the latest development of SDALGCP package use
 devtools::install_github("olatunjijohnson/SDALGCP")
 ```
 
-SDALGCP provides an option to make parallel some matrix computation but the package that allows for this is not yet on cran. To install the parallel version of SDALGCP, install first the bigstatr from github
-
-``` r
-devtools::install_github("privefl/bigstatsr")
-```
-
-Then install SDALGCP from the branch using
-
-``` r
-devtools::install_github("olatunjijohnson/SDALGCP#SDALGCPParallel")
-```
-
+<!-- SDALGCP provides an option to make parallel some matrix computation but the package that allows for this is not yet on cran. To install the parallel version of SDALGCP, install first the bigstatr from github -->
+<!-- ```{r, eval=FALSE} -->
+<!-- devtools::install_github("privefl/bigstatsr") -->
+<!-- ``` -->
+<!-- Then install SDALGCP from the branch using  -->
+<!-- ```{r, eval=FALSE} -->
+<!-- devtools::install_github("olatunjijohnson/SDALGCP#SDALGCPParallel") -->
+<!-- ``` -->
 Example
 =======
 
@@ -76,14 +72,14 @@ Here we estimate the parameters of the model
 Discretise the value of scale parameter *ϕ*
 
 ``` r
-phi <- seq(500, 1700, length.out = 1)
+phi <- seq(500, 1700, length.out = 20)
 ```
 
 estimate the parameter using MCML
 
 ``` r
-my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=popshape, delta=300, phi=phi, method=1, pop_shp=pop_den, 
-                      weighted=TRUE,  plot=TRUE, par0=NULL, control.mcmc=NULL)
+my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=300, phi=phi, method=1, pop_shp=pop_den, 
+                      weighted=TRUE, par0=NULL, control.mcmc=NULL, messages = TRUE, plot_profile = TRUE)
 ```
 
 To print the summary of the parameter estimates as well as the confidence interval, use;
@@ -126,7 +122,7 @@ plot(Dis_pred, type="incidence", continuous = FALSE, thresholds=0.0015)
 1.  If interested in spatially continuous prediction of the covariate adjusted relative risk. This is achieved by simply setting in the  function.
 
 ``` r
-Con_pred <- SDALGCPPred(para_est=my_est,  continuous=TRUE)
+Con_pred <- SDALGCPPred(para_est=my_est, cellsize=300, continuous=TRUE)
 ```
 
 Then we map the spatially continuous covariate adjusted relative risk.
@@ -146,6 +142,6 @@ SDALGCP II (Unweighted)
 As for the unweighted which is typically by taking the simple average of the intensity an LGCP model, the entire code in the weighted can be used by just setting in the line below.
 
 ``` r
-my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=popshape, delta=300, phi=phi, method=1, 
-                      weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=NULL)
+my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=300, phi=phi, method=1, 
+                      weighted=FALSE, par0=NULL, control.mcmc=NULL, messages = TRUE, plot_profile = TRUE)
 ```

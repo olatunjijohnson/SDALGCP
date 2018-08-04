@@ -5,8 +5,9 @@
 \title{Parameter estimation for SDA-LGCP Using Monte Carlo Maximum likelihood}
 \usage{
 SDALGCPMCML(formula, data, my_shp, delta, phi = NULL, method = 1,
-  pop_shp = NULL, weighted = FALSE, plot = TRUE, par0 = NULL,
-  control.mcmc = NULL, plot_profile = FALSE, rho = NULL)
+  pop_shp = NULL, weighted = FALSE, par0 = NULL, control.mcmc = NULL,
+  plot = FALSE, plot_profile = TRUE, rho = NULL, giveup = NULL,
+  messages = FALSE)
 }
 \arguments{
 \item{formula}{an object of class \code{\link{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted.}
@@ -25,15 +26,19 @@ SDALGCPMCML(formula, data, my_shp, delta, phi = NULL, method = 1,
 
 \item{weighted}{To specify if you want to use the population density, default to FALSE, i.e population density is not used.}
 
-\item{plot}{To display the plot of the points inside the polygon, default to TRUE}
-
 \item{par0}{the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi). Default; beta, the estimates from the glm; sigma2, variance of the residual; phi, the median of the supplied phi.}
 
 \item{control.mcmc}{list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.}
 
+\item{plot}{To display the plot of the points inside the polygon, default to TRUE}
+
 \item{plot_profile}{logical; if TRUE the profile-likelihood is plotted. default is FALSE}
 
-\item{rho}{Optional, The packing density, default set to 0.55}
+\item{rho}{Optional, the packing density, default set to 0.55}
+
+\item{giveup}{Optional, number of rejected proposals after which the algorithm should terminate, defualt set to 1000}
+
+\item{messages}{logical; if messages=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.}
 }
 \value{
 An object of class "PrevMap".

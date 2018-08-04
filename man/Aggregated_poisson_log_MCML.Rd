@@ -5,7 +5,7 @@
 \title{Aggregated_poisson_log_MCML function}
 \usage{
 Aggregated_poisson_log_MCML(y, D, m, corr, par0, control.mcmc, S.sim,
-  Denominator)
+  Denominator, messages)
 }
 \arguments{
 \item{y}{the data}
@@ -23,6 +23,8 @@ Aggregated_poisson_log_MCML(y, D, m, corr, par0, control.mcmc, S.sim,
 \item{S.sim}{the posterior sample of the linear predictor given the initial parameters}
 
 \item{Denominator}{the value of the denominator of the likelihood}
+
+\item{messages}{logical; if message=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.}
 }
 \value{
 \code{estimate}: estimates of the model parameters; beta's and with sigma2 on the log scale

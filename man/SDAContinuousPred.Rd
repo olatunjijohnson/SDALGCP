@@ -8,7 +8,7 @@ SDAContinuousPred(para_est, cellsize, control.mcmc = NULL, pred.loc = NULL,
   divisor = 1, plot.correlogram = F, messages = TRUE, parallel = FALSE)
 }
 \arguments{
-\item{para_est}{an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.}
+\item{para_est}{an object of class "SDALGCP" obtained as a result of a capar0=NULL, control.mcmc=NULL, ll to \code{\link{SDALGCPMCML}}.}
 
 \item{cellsize}{the size of the computational grid}
 

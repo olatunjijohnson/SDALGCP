@@ -1,7 +1,7 @@
 ---
 title: "A Spatially Discrete Approximation to Log-Gaussian Cox Processes for Modelling Aggregated Disease Count Data"
 author: "Olatunji Johnson"
-date: "2018-07-30"
+date: "2018-08-04"
 output: 
   rmarkdown::html_vignette: 
     toc: true
@@ -15,38 +15,46 @@ vignette: >
 
 # Introduction
 
-This document present a simple tutorial code from SDALGCP package to make inference on spatially aggregated disease count data when one assume that the disease risk is spatially continious. 
+This document presents a simple tutorial code from SDALGCP package to make inference on spatially aggregated disease count data when one assume that the disease risk is spatially continious. There are two main functions provided by the package, SDALGCPMCML for parameter estimation and SDALGCPPred for prediction. 
 
 ## Model
+Our goal is to analyse of diease count data, more specifically when disease cases are aggregated over a partition, say $(\mathcal{R}_{1}, \ldots, \mathcal{R}_{n})$, of the area of interest, $A$, which can be written mathematically as 
+\begin{eqnarray}
+\label{eq:data}
+\mathcal{D} = \left\{(y_{i}, d_{i}, \mathcal{R}_{i}):  i=1,\ldots,n\right\}
+\end{eqnarray}
+where $y_{i}$ and $d_{i}$ are the number of reported cases and a vector of explanatory variables associated with $i$-th region $\mathcal{R}_{i}$, respectively. Hence, we model $y_{i}$ conditional on the stochastic process $S(X)$ as poission distribution with mean $\lambda_i= m_{i} \exp\{d_{i}\beta^* + S_{i}^*\}$. Then we assume that $S^* \sim MVN(0, \Sigma)$, where $$\Sigma_{ij} = \sigma^2 \int_{\mathcal{R}_{i}} \int_{\mathcal{R}_{j}} w(x) w(x') \: \rho(\|x-x'\|; \phi) \:  dx \: dx'$$ 
 
 ## Inference
+We used Monte Carlo Maximum Likelihood for inference. The likelihood function for this class of model is usually intractible, hence we approximate the likelihood function as $$\frac{1}{N}~ \sum_{j=1}^N~\frac{f(\eta_{(j)}; \psi)}{f(\eta_{(j)}; \psi_0)}.$$, where $\psi$ is the vector of the parameters. 
 
 # Tutorial
+This part illustrates how to fit an SDALGCP model to spatially aggregated data. We used the example dataset that is supplied in the package. 
 
 load the package
 
 ```r
-devtools::load_all("/home/johnsono/Documents/Lancaster/Lancaster PhD Work/Lancaster PhD Work/RPackage/SDALGCP")
+require(SDALGCP)
 ```
 load the data
 
 ```r
-load("~/Documents/Lancaster/Lancaster PhD Work/Lancaster PhD Work/Spatial Structure for Lattice data/popshape_liver.RData")
+load("PBCshp")
 ```
 extract the dataframe containing data from the object loaded
 
 ```r
-data <- as.data.frame(popshape@data)
+data <- as.data.frame(PBCshp@data)
 ```
 load the population density raster
 
 ```r
-load("~/Documents/Lancaster/Lancaster PhD Work/Lancaster PhD Work/Spatial Structure for Lattice data/pop.RData")
+load("pop_den")
 ```
 set any population density that is NA to zero
 
 ```r
-s[is.na(s[])] <- 0
+pop_den[is.na(pop_den[])] <- 0
 ```
 write a formula of the model you want to fit
 
@@ -63,13 +71,13 @@ Here we estimate the parameters of the model
 Discretise the value of scale parameter $\phi$
 
 ```r
-phi <- seq(500, 1700, length.out = 1)
+phi <- seq(500, 1700, length.out = 20)
 ```
 estimate the parameter using MCML
 
 ```r
-my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=popshape, delta=300, phi=phi, method=1, pop_shp=s, 
-                      weighted=TRUE,  plot=TRUE, par0=NULL, control.mcmc=NULL)
+my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=300, phi=phi, method=1, pop_shp=pop_den, 
+                      weighted=TRUE, par0=NULL, control.mcmc=NULL)
 ```
 To print the summary of the parameter estimates as well as the confidence interval, use;
 
@@ -110,7 +118,7 @@ plot(Dis_pred, type="incidence", continuous = FALSE, thresholds=0.0015)
 2. If interested in spatially continuous prediction of the covariate adjusted relative risk. This is achieved by simply setting \code{continuous = TRUE} in the \code{SDALGCPPred} function.
 
 ```r
-Con_pred <- SDALGCPPred(para_est=my_est,  continuous=TRUE)
+Con_pred <- SDALGCPPred(para_est=my_est, cellsize = 300, continuous=TRUE)
 ```
 
 Then we map the spatially continuous covariate adjusted relative risk.
@@ -129,10 +137,12 @@ plot(Dis_pred, type="relrisk", thresholds=2)
 As for the unweighted which is typically by taking the simple average of the intensity an LGCP model, the entire code in the weighted can be used by just setting \code{weighted=FALSE} in the line below.
 
 ```r
-my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=popshape, delta=300, phi=phi, method=1, pop_shp=s, 
+my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=300, phi=phi, method=1, 
                       weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=NULL)
 ```
 
+#Discussion
+Using SDALGCP package for analysis of spatially aggregated data provides two main advantages. One is that it allows the user to make spatially continous inference irrespective of the level of aggregation of the data. Second is more computationally efficient than the lgcp model for aggregated data that was implemented in \code{lgcp} package.
 
 <!-- Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format: -->
 

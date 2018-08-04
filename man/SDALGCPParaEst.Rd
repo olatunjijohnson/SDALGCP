@@ -5,7 +5,7 @@
 \title{SDALGCPParaEst function.}
 \usage{
 SDALGCPParaEst(formula, data, corr, par0 = NULL, control.mcmc = NULL,
-  plot_profile = FALSE)
+  plot_profile = FALSE, messages = FALSE)
 }
 \arguments{
 \item{formula}{an object of class \code{\link{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted.}
@@ -19,6 +19,8 @@ SDALGCPParaEst(formula, data, corr, par0 = NULL, control.mcmc = NULL,
 \item{control.mcmc}{list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.}
 
 \item{plot_profile}{logical; if TRUE the profile-likelihood is plotted. default is FALSE}
+
+\item{messages}{logical; if message=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.}
 }
 \value{
 An object of class "PrevMap".
