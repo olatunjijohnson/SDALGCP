@@ -1,3 +1,10 @@
+## Resubmission
+This is a resubmission. In this version I have:
+
+* Removed "this package" from the description field.
+
+* Added a reference to the method used in the package.
+
 ## Test environments
 * local ubuntu 16.04 LTS, R 3.4.4
 * win-builder (devel and release)
