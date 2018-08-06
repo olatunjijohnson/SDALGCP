@@ -13,7 +13,7 @@ SDALGCPPred(para_est, cellsize, continuous = TRUE, control.mcmc = NULL,
 
 \item{cellsize}{the size of the computational grid}
 
-\item{continuous}{logical; to choose which prrediction to do perform, discrete or continuous. the default is continuous.}
+\item{continuous}{logical; to choose which prediction to do perform, discrete or continuous. the default is continuous.}
 
 \item{control.mcmc}{output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation}
 
@@ -21,7 +21,7 @@ SDALGCPPred(para_est, cellsize, continuous = TRUE, control.mcmc = NULL,
 
 \item{divisor}{optional, the value to use to convert the dimension of the polygon, default is 1 which implies no conversion}
 
-\item{plot.correlogram}{ogical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.}
+\item{plot.correlogram}{logical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.}
 
 \item{messages}{logical; if messages=TRUE then status messages are printed on the screen (or output device) while the function is running. Default is messages=TRUE.}
 
@@ -34,10 +34,10 @@ pred: the prediction of the relative risk
 
 predSD: the standard error of the prediction
 
-Pred.loc: The cordinates of the predictive locations
+Pred.loc: The coordinates of the predictive locations
 }
 \description{
-This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDA-LGCP model.
+This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
 }
 \details{
 The function perform prediction of the spatially discrete incidence and covariate adjusted relative risk, and spatially continuous relative risk. The discrete inference uses the Metropolis-Adjusted Langevin Hasting sampling from \code{\link{Laplace.sampling}}. And the continuous inference is typically change of support inference.

@@ -63,9 +63,9 @@ The object is a list with the following components:
 This function provides the maximum likelihood estimation of the parameter given the precomputed correlation matrices for different values of scale parameter, phi. An internal function for \code{\link{SDALGCP}} package
 }
 \details{
-This function performs parameter estimation for a SDA-LGCP Model
+This function performs parameter estimation for a SDALGCP Model
 \bold{Monte Carlo Maximum likelihood.}
-The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensiional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic epression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}
+The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic expression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}
 }
 \examples{
 \dontrun{
@@ -82,7 +82,7 @@ SDALGCPParaEst(formula=FORM , data=data, corr=pre.matrix)
 \references{
 Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08.
 
-Christensen, O. F. (2004). Monte carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
+Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
 }
 \seealso{
 \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}}

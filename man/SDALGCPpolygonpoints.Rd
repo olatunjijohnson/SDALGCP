@@ -8,7 +8,7 @@ SDALGCPpolygonpoints(my_shp, delta, method = 1, pop_shp = NULL,
   weighted = FALSE, rho = NULL, plot = FALSE, giveup = NULL)
 }
 \arguments{
-\item{my_shp}{A SpatialPolygons orSpatialPolygonsDataFrame  object containing the polygons (i.e each regions).}
+\item{my_shp}{A SpatialPolygons or SpatialPolygonsDataFrame  object containing the polygons (i.e each regions).}
 
 \item{delta}{distance between points}
 

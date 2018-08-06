@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{confint.SDALGCP}
 \alias{confint.SDALGCP}
-\title{Confidence Intervals for SDA LGCP Model Parameters}
+\title{Confidence Intervals for SDALGCP Model Parameters}
 \usage{
 \method{confint}{SDALGCP}(object, parm, level = 0.95, dp = 3, ...)
 }

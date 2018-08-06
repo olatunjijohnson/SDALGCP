@@ -14,7 +14,7 @@ SDALGCPMCML(formula, data, my_shp, delta, phi = NULL, method = 1,
 
 \item{data}{data frame containing the variables in the model.}
 
-\item{my_shp}{A SpatialPolygons orSpatialPolygonsDataFrame  object containing the polygons (i.e each regions).}
+\item{my_shp}{A SpatialPolygons or SpatialPolygonsDataFrame  object containing the polygons (i.e each regions).}
 
 \item{delta}{distance between points}
 
@@ -36,7 +36,7 @@ SDALGCPMCML(formula, data, my_shp, delta, phi = NULL, method = 1,
 
 \item{rho}{Optional, the packing density, default set to 0.55}
 
-\item{giveup}{Optional, number of rejected proposals after which the algorithm should terminate, defualt set to 1000}
+\item{giveup}{Optional, number of rejected proposals after which the algorithm should terminate, default set to 1000}
 
 \item{messages}{logical; if messages=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.}
 }
@@ -76,12 +76,12 @@ The object is a list with the following components:
 \code{call}: the matched call.
 }
 \description{
-This function provides the maximum likelihood estimation of the parameter given a set of values of scale parameter of the Guassian process, phi.
+This function provides the maximum likelihood estimation of the parameter given a set of values of scale parameter of the Gaussian process, phi.
 }
 \details{
-This function performs parameter estimation for a SDA-LGCP Model
+This function performs parameter estimation for a SDALGCP Model
 \bold{Monte Carlo Maximum likelihood.}
-The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensiional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic epression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}. The first stage of estimation is generating locations inside the polygon, followed by precomputing the correlation matrices, then optimising the likelihood.
+The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic expression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}. The first stage of estimation is generating locations inside the polygon, followed by precomputing the correlation matrices, then optimising the likelihood.
 }
 \examples{
 \dontrun{
@@ -104,7 +104,7 @@ my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi
 \references{
 Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08
 
-Christensen, O. F. (2004). Monte carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
+Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
 }
 \seealso{
 \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}},  \link{summary.SDALGCP}

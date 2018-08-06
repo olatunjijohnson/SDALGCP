@@ -14,7 +14,7 @@ phiCI(obj, coverage = 0.95, plot = TRUE)
 \item{plot}{logical, to plot the deviance curve. default is TRUE}
 }
 \value{
-return the deviance plot and the correspoding confidence interval of the scale parameter phi
+return the deviance plot and the corresponding confidence interval of the scale parameter phi
 }
 \description{
 This function computes the confidence interval of phi

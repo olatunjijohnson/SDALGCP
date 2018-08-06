@@ -298,7 +298,7 @@ SDALGCPRegularPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambd
 ########################################################
 ##' @title SDALGCPCreatePoint function
 ##' @description This wrapper function generate a random point pattern using Simple Sequential Inhibition (SSI) process, uniform sampling and regular grid point.
-##' @param my_shp A SpatialPolygons orSpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
+##' @param my_shp A SpatialPolygons or SpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
 ##' @param delta distance between points
 ##' @param weighted To specify if you want to use the population density, default to FALSE, i.e population density is not used.
 ##' @param lambdamax the maximum value of the population density in the polygon.
@@ -378,7 +378,7 @@ SDALGCPCreatePoint <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, po
 #########################################
 ##' @title SDALGCPpolygonpoints function
 ##' @description This function generate a random point pattern using Simple Sequential Inhibition (SSI) process, uniform sampling and regular grid point.
-##' @param my_shp A SpatialPolygons orSpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
+##' @param my_shp A SpatialPolygons or SpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
 ##' @param delta distance between points
 ##' @param pop_shp Optional, The raster of population density map for population weighted approach
 ##' @param rho Optional, The packing density, default set to 0.55
@@ -540,7 +540,7 @@ precomputeCorrMatrix <- function(S.coord, phi){
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @references Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08.
-##' @references Christensen, O. F. (2004). Monte carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
+##' @references Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
 ##' @importFrom stats nlminb 
 ##' @importFrom PrevMap Laplace.sampling
 ##' @keywords internal
@@ -692,9 +692,9 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
 ##' @param control.mcmc list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.
 ##' @param plot_profile logical; if TRUE the profile-likelihood is plotted. default is FALSE
 ##' @param messages logical; if message=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.
-##' @details This function performs parameter estimation for a SDA-LGCP Model
+##' @details This function performs parameter estimation for a SDALGCP Model
 ##' \bold{Monte Carlo Maximum likelihood.}
-##' The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensiional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic epression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}} 
+##' The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic expression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}} 
 ##' @return An object of class "PrevMap".
 ##' The function \code{\link{summary.PrevMap}} is used to print a summary of the fitted model.
 ##' The object is a list with the following components:
@@ -731,7 +731,7 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
 ##' @importFrom pdist pdist
 ##' @importFrom pbapply pblapply
 ##' @references Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08.
-##' @references Christensen, O. F. (2004). Monte carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
+##' @references Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
 ##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}}
 ##' @keywords internal
 
@@ -855,7 +855,7 @@ SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, pl
 ######################
 #######################################################################################
 ##' @title SDADiscretePred function
-##' @description This function performs spatial discrete prediction for a fixed the model parameters at the Monte Carlo maximum likelihood estimates of a SDA-LGCP model.
+##' @description This function performs spatial discrete prediction for a fixed the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
 ##' @param para_est an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.
 ##' @param control.mcmc output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation
 ##' @param divisor optional, if the coordinate of the shapefile is rescaled, default is 1
@@ -865,9 +865,9 @@ SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, pl
 ##' @return It returns the following list
 ##' @return S.draw: the samples of the linear predictor \eqn{d(x)'\beta + S(A)}
 ##' @return incidence: the region-specific incidence
-##' @return SEincidence: Standard errror of the region-specific incidence
-##' @return CovRR: the prediction of the relative risk
-##' @return SECovRR: the standard error of the relative risk
+##' @return SEincidence: Standard error of the region-specific incidence
+##' @return CovRR: the prediction of the covariate adjusted relative risk
+##' @return SECovRR: the standard error of the covariate adjusted relative risk
 ##' @examples
 ##' \dontrun{
 ##' data(PBCshp)
@@ -922,20 +922,20 @@ SDADiscretePred <- function(para_est, control.mcmc=NULL,
 }
 #################################################
 ##' @title SDAContinuousPred function
-##' @description This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDA-LGCP model.
-##' @param para_est an object of class "SDALGCP" obtained as a result of a capar0=NULL, control.mcmc=NULL, ll to \code{\link{SDALGCPMCML}}.
+##' @description This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
+##' @param para_est an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.
 ##' @param cellsize the size of the computational grid 
 ##' @param control.mcmc output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation
 ##' @param pred.loc optional, the dataframe of the predictive grid.
 ##' @param divisor optional, the value to use to convert the dimension of the polygon, default is 1 which implies no conversion
-##' @param plot.correlogram ogical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.
+##' @param plot.correlogram logical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.
 ##' @param messages logical; if messages=TRUE then status messages are printed on the screen (or output device) while the function is running. Default is messages=TRUE.
 ##' @param parallel to parallelize some part of the function.
 ##' @details The function returns the prediction of the relative risk exp(S(x))
 ##' @return pred.draw: the samples of the prediction
 ##' @return pred: the prediction of the relative risk
 ##' @return predSD: the standard error of the prediction
-##' @return Pred.loc: The cordinates of the predictive locations
+##' @return Pred.loc: The coordinates of the predictive locations
 ##' @examples
 ##' \dontrun{
 ##' data(PBCshp)
@@ -1084,10 +1084,10 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 }
 ##########################################################################
 ##' @title Parameter estimation for SDA-LGCP Using Monte Carlo Maximum likelihood
-##' @description This function provides the maximum likelihood estimation of the parameter given a set of values of scale parameter of the Guassian process, phi.
+##' @description This function provides the maximum likelihood estimation of the parameter given a set of values of scale parameter of the Gaussian process, phi.
 ##' @param formula an object of class \code{\link{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted.
 ##' @param data  data frame containing the variables in the model.
-##' @param my_shp A SpatialPolygons orSpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
+##' @param my_shp A SpatialPolygons or SpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
 ##' @param delta distance between points
 ##' @param phi the discretised values of the scale parameter phi. if not supplied, it uses the default, which is 20 phis' which ranges from size of the smallest region to the one-tenth of the size of the entire domain.
 ##' @param pop_shp Optional, The raster of population density map for population weighted approach
@@ -1096,13 +1096,13 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' @param par0 the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi). Default; beta, the estimates from the glm; sigma2, variance of the residual; phi, the median of the supplied phi.
 ##' @param control.mcmc list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.
 ##' @param rho Optional, the packing density, default set to 0.55
-##' @param giveup Optional, number of rejected proposals after which the algorithm should terminate, defualt set to 1000
+##' @param giveup Optional, number of rejected proposals after which the algorithm should terminate, default set to 1000
 ##' @param plot To display the plot of the points inside the polygon, default to TRUE
 ##' @param plot_profile logical; if TRUE the profile-likelihood is plotted. default is FALSE
 ##' @param messages logical; if messages=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.
-##' @details This function performs parameter estimation for a SDA-LGCP Model
+##' @details This function performs parameter estimation for a SDALGCP Model
 ##' \bold{Monte Carlo Maximum likelihood.}
-##' The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensiional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic epression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}. The first stage of estimation is generating locations inside the polygon, followed by precomputing the correlation matrices, then optimising the likelihood. 
+##' The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic expression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}. The first stage of estimation is generating locations inside the polygon, followed by precomputing the correlation matrices, then optimising the likelihood. 
 ##' @return An object of class "PrevMap".
 ##' The function \code{\link{summary.PrevMap}} is used to print a summary of the fitted model.
 ##' The object is a list with the following components:
@@ -1144,7 +1144,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' @importFrom pdist pdist
 ##' @importFrom sp bbox
 ##' @references Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08
-##' @references Christensen, O. F. (2004). Monte carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
+##' @references Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
 ##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}},  \link{summary.SDALGCP}
 ##' @export
 SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_shp=NULL, 
@@ -1179,21 +1179,21 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_sh
 
 ##########################################
 ##' @title Spatial continuous predictions of the relative risk using plug-in of MCML estimates
-##' @description This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDA-LGCP model.
+##' @description This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
 ##' @param para_est an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.
 ##' @param cellsize the size of the computational grid 
 ##' @param pred.loc optional, the dataframe of the predictive grid.
-##' @param continuous logical; to choose which prrediction to do perform, discrete or continuous. the default is continuous.
+##' @param continuous logical; to choose which prediction to do perform, discrete or continuous. the default is continuous.
 ##' @param control.mcmc output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation
 ##' @param divisor optional, the value to use to convert the dimension of the polygon, default is 1 which implies no conversion
-##' @param plot.correlogram ogical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.
+##' @param plot.correlogram logical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.
 ##' @param messages logical; if messages=TRUE then status messages are printed on the screen (or output device) while the function is running. Default is messages=TRUE.
 ##' @param parallel to parallelize some part of the function.
 ##' @details The function perform prediction of the spatially discrete incidence and covariate adjusted relative risk, and spatially continuous relative risk. The discrete inference uses the Metropolis-Adjusted Langevin Hasting sampling from \code{\link{Laplace.sampling}}. And the continuous inference is typically change of support inference. 
 ##' @return pred.draw: the samples of the prediction
 ##' @return pred: the prediction of the relative risk
 ##' @return predSD: the standard error of the prediction
-##' @return Pred.loc: The cordinates of the predictive locations
+##' @return Pred.loc: The coordinates of the predictive locations
 ##' @examples
 ##' \dontrun{
 ##' data(PBCshp)
@@ -1259,7 +1259,7 @@ print.SDALGCP <- function(x, ...) {
 
 ##' @title Summarizing the parameter estimates of SDALGCP model
 ##' @description \code{summary} method for the class "SDALGCP" that computes the standard errors and p-values of SDALGCP.
-##' @param object an object of class "SDALGCP" obatained as result of a call to \code{\link{SDALGCPMCML}} .
+##' @param object an object of class "SDALGCP" obtained as result of a call to \code{\link{SDALGCPMCML}} .
 ##' @param ... further arguments passed to or from other methods.
 ##' @return A list with the following components
 ##' @return \code{parameter_estimate_result}: the parameter of the SDALGCP model
@@ -1507,7 +1507,7 @@ plot.Pred.SDALGCP <- function(x,  type='relrisk', continuous=NULL, thresholds=NU
 }
 
 ##########################
-##' @title Confidence Intervals for SDA LGCP Model Parameters
+##' @title Confidence Intervals for SDALGCP Model Parameters
 ##' @description Computes confidence intervals for one or more parameters in a fitted SDALGCP model from the object of class "SDALGCP", based on asymptotic normality.
 ##' @param object an object of class "SDALGCP" obtained as result of a call to \code{\link{SDALGCPMCML}}.
 ##' @param parm a specification of which parameters are to be given confidence intervals, either a vector of numbers or a vector of names. If missing, all parameters are considered.
@@ -1552,7 +1552,7 @@ confint.SDALGCP <- function(object, parm, level = 0.95, dp=3, ...){
 }
 
 
-##' @title SDA control.mcmc
+##' @title control.mcmcSDA
 ##' @description This function helps to define the number of iteration, burn-in, thining, and the tunning parameters of the adaptive MALA
 ##' @param n.sim the number of iteration
 ##' @param burnin The number of burn-in

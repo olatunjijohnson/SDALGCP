@@ -25,14 +25,14 @@ S.draw: the samples of the linear predictor \eqn{d(x)'\beta + S(A)}
 
 incidence: the region-specific incidence
 
-SEincidence: Standard errror of the region-specific incidence
+SEincidence: Standard error of the region-specific incidence
 
-CovRR: the prediction of the relative risk
+CovRR: the prediction of the covariate adjusted relative risk
 
-SECovRR: the standard error of the relative risk
+SECovRR: the standard error of the covariate adjusted relative risk
 }
 \description{
-This function performs spatial discrete prediction for a fixed the model parameters at the Monte Carlo maximum likelihood estimates of a SDA-LGCP model.
+This function performs spatial discrete prediction for a fixed the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
 }
 \details{
 The function returns the region-specific incidence and the covariate adjusted relative risk exp(S(A))

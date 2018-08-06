@@ -7,7 +7,7 @@
 \method{summary}{SDALGCP}(object, ...)
 }
 \arguments{
-\item{object}{an object of class "SDALGCP" obatained as result of a call to \code{\link{SDALGCPMCML}} .}
+\item{object}{an object of class "SDALGCP" obtained as result of a call to \code{\link{SDALGCPMCML}} .}
 
 \item{...}{further arguments passed to or from other methods.}
 }

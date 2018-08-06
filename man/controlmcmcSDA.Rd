@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{controlmcmcSDA}
 \alias{controlmcmcSDA}
-\title{SDA control.mcmc}
+\title{control.mcmcSDA}
 \usage{
 controlmcmcSDA(n.sim, burnin, thin, h, c1.h, c2.h)
 }

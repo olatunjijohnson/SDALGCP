@@ -4,7 +4,7 @@
 ##' @param coverage the coverage probability, default is 0.95
 ##' @param plot logical, to plot the deviance curve. default is TRUE
 ##' @details This function computes the confidence interval of phi
-##' @return return the deviance plot and the correspoding confidence interval of the scale parameter phi
+##' @return return the deviance plot and the corresponding confidence interval of the scale parameter phi
 ##' @seealso \link{SDALGCPMCML}
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
