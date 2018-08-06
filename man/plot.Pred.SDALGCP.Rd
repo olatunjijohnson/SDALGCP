@@ -31,7 +31,7 @@ This function plots the inference from \code{\link{SDALGCPPred}} function. It pl
 }
 \examples{
 \dontrun{
-load("PBCshp")
+data(PBCshp)
 data <- as.data.frame(PBCshp@data)
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 Environment +  offset(log(pop))

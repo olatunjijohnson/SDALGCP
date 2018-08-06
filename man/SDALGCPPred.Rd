@@ -44,7 +44,7 @@ The function perform prediction of the spatially discrete incidence and covariat
 }
 \examples{
 \dontrun{
-load("PBCshp")
+data(PBCshp)
 data <- as.data.frame(PBCshp@data)
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 Environment +  offset(log(pop))

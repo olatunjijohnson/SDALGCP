@@ -1,6 +1,6 @@
 Package: SDALGCP
-Title: Spatially Discrete Approximation to Log-Gaussian Cox Processes for Aggregated Disease Count
-Version: 0.0.0.9000
+Title: Spatially Discrete Approximation to Log-Gaussian Cox Processes for Aggregated Disease Count Data
+Version: 0.1.0
 Authors@R: c(
     person("Olatunji", "Johnson", email = "olatunjijohnson21111@gmail.com", role = c("aut", "cre")),
     person("Emanuele", "Giorgi", email = "e.giorgi@lancaster.ac.uk", role = "aut"),

@@ -11,4 +11,7 @@ data(pop_den)
 \description{
 A dataset containing the population density of Newcastle upon Tyne of 300 X 300 metres
 }
+\references{
+Murdock, A.P., Harfoot, A.J.P., Martin, D., Cockings, S. and Hill, C. (2015) OpenPopGrid: an open gridded population dataset for England and Wales. GeoData, University of Southampton.
+}
 \keyword{datasets}

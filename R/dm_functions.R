@@ -1196,7 +1196,7 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_sh
 ##' @return Pred.loc: The cordinates of the predictive locations
 ##' @examples
 ##' \dontrun{
-##' load("PBCshp")
+##' data(PBCshp)
 ##' data <- as.data.frame(PBCshp@data)
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 ##' Environment +  offset(log(pop))
@@ -1389,7 +1389,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', ...){
 ##' @return A vector or dataframe(for more than one value of the threshold) of the exceedance probability
 ##' @examples
 ##' \dontrun{
-##' load("PBCshp")
+##' data(PBCshp)
 ##' data <- as.data.frame(PBCshp@data)
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 ##' Environment +  offset(log(pop))
@@ -1463,7 +1463,7 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
 ##' @method plot Pred.SDALGCP
 ##' @examples
 ##' \dontrun{
-##' load("PBCshp")
+##' data(PBCshp)
 ##' data <- as.data.frame(PBCshp@data)
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
 ##' Environment +  offset(log(pop))

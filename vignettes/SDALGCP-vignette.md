@@ -15,7 +15,7 @@ vignette: >
 
 # Introduction
 
-This document presents a simple tutorial code from SDALGCP package to make inference on spatially aggregated disease count data when one assume that the disease risk is spatially continious. There are two main functions provided by the package, SDALGCPMCML for parameter estimation and SDALGCPPred for prediction. 
+This article presents a simple tutorial code from SDALGCP package to make inference on spatially aggregated disease count data when one assume that the disease risk is spatially continious. There are two main functions provided by the package, \code{SDALGCPMCML} for parameter estimation and \code{SDALGCPPred} for prediction. 
 
 ## Model
 Our goal is to analyse of diease count data, more specifically when disease cases are aggregated over a partition, say $(\mathcal{R}_{1}, \ldots, \mathcal{R}_{n})$, of the area of interest, $A$, which can be written mathematically as 
@@ -23,8 +23,7 @@ Our goal is to analyse of diease count data, more specifically when disease case
 \label{eq:data}
 \mathcal{D} = \left\{(y_{i}, d_{i}, \mathcal{R}_{i}):  i=1,\ldots,n\right\}
 \end{eqnarray}
-where $y_{i}$ and $d_{i}$ are the number of reported cases and a vector of explanatory variables associated with $i$-th region $\mathcal{R}_{i}$, respectively. Hence, we model $y_{i}$ conditional on the stochastic process $S(X)$ as poission distribution with mean $\lambda_i= m_{i} \exp\{d_{i}\beta^* + S_{i}^*\}$. Then we assume that $S^* \sim MVN(0, \Sigma)$, where $$\Sigma_{ij} = \sigma^2 \int_{\mathcal{R}_{i}} \int_{\mathcal{R}_{j}} w(x) w(x') \: \rho(\|x-x'\|; \phi) \:  dx \: dx'$$ 
-
+where $y_{i}$ and $d_{i}$ are the number of reported cases and a vector of explanatory variables associated with $i$-th region $\mathcal{R}_{i}$, respectively. Hence, we model $y_{i}$ conditional on the stochastic process $S(X)$ as poission distribution with mean $\lambda_i= m_{i} \exp\{d_{i}\beta^* + S_{i}^*\}$. Then we assume that $S^* \sim MVN(0, \Sigma)$, where $$\Sigma_{ij} = \sigma^2 \int_{\mathcal{R}_{i}} \int_{\mathcal{R}_{j}} w(x) w(x') \: \rho(\|x-x'\|; \phi) \:  dx \: dx'$$, where $w(x)$ is population density weight. There are two classes of models in this package; one is when we approximate $$S_i^* = \int_{\mathcal{R}_{i}} w(x) S^*(x) \:  dx $$ and the other is $$S_i^* = \frac{1}{\mathcal{R}_{i}} \int_{\mathcal{R}_{i}} S^*(x) \:  dx. $$
 ## Inference
 We used Monte Carlo Maximum Likelihood for inference. The likelihood function for this class of model is usually intractible, hence we approximate the likelihood function as $$\frac{1}{N}~ \sum_{j=1}^N~\frac{f(\eta_{(j)}; \psi)}{f(\eta_{(j)}; \psi_0)}.$$, where $\psi$ is the vector of the parameters. 
 
@@ -39,7 +38,7 @@ require(SDALGCP)
 load the data
 
 ```r
-load("PBCshp")
+data("PBCshp")
 ```
 extract the dataframe containing data from the object loaded
 
@@ -49,7 +48,7 @@ data <- as.data.frame(PBCshp@data)
 load the population density raster
 
 ```r
-load("pop_den")
+data("pop_den")
 ```
 set any population density that is NA to zero
 
@@ -60,8 +59,9 @@ write a formula of the model you want to fit
 
 ```r
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
-  Environment +  offset(log(pop2))
+  Environment +  offset(log(pop))
 ```
+
 Now to proceed to fitting the model, note that there two types of model that can be fitted. One is when approximate the intensity of LGCP by taking the population weighted average and the other is by taking the simple average. We shall consider both cases in this tutorial, starting with population weighted since we have population density on a raster grid of 300m by 300m.
 
 ## SDALGCP I (population weighted)
@@ -76,7 +76,7 @@ phi <- seq(500, 1700, length.out = 20)
 estimate the parameter using MCML
 
 ```r
-my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=300, phi=phi, method=1, pop_shp=pop_den, 
+my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=200, phi=phi, method=1, pop_shp=pop_den, 
                       weighted=TRUE, par0=NULL, control.mcmc=NULL)
 ```
 To print the summary of the parameter estimates as well as the confidence interval, use;
@@ -106,11 +106,11 @@ From this discrete inference one can map either the region-specific incidence or
 #to map the incidence
 plot(Dis_pred, type="incidence", continuous = FALSE)
 #and its standard error
-plot(Dis_pred, type="SDincidence", continuous = FALSE)
+plot(Dis_pred, type="SEincidence", continuous = FALSE)
 #to map the covariate adjusted relative risk
 plot(Dis_pred, type="CovAdjRelRisk", continuous = FALSE)
 #and its standard error
-plot(Dis_pred, type="SDCovAdjRelRisk", continuous = FALSE)
+plot(Dis_pred, type="SECovAdjRelRisk", continuous = FALSE)
 #to map the exceedance probability that the incidence is greter than a particular threshold
 plot(Dis_pred, type="incidence", continuous = FALSE, thresholds=0.0015)
 ```
@@ -129,7 +129,7 @@ plot(Con_pred, type="relrisk")
 #and its standard error
 plot(Con_pred, type="SErelrisk")
 #to map the exceedance probability that the relative risk is greter than a particular threshold
-plot(Dis_pred, type="relrisk", thresholds=2)
+plot(Con_pred, type="relrisk", thresholds=2)
 ```
 
 ## SDALGCP II (Unweighted)
@@ -137,12 +137,12 @@ plot(Dis_pred, type="relrisk", thresholds=2)
 As for the unweighted which is typically by taking the simple average of the intensity an LGCP model, the entire code in the weighted can be used by just setting \code{weighted=FALSE} in the line below.
 
 ```r
-my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=300, phi=phi, method=1, 
-                      weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=NULL)
+my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=200, phi=phi, method=1, 
+                      weighted=FALSE,  plot=FALSE, par0=NULL, control.mcmc=NULL, messages = TRUE, plot_profile = TRUE)
 ```
 
 #Discussion
-Using SDALGCP package for analysis of spatially aggregated data provides two main advantages. One is that it allows the user to make spatially continous inference irrespective of the level of aggregation of the data. Second is more computationally efficient than the lgcp model for aggregated data that was implemented in \code{lgcp} package.
+Using SDALGCP package for analysis of spatially aggregated data provides two main advantages. One, it allows the user to make spatially continous inference irrespective of the level of aggregation of the data. Second, it is more computationally efficient than the lgcp model for aggregated data that was implemented in \code{lgcp} package.
 
 <!-- Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format: -->
 

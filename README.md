@@ -34,7 +34,7 @@ require(SDALGCP)
 load the data
 
 ``` r
-load("PBCshp")
+data("PBCshp")
 ```
 
 extract the dataframe containing data from the object loaded
@@ -46,7 +46,7 @@ data <- as.data.frame(PBCshp@data)
 load the population density raster
 
 ``` r
-load("pop_den")
+data("pop_den")
 ```
 
 set any population density that is NA to zero
@@ -110,11 +110,11 @@ From this discrete inference one can map either the region-specific incidence or
 #to map the incidence
 plot(Dis_pred, type="incidence", continuous = FALSE)
 #and its standard error
-plot(Dis_pred, type="SDincidence", continuous = FALSE)
+plot(Dis_pred, type="SEincidence", continuous = FALSE)
 #to map the covariate adjusted relative risk
 plot(Dis_pred, type="CovAdjRelRisk", continuous = FALSE)
 #and its standard error
-plot(Dis_pred, type="SDCovAdjRelRisk", continuous = FALSE)
+plot(Dis_pred, type="SECovAdjRelRisk", continuous = FALSE)
 #to map the exceedance probability that the incidence is greter than a particular threshold
 plot(Dis_pred, type="incidence", continuous = FALSE, thresholds=0.0015)
 ```

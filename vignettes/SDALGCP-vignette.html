@@ -77,7 +77,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <ul>
 <li><a href="#introduction">Introduction</a><ul>
 <li><a href="#model">Model</a></li>
-<li><a href="#inference">Inference</a></li>
 </ul></li>
 <li><a href="#tutorial">Tutorial</a><ul>
 <li><a href="#sdalgcp-i-population-weighted">SDALGCP I (population weighted)</a></li>
@@ -89,7 +88,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>This document presents a simple tutorial code from SDALGCP package to make inference on spatially aggregated disease count data when one assume that the disease risk is spatially continious. There are two main functions provided by the package, SDALGCPMCML for parameter estimation and SDALGCPPred for prediction.</p>
+<p>This article presents a simple tutorial code from SDALGCP package to make inference on spatially aggregated disease count data when one assume that the disease risk is spatially continious. There are two main functions provided by the package,  for parameter estimation and  for prediction.</p>
 <div id="model" class="section level2">
 <h2>Model</h2>
 Our goal is to analyse of diease count data, more specifically when disease cases are aggregated over a partition, say <span class="math inline">\((\mathcal{R}_{1}, \ldots, \mathcal{R}_{n})\)</span>, of the area of interest, <span class="math inline">\(A\)</span>, which can be written mathematically as
@@ -97,11 +96,7 @@ Our goal is to analyse of diease count data, more specifically when disease case
 \label{eq:data}
 \mathcal{D} = \left\{(y_{i}, d_{i}, \mathcal{R}_{i}):  i=1,\ldots,n\right\}
 \end{eqnarray}\]</span>
-<p>where <span class="math inline">\(y_{i}\)</span> and <span class="math inline">\(d_{i}\)</span> are the number of reported cases and a vector of explanatory variables associated with <span class="math inline">\(i\)</span>-th region <span class="math inline">\(\mathcal{R}_{i}\)</span>, respectively. Hence, we model <span class="math inline">\(y_{i}\)</span> conditional on the stochastic process <span class="math inline">\(S(X)\)</span> as poission distribution with mean <span class="math inline">\(\lambda_i= m_{i} \exp\{d_{i}\beta^* + S_{i}^*\}\)</span>. Then we assume that <span class="math inline">\(S^* \sim MVN(0, \Sigma)\)</span>, where <span class="math display">\[\Sigma_{ij} = \sigma^2 \int_{\mathcal{R}_{i}} \int_{\mathcal{R}_{j}} w(x) w(x') \: \rho(\|x-x'\|; \phi) \:  dx \: dx'\]</span></p>
-</div>
-<div id="inference" class="section level2">
-<h2>Inference</h2>
-<p>We used Monte Carlo Maximum Likelihood for inference. The likelihood function for this class of model is usually intractible, hence we approximate the likelihood function as <span class="math display">\[\frac{1}{N}~ \sum_{j=1}^N~\frac{f(\eta_{(j)}; \psi)}{f(\eta_{(j)}; \psi_0)}.\]</span>, where <span class="math inline">\(\psi\)</span> is the vector of the parameters.</p>
+<p>where <span class="math inline">\(y_{i}\)</span> and <span class="math inline">\(d_{i}\)</span> are the number of reported cases and a vector of explanatory variables associated with <span class="math inline">\(i\)</span>-th region <span class="math inline">\(\mathcal{R}_{i}\)</span>, respectively. Hence, we model <span class="math inline">\(y_{i}\)</span> conditional on the stochastic process <span class="math inline">\(S(X)\)</span> as poission distribution with mean <span class="math inline">\(\lambda_i= m_{i} \exp\{d_{i}\beta^* + S_{i}^*\}\)</span>. Then we assume that <span class="math inline">\(S^* \sim MVN(0, \Sigma)\)</span>, where <span class="math display">\[\Sigma_{ij} = \sigma^2 \int_{\mathcal{R}_{i}} \int_{\mathcal{R}_{j}} w(x) w(x') \: \rho(\|x-x'\|; \phi) \:  dx \: dx'\]</span>, where <span class="math inline">\(w(x)\)</span> is population density weight. There are two classes of models in this package; one is when we approximate <span class="math display">\[S_i^* = \int_{\mathcal{R}_{i}} w(x) S^*(x) \:  dx \]</span> and the other is <span class="math display">\[S_i^* = \frac{1}{\mathcal{R}_{i}} \int_{\mathcal{R}_{i}} S^*(x) \:  dx. \]</span> ## Inference We used Monte Carlo Maximum Likelihood for inference. The likelihood function for this class of model is usually intractible, hence we approximate the likelihood function as <span class="math display">\[\frac{1}{N}~ \sum_{j=1}^N~\frac{f(\eta_{(j)}; \psi)}{f(\eta_{(j)}; \psi_0)}.\]</span>, where <span class="math inline">\(\psi\)</span> is the vector of the parameters.</p>
 </div>
 </div>
 <div id="tutorial" class="section level1">
@@ -110,16 +105,16 @@ Our goal is to analyse of diease count data, more specifically when disease case
 <p>load the package</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(SDALGCP)</code></pre></div>
 <p>load the data</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;PBCshp&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;PBCshp&quot;</span>)</code></pre></div>
 <p>extract the dataframe containing data from the object loaded</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(PBCshp@data)</code></pre></div>
 <p>load the population density raster</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;pop_den&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;pop_den&quot;</span>)</code></pre></div>
 <p>set any population density that is NA to zero</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pop_den[<span class="kw">is.na</span>(pop_den[])] &lt;-<span class="st"> </span><span class="dv">0</span></code></pre></div>
 <p>write a formula of the model you want to fit</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">FORM &lt;-<span class="st"> </span>X ~<span class="st"> </span>propmale +<span class="st"> </span>Income +<span class="st"> </span>Employment +<span class="st"> </span>Education +<span class="st"> </span>Barriers +<span class="st"> </span>Crime +<span class="st"> </span>
-<span class="st">  </span>Environment +<span class="st">  </span><span class="kw">offset</span>(<span class="kw">log</span>(pop2))</code></pre></div>
+<span class="st">  </span>Environment +<span class="st">  </span><span class="kw">offset</span>(<span class="kw">log</span>(pop))</code></pre></div>
 <p>Now to proceed to fitting the model, note that there two types of model that can be fitted. One is when approximate the intensity of LGCP by taking the population weighted average and the other is by taking the simple average. We shall consider both cases in this tutorial, starting with population weighted since we have population density on a raster grid of 300m by 300m.</p>
 <div id="sdalgcp-i-population-weighted" class="section level2">
 <h2>SDALGCP I (population weighted)</h2>
@@ -127,7 +122,7 @@ Our goal is to analyse of diease count data, more specifically when disease case
 <p>Discretise the value of scale parameter <span class="math inline">\(\phi\)</span></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">phi &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">500</span>, <span class="dv">1700</span>, <span class="dt">length.out =</span> <span class="dv">20</span>)</code></pre></div>
 <p>estimate the parameter using MCML</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_est &lt;-<span class="st"> </span><span class="kw">SDALGCPMCML</span>(<span class="dt">data=</span>data, <span class="dt">formula=</span>FORM, <span class="dt">my_shp=</span>PBCshp, <span class="dt">delta=</span><span class="dv">300</span>, <span class="dt">phi=</span>phi, <span class="dt">method=</span><span class="dv">1</span>, <span class="dt">pop_shp=</span>pop_den, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_est &lt;-<span class="st"> </span><span class="kw">SDALGCPMCML</span>(<span class="dt">data=</span>data, <span class="dt">formula=</span>FORM, <span class="dt">my_shp=</span>PBCshp, <span class="dt">delta=</span><span class="dv">200</span>, <span class="dt">phi=</span>phi, <span class="dt">method=</span><span class="dv">1</span>, <span class="dt">pop_shp=</span>pop_den, 
                       <span class="dt">weighted=</span><span class="ot">TRUE</span>, <span class="dt">par0=</span><span class="ot">NULL</span>, <span class="dt">control.mcmc=</span><span class="ot">NULL</span>)</code></pre></div>
 <p>To print the summary of the parameter estimates as well as the confidence interval, use;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(my_est)
@@ -144,11 +139,11 @@ Our goal is to analyse of diease count data, more specifically when disease case
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#to map the incidence</span>
 <span class="kw">plot</span>(Dis_pred, <span class="dt">type=</span><span class="st">&quot;incidence&quot;</span>, <span class="dt">continuous =</span> <span class="ot">FALSE</span>)
 <span class="co">#and its standard error</span>
-<span class="kw">plot</span>(Dis_pred, <span class="dt">type=</span><span class="st">&quot;SDincidence&quot;</span>, <span class="dt">continuous =</span> <span class="ot">FALSE</span>)
+<span class="kw">plot</span>(Dis_pred, <span class="dt">type=</span><span class="st">&quot;SEincidence&quot;</span>, <span class="dt">continuous =</span> <span class="ot">FALSE</span>)
 <span class="co">#to map the covariate adjusted relative risk</span>
 <span class="kw">plot</span>(Dis_pred, <span class="dt">type=</span><span class="st">&quot;CovAdjRelRisk&quot;</span>, <span class="dt">continuous =</span> <span class="ot">FALSE</span>)
 <span class="co">#and its standard error</span>
-<span class="kw">plot</span>(Dis_pred, <span class="dt">type=</span><span class="st">&quot;SDCovAdjRelRisk&quot;</span>, <span class="dt">continuous =</span> <span class="ot">FALSE</span>)
+<span class="kw">plot</span>(Dis_pred, <span class="dt">type=</span><span class="st">&quot;SECovAdjRelRisk&quot;</span>, <span class="dt">continuous =</span> <span class="ot">FALSE</span>)
 <span class="co">#to map the exceedance probability that the incidence is greter than a particular threshold</span>
 <span class="kw">plot</span>(Dis_pred, <span class="dt">type=</span><span class="st">&quot;incidence&quot;</span>, <span class="dt">continuous =</span> <span class="ot">FALSE</span>, <span class="dt">thresholds=</span><span class="fl">0.0015</span>)</code></pre></div>
 <ol start="2" style="list-style-type: decimal">
@@ -161,18 +156,18 @@ Our goal is to analyse of diease count data, more specifically when disease case
 <span class="co">#and its standard error</span>
 <span class="kw">plot</span>(Con_pred, <span class="dt">type=</span><span class="st">&quot;SErelrisk&quot;</span>)
 <span class="co">#to map the exceedance probability that the relative risk is greter than a particular threshold</span>
-<span class="kw">plot</span>(Dis_pred, <span class="dt">type=</span><span class="st">&quot;relrisk&quot;</span>, <span class="dt">thresholds=</span><span class="dv">2</span>)</code></pre></div>
+<span class="kw">plot</span>(Con_pred, <span class="dt">type=</span><span class="st">&quot;relrisk&quot;</span>, <span class="dt">thresholds=</span><span class="dv">2</span>)</code></pre></div>
 </div>
 <div id="sdalgcp-ii-unweighted" class="section level2">
 <h2>SDALGCP II (Unweighted)</h2>
 <p>As for the unweighted which is typically by taking the simple average of the intensity an LGCP model, the entire code in the weighted can be used by just setting  in the line below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_est &lt;-<span class="st"> </span><span class="kw">SDALGCPMCML</span>(<span class="dt">data=</span>data, <span class="dt">formula=</span>FORM, <span class="dt">my_shp=</span>PBCshp, <span class="dt">delta=</span><span class="dv">300</span>, <span class="dt">phi=</span>phi, <span class="dt">method=</span><span class="dv">1</span>, 
-                      <span class="dt">weighted=</span><span class="ot">FALSE</span>,  <span class="dt">plot=</span><span class="ot">TRUE</span>, <span class="dt">par0=</span><span class="ot">NULL</span>, <span class="dt">control.mcmc=</span><span class="ot">NULL</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_est &lt;-<span class="st"> </span><span class="kw">SDALGCPMCML</span>(<span class="dt">data=</span>data, <span class="dt">formula=</span>FORM, <span class="dt">my_shp=</span>PBCshp, <span class="dt">delta=</span><span class="dv">200</span>, <span class="dt">phi=</span>phi, <span class="dt">method=</span><span class="dv">1</span>, 
+                      <span class="dt">weighted=</span><span class="ot">FALSE</span>,  <span class="dt">plot=</span><span class="ot">FALSE</span>, <span class="dt">par0=</span><span class="ot">NULL</span>, <span class="dt">control.mcmc=</span><span class="ot">NULL</span>, <span class="dt">messages =</span> <span class="ot">TRUE</span>, <span class="dt">plot_profile =</span> <span class="ot">TRUE</span>)</code></pre></div>
 </div>
 </div>
 <div id="discussion" class="section level1">
 <h1>Discussion</h1>
-<p>Using SDALGCP package for analysis of spatially aggregated data provides two main advantages. One is that it allows the user to make spatially continous inference irrespective of the level of aggregation of the data. Second is more computationally efficient than the lgcp model for aggregated data that was implemented in  package.</p>
+<p>Using SDALGCP package for analysis of spatially aggregated data provides two main advantages. One, it allows the user to make spatially continous inference irrespective of the level of aggregation of the data. Second, it is more computationally efficient than the lgcp model for aggregated data that was implemented in  package.</p>
 <!-- Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format: -->
 <!-- - Never uses retina figures -->
 <!-- - Has a smaller default figure size -->

@@ -7,4 +7,5 @@
 #' @keywords datasets
 #' @name pop_den
 #' @usage data(pop_den)
+#' @references Murdock, A.P., Harfoot, A.J.P., Martin, D., Cockings, S. and Hill, C. (2015) OpenPopGrid: an open gridded population dataset for England and Wales. GeoData, University of Southampton.
 NULL

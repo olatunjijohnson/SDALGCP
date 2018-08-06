@@ -18,7 +18,7 @@
   \item{Employment}{proportion of the population experiencing employment deprivation}
   \item{Health}{deprivation due to Health}
   \item{Education}{deprivation due to education}
-  \item{Barriers}{arriers to housing and services}
+  \item{Barriers}{barriers to housing and services}
   \item{Crime}{deprivation due to crime}
   \item{Environment}{living environment deprivation}
   ...
@@ -28,5 +28,8 @@ data(PBCshp)
 }
 \description{
 A dataset containing PBC count and Index of multiple deprivation
+}
+\references{
+Taylor, B., Davies, T., Rowlingson, B., & Diggle, P. (2015). Bayesian inference and data augmentation schemes for spatial, spatiotemporal and multivariate log-Gaussian Cox processes in R. Journal of Statistical Software, 63, 1-48.
 }
 \keyword{datasets}
