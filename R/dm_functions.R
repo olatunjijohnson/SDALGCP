@@ -94,6 +94,7 @@ SDALGCPSSIPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax
           len.xy <- n
           warning(paste("Move to the next polygon after", k, "attempts with only",
                         dim(xy)[1], "points placed out of", n))
+          break
         }
       }
       if (len.xy ==n) break
@@ -126,6 +127,7 @@ SDALGCPSSIPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax
           len.xy <- n
           warning(paste("Move to the next polygon after", k, "attempts with only",
                         dim(xy)[1], "points placed out of", n))
+          break
         }
       }
       if (len.xy ==n) break
@@ -220,6 +222,7 @@ SDALGCPUniformPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambd
           len.xy <- n
           warning(paste("Move to the next polygon after", k, "attempts with only",
                         dim(xy)[1], "points placed out of", n))
+          break
         }
       }
       if (len.xy ==n) break
@@ -510,6 +513,7 @@ precomputeCorrMatrix <- function(S.coord, phi){
           R[i,j, k] <- R[j,i, k] <- mean(exp(-U/phi[k]))
         }
       }
+      flush.console()
     }
     attr(R, 'weighted') <- FALSE
     attr(R, 'my_shp') <-   attr(S.coord, 'my_shp')
@@ -849,6 +853,7 @@ SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, pl
   attr(out, 'weighted') <- attr(corr$R, 'weighted')
   attr(out, 'my_shp') <- attr(corr$R, 'my_shp')
   attr(out, 'S_coord') <- attr(corr$R, 'S_coord')
+  attr(out, "prematrix") <- corr
   class(out) <- "SDALGCP"
   return(out)
 }
