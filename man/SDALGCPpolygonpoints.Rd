@@ -33,12 +33,6 @@ This function generate a random point pattern using Simple Sequential Inhibition
 \details{
 This algorithm generates points inside the polygon using three algorithms specified in the method.
 }
-\examples{
-\dontrun{
-data(PBCshp)
-SDALGCPpolygonpoints(my_shp=PBCshp, delta=100)
-}
-}
 \seealso{
 \link{SDALGCPCreatePoint}, \link{SDALGCPSSIPoint}, \link{SDALGCPUniformPoint}, \link{SDALGCPRegularPoint}
 }

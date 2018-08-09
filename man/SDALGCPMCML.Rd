@@ -84,19 +84,27 @@ This function performs parameter estimation for a SDALGCP Model
 The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic expression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}. The first stage of estimation is generating locations inside the polygon, followed by precomputing the correlation matrices, then optimising the likelihood.
 }
 \examples{
-\dontrun{
+### Prepare the input of the model
 data(PBCshp)
-data <- as.data.frame(PBCshp@data)
+data <- as.data.frame(PBCshp@data)  #get the data
+### Write the formula of the model
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
-Environment +  offset(log(pop))
-phi <- seq(500, 1700, length.out = 20)
+Environment +  offset(log(pop)) 
+### set the discretised phi
+phi <- seq(500, 1700, length.out = 20)   
+#### get the initial parameter
 model <- glm(formula=FORM, family="poisson", data=data)
 beta.start <-coef(model)
 sigma2.start <- mean(model$residuals^2)
 phi.start <- median(phi)
 par0 <- c(beta.start, sigma2.start, phi.start)
+# setup the control arguments for the MCMC
+n <- 545
+h <- 1.65/(n^(1/6))
 control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
                  thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
+###Run the model
+\dontrun{
 my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
                      weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
 }

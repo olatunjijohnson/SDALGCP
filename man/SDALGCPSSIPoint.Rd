@@ -36,10 +36,8 @@ This function generate a random point pattern using Simple Sequential Inhibition
 This algorithm generates points inside the polygon using Simple Sequential Inhibition (SSI) process.
 }
 \examples{
-\dontrun{
 data(PBCshp)
-SDALGCPSSIPoint(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
-}
+points <- SDALGCPSSIPoint(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
 }
 \author{
 Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}

@@ -29,13 +29,11 @@ This function helps to define the number of iteration, burn-in, thining, and the
 To be used in SDA
 }
 \examples{
-\dontrun{
 n <- 545
 h <- 1.65/(n^(1/6))
 control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
 thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 str(control.mcmc)
-}
 }
 \seealso{
 \link[PrevMap]{control.mcmc.MCML}

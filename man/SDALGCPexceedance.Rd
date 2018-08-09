@@ -19,21 +19,6 @@ A vector or dataframe(for more than one value of the threshold) of the exceedanc
 \description{
 Computes the exceedance probability for a given threshold of the spatially continuous relative risk or the region specific relative risk from the object of class "Pred.SDALGCP".
 }
-\examples{
-\dontrun{
-data(PBCshp)
-data <- as.data.frame(PBCshp@data)
-FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
-Environment +  offset(log(pop))
-phi <- seq(500, 1700, length.out = 20)
-control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
-                            thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
-my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
-                     weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
-Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)
-ExceedanceProb <- SDALGCPexceedance(obj=Con_pred, thresholds=2, continuous=TRUE)
-}
-}
 \author{
 Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
 
@@ -41,3 +26,4 @@ Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
 
 Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
 }
+\keyword{internal}

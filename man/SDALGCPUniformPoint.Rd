@@ -39,10 +39,12 @@ This function generate a random point pattern using a uniform sampling or comple
 This algorithm generates points inside the polygon using a uniform sampling or completely spatial random sampling.
 }
 \examples{
-\dontrun{
 data(PBCshp)
-SDALGCPUniformPoint(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
-}
+require(sp)  #load sp package
+poly <- PBCshp@polygons[[1]]@Polygons[[1]]@coords
+#create a spatialpolygons object
+bound <- SpatialPolygons(list(Polygons(list(Polygon(poly)), "x")))
+point <- SDALGCPUniformPoint(poly=poly, delta=100, n=1, bound = bound)
 }
 \author{
 Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}

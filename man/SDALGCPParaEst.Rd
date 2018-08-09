@@ -67,18 +67,6 @@ This function performs parameter estimation for a SDALGCP Model
 \bold{Monte Carlo Maximum likelihood.}
 The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic expression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}
 }
-\examples{
-\dontrun{
-data(PBCshp)
-S.coord <- SDALGCPpolygonpoints(my_shp=PBCshp, delta=100)
-phi <- seq(1, 10, 1)
-pre.matrix <- precomputeCorrMatrix(S.coord=S.coord, phi=phi)
-data <- PBCshp@data
-FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
-Environment +  offset(log(pop))
-SDALGCPParaEst(formula=FORM , data=data, corr=pre.matrix)
-}
-}
 \references{
 Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08.
 

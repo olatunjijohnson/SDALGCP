@@ -30,14 +30,27 @@ Simple plotting function for both discrete and continuous prediction from the ob
 This function plots the inference from \code{\link{SDALGCPPred}} function. It plots for region-specific inference; incidence and covariate adjusted relative risk while for spatially continuous inference it plots the relative risk. It can as well plot the exceedance probability for spatially discrete and continuous inference.
 }
 \examples{
-\dontrun{
+### Prepare the input of the model
 data(PBCshp)
-data <- as.data.frame(PBCshp@data)
+data <- as.data.frame(PBCshp@data)  #get the data
+### Write the formula of the model
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
-Environment +  offset(log(pop))
-phi <- seq(500, 1700, length.out = 20)
+Environment +  offset(log(pop)) 
+### set the discretised phi
+phi <- seq(500, 1700, length.out = 20)   
+#### get the initial parameter
+model <- glm(formula=FORM, family="poisson", data=data)
+beta.start <-coef(model)
+sigma2.start <- mean(model$residuals^2)
+phi.start <- median(phi)
+par0 <- c(beta.start, sigma2.start, phi.start)
+# setup the control arguments for the MCMC
+n <- 545
+h <- 1.65/(n^(1/6))
 control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
-                            thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
+                 thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
+###Run the model
+\dontrun{
 my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
                      weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
 Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)

@@ -39,19 +39,6 @@ This function performs spatial continuous prediction, fixing the model parameter
 \details{
 The function returns the prediction of the relative risk exp(S(x))
 }
-\examples{
-\dontrun{
-data(PBCshp)
-S.coord <- SDALGCPpolygonpoints(my_shp=PBCshp, delta=100)
-phi <- seq(1, 10, 1)
-pre.matrix <- precomputeCorrMatrix(S.coord=S.coord, phi=phi)
-data <- PBCshp@data
-FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
-Environment +  offset(log(pop))
-est <- SDALGCPMCML(formula=FORM , data=data, corr=pre.matrix)
-SDAContinuousPred(para_est=est, cellsize=300)
-}
-}
 \author{
 Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
 

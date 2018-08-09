@@ -23,20 +23,6 @@ A matrix (or vector) with columns giving lower and upper confidence limits for e
 \description{
 Computes confidence intervals for one or more parameters in a fitted SDALGCP model from the object of class "SDALGCP", based on asymptotic normality.
 }
-\examples{
-\dontrun{
-data(PBCshp)
-data <- as.data.frame(PBCshp@data)
-FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
-Environment +  offset(log(pop))
-phi <- seq(500, 1700, length.out = 20)
-control.mcmc <- list(n.sim = 110000, burnin = 10000, thin= 10, h=1.65/(545^(1/6)),
-                    c1.h = 0.01, c2.h = 1e-04)
-my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=100, phi=phi, method=1, 
-                     weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
-confint(my_est)
-}
-}
 \seealso{
 \link{confint.lm}, \link{confint.default}, \link{SDALGCPMCML}
 }

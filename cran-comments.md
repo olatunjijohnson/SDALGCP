@@ -1,9 +1,15 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
+*Added additional tiny toy examples and were allowed to run
+
+## Resubmission
+This is a resubmission. In this version I have:
+
 * Removed "this package" from the description field.
 
 * Added a reference to the method used in the package.
+
 
 ## Test environments
 * local ubuntu 16.04 LTS, R 3.4.4

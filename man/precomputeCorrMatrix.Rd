@@ -20,14 +20,6 @@ This function precomputes the covariance matrix
 \details{
 This function precompute the covariance matrix using the exponential covariance function
 }
-\examples{
-\dontrun{
-data(PBCshp)
-S.coord <- SDALGCPpolygonpoints(my_shp=PBCshp, delta=100)
-phi <- seq(1, 10, 1)
-pre.matrix <- precomputeCorrMatrix(S.coord=S.coord, phi=phi)
-}
-}
 \seealso{
 \code{\link{SDALGCPpolygonpoints}},
 }
