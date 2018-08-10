@@ -411,11 +411,12 @@ SDALGCPCreatePoint <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, po
 SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighted=FALSE, rho=NULL, plot=FALSE,
                                  giveup=NULL){
   pb <- progress::progress_bar$new(
-    format = "creating points inside region :current out of :total  regions [:bar:] :percent",
+    format = "   creating points inside region :current out of :total  regions [:bar:] :percent",
     clear = FALSE, total = length(my_shp), width = 70)
   if(weighted == TRUE & is.null(pop_shp)) stop('please insert the raster file of the population density or change argument weights==FALSE if you do not plan to use population density')
   if(weighted==FALSE){
     my_list <- list()
+    pb$tick(0)
     for (i in 1:length(my_shp)){
       my_list[[i]] <- SDALGCPCreatePoint(my_shp = my_shp@polygons[[i]]@Polygons[[1]], 
                                     pop_shp = pop_shp, delta=delta, method=method,
@@ -442,6 +443,7 @@ SDALGCPpolygonpoints <- function(my_shp, delta, method=1, pop_shp=NULL,  weighte
     }
     my_pop_lsoa_max <- unlist(lapply(pop_lsoa,FUN = max.mat))
     my_list <- list()
+    pb$tick(0)
     for (i in 1:length(my_shp)){
       my_list[[i]] <- SDALGCPCreatePoint(my_shp = my_shp@polygons[[i]]@Polygons[[1]], 
                                     pop_shp = pop_shp, delta=delta, method=method, rho=rho,
@@ -477,14 +479,14 @@ precomputeCorrMatrix <- function(S.coord, phi){
   cat("\n Start precomputing the correlation matrix! \n")
   #pb = utils::txtProgressBar(min = 0, max = n.distr, initial = 0) 
   pb <- progress::progress_bar$new(
-    format = "[:bar:] :percent",
-    clear = TRUE, total = n.distr, width = 70)
+    format = "   [:bar:] :percent", total = n.distr, width = 70, clear=FALSE)
   R= array(NA, dim = c(n.distr, n.distr, n.phi))
   if (weight==TRUE){
+    pb$tick(0)
     for (i in 1:n.distr){
       #utils::setTxtProgressBar(pb,i, label=paste( round(i/n.distr*100, 0), "% done"))
       pb$tick(1)
-      Sys.sleep(0.1)
+      Sys.sleep(0.01)
       for (j in i:n.distr){
         U <- as.matrix(pdist::pdist(as.matrix(S.coord[[i]]$xy), as.matrix(S.coord[[j]]$xy)))
         W <- outer(S.coord[[i]]$weight, S.coord[[j]]$weight, '*')
@@ -497,10 +499,11 @@ precomputeCorrMatrix <- function(S.coord, phi){
     attr(R, 'my_shp') <-   attr(S.coord, 'my_shp')
     attr(R, 'S_coord') <-   S.coord   
   }else{
+    pb$tick(0)
     for (i in 1:n.distr){
       #utils::setTxtProgressBar(pb,i, label=paste( round(i/n.distr*100, 0), "% done"))
       pb$tick(1)
-      Sys.sleep(0.1)
+      Sys.sleep(0.01)
       for (j in i:n.distr){
         U <- as.matrix(pdist::pdist(as.matrix(S.coord[[i]]$xy), as.matrix(S.coord[[j]]$xy)))
         for (k in 1:n.phi){
@@ -715,7 +718,6 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @importFrom pdist pdist
-##' @importFrom pbapply pblapply
 ##' @references Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08.
 ##' @references Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
 ##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}}
@@ -792,7 +794,7 @@ SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, pl
   
   
   ######################################
-  func <- function(x){
+  func <- function(x, par0){
     cat("\n For phi = ", phi[x], "\n")
     result <- Aggregated_poisson_log_MCML(y=y, D=D, m=m, corr= R[,,x], par0=par0, 
                                           control.mcmc=control.mcmc, S.sim=S.sim, 
@@ -801,7 +803,16 @@ SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, pl
     return(list(par=c(phi[x], result$value, as.numeric(result$estimate)), cov=result$covariance))
   }
   cat("\n Now estimating the parameter \n")
-  ress <- pbapply::pblapply(1:n.phi, FUN = func)
+  ress <- list()
+  pb <- progress::progress_bar$new(
+    format = "   [:bar:] :percent", total = n.phi, width = 70, clear=FALSE)
+  pb$tick(0)
+  for (i in 1:n.phi){
+    ress[[i]] <- func(x=i, par0=par0)
+    par0 <- c(ress[[i]]$par[-(1:2)], ress[[i]]$par[1])
+    pb$tick(1)
+    Sys.sleep(0.01)
+  }
   output <- as.data.frame(do.call('rbind', lapply(ress, function(x) x$par)))
   output2 <-  lapply(ress, function(x) x$cov)
   ########to get predictors names
@@ -966,8 +977,8 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
     n.pred.loc <- nrow(pred.loc)
     n.distr <- length(S.coord)
     pb <- progress::progress_bar$new(
-      format = "[:bar:] :percent",
-      clear = TRUE, total = n.pred.loc, width = 70)
+      format = "   [:bar:] :percent",
+       total = n.pred.loc,  width = 70, clear=FALSE)
     R= matrix(NA, nrow = n.pred.loc, ncol = n.distr)
     for (i in 1:n.pred.loc){
       for (j in 1:n.distr){
@@ -976,6 +987,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
         R[i,j] =  sum(S.coord[[j]]$weight*exp(-U/phi))
       }
       pb$tick(1)
+      Sys.sleep(0.01)
     }
     return(R)
   }
@@ -984,16 +996,18 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
     n.pred.loc <- nrow(pred.loc)
     n.distr <- length(S.coord)
     pb <- progress::progress_bar$new(
-      format = "[:bar:] :percent",
-      clear = TRUE, total = n.pred.loc, width = 70)
+      format = "   [:bar:] :percent",
+      clear = FALSE, total = n.pred.loc, width = 70)
     R= matrix(NA, nrow = n.pred.loc, ncol = n.distr)
     for (i in 1:n.pred.loc){
+      pb$tick(0)
       for (j in 1:n.distr){
         U= as.matrix(pdist::pdist(pred.loc[i,],
                                   as.matrix(S.coord[[j]]$xy)))
         R[i,j] =  mean(exp(-U/phi))
       }
       pb$tick(1)
+      Sys.sleep(0.01)
     }
     return(R)
   }
