@@ -1119,7 +1119,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
 ##'                  thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 ##' ###Run the model
-##' \dontrun{
+##' \donttest{
 ##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
 ##'                      weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
 ##' }
@@ -1200,7 +1200,7 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_sh
 ##' control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
 ##'                  thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 ##' ###Run the model
-##' \dontrun{
+##' \donttest{
 ##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
 ##'                      weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
 ##' Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)
@@ -1466,7 +1466,7 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
 ##' control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
 ##'                  thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 ##' ###Run the model
-##' \dontrun{
+##' \donttest{
 ##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
 ##'                      weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
 ##' Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)

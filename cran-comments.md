@@ -1,6 +1,11 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
+*Changed dontrun to donttest 
+
+## Resubmission
+This is a resubmission. In this version I have:
+
 *Added additional tiny toy examples and were allowed to run
 
 ## Resubmission

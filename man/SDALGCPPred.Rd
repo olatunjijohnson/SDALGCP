@@ -63,7 +63,7 @@ h <- 1.65/(n^(1/6))
 control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
                  thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 ###Run the model
-\dontrun{
+\donttest{
 my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1, 
                      weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
 Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)
