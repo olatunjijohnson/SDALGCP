@@ -1319,7 +1319,7 @@ plot_discrete <- function(obj, type='incidence', overlay=FALSE, ...){
   obj$my_shp$SEincidence  <- obj$my_shp$pSD_RR
   obj$my_shp$CovAdjRelRisk  <- obj$my_shp$pMean_ARR
   obj$my_shp$SECovAdjRelRisk  <- obj$my_shp$pSD_ARR
-  if(overlay=TRUE){
+  if(overlay==TRUE){
     mapview::mapview(obj$my_shp, type, ...)
   }else{
     sp::spplot(obj$my_shp, type, ...)
@@ -1349,7 +1349,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
     dat <- data.frame(x=obj$pred.loc[,1], y=obj$pred.loc[,2], z = as.numeric(obj$pred))
     if (any(names(obj) == "bound"))  {
       r1  <- raster::mask(raster::rasterFromXYZ(dat), obj$bound)
-      if(overlay=TRUE){
+      if(overlay==TRUE){
         mapview::mapview(r1,  ...)
       }else{
         sp::spplot(r1,  ..., sp.layout=obj$bound)
@@ -1358,7 +1358,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
     } else{
       if(is.null(bound)) stop("please supply the boundary of the region")
       r1  <- raster::mask(raster::rasterFromXYZ(dat), bound)
-      if(overlay=TRUE){
+      if(overlay==TRUE){
         mapview::mapview(r1,  ...)
       }else{
         sp::spplot(r1,  ..., sp.layout=bound)
@@ -1369,7 +1369,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
     dat <- data.frame(x=obj$pred.loc[,1], y=obj$pred.loc[,2], z = as.numeric(obj$predSD))
     if (any(names(obj) == "bound")){
       r1  <- raster::mask(raster::rasterFromXYZ(dat), obj$bound)
-      if(overlay=TRUE){
+      if(overlay==TRUE){
         mapview::mapview(r1,  ...)
       }else{
         sp::spplot(r1, ..., sp.layout=obj$bound)
@@ -1378,7 +1378,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
     } else{
       if(is.null(bound)) stop("please supply the boundary of the region")
       r1  <- raster::mask(raster::rasterFromXYZ(dat), bound)
-      if(overlay=TRUE){
+      if(overlay==TRUE){
         mapview::mapview(r1,  ...)
       }else{
         sp::spplot(r1,  ..., sp.layout=bound)
@@ -1392,7 +1392,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
       r1  <- raster::mask(raster::rasterFromXYZ(dat1), obj$bound)
       r2  <- raster::mask(raster::rasterFromXYZ(dat2), obj$bound)
       s <- raster::stack(r1, r2)
-      if(overlay=TRUE){
+      if(overlay==TRUE){
         mapview::mapview(s,  ...)
       }else{
         sp::spplot(s, colorkey=list(space="bottom"), ..., sp.layout=obj$bound)
@@ -1404,7 +1404,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
       r1  <- raster::mask(raster::rasterFromXYZ(dat1), bound)
       r2  <- raster::mask(raster::rasterFromXYZ(dat2), bound)
       s <- raster::stack(r1, r2)
-      if(overlay=TRUE){
+      if(overlay==TRUE){
         mapview::mapview(s,  ...)
       }else{
         sp::spplot(s, colorkey=list(space="bottom"), ..., sp.layout=bound)
@@ -1459,7 +1459,7 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
     dat <- data.frame(x=obj$pred.loc[,1], y=obj$pred.loc[,2], z = as.numeric(obj$prob))
     if (any(names(obj) == "bound"))  {
       r1  <- raster::mask(raster::rasterFromXYZ(dat), obj$bound)
-      if(overlay=TRUE){
+      if(overlay==TRUE){
         mapview::mapview(r1,  ...)
       }else{
         sp::spplot(r1,  ..., sp.layout=obj$bound)
@@ -1468,7 +1468,7 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
     } else{
       if(is.null(bound)) stop("please supply the boundary of the region")
       r1  <- raster::mask(raster::rasterFromXYZ(dat), bound)
-      if(overlay=TRUE){
+      if(overlay==TRUE){
         mapview::mapview(r1,  ...)
       }else{
         sp::spplot(r1,  ..., sp.layout=bound)
@@ -1477,7 +1477,7 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
     }
   }else{
     obj$my_shp$prob <- SDALGCPexceedance(obj, thresholds=thresholds, continuous=FALSE)
-    if(overlay=TRUE){
+    if(overlay==TRUE){
       mapview::mapview(r1,  ...)
     }else{
       sp::spplot(obj$my_shp, "prob", ...)
