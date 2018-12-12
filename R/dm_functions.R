@@ -1305,6 +1305,7 @@ print.summary.SDALGCP <- function(x, ...){
 ##' @description A generic function for mapping spatially discrete prediction for \code{\link{SDALGCPPred}} function in \link{SDALGCP} package. Not for general purposes
 ##' @param obj an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}
 ##' @param type Character string: what type of plot to produce. Choices are "incidence" (=exp(mu+S)); "SEincidence" (standard error of incidence); "CovAdjRelRisk" (=exp(S)); or "SECovAdjRelRisk" (standard error of covariate adjusted relative risk);.
+##' @param overlay optional; a logical operation to indicate either to add a base map.
 ##' @param ... further arguments passed to \code{\link{plot}}.
 ##' @seealso \code{\link{SDALGCPPred}}
 ##' @return The function does not return any value.
@@ -1333,6 +1334,7 @@ plot_discrete <- function(obj, type='incidence', overlay=FALSE, ...){
 ##' @param obj an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}
 ##' @param type Character string: what type of plot to produce. Choices are "relrisk" (=exp(S)); "SErelrisk" (standard error of the relative risk).
 ##' @param bound the boundary of the predictive grid, not required if predictive grid is not supplied
+##' @param overlay optional; a logical operation to indicate either to add a base map.
 ##' @param ... further arguments passed to \code{\link{plot}}.
 ##' @seealso \code{\link{SDALGCPPred}}
 ##' @return The function does not return any value.
@@ -1350,6 +1352,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
     if (any(names(obj) == "bound"))  {
       r1  <- raster::mask(raster::rasterFromXYZ(dat), obj$bound)
       if(overlay==TRUE){
+        raster::crs(r1) <- obj$my_shp@proj4string
         mapview::mapview(r1,  ...)
       }else{
         sp::spplot(r1,  ..., sp.layout=obj$bound)
@@ -1359,6 +1362,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
       if(is.null(bound)) stop("please supply the boundary of the region")
       r1  <- raster::mask(raster::rasterFromXYZ(dat), bound)
       if(overlay==TRUE){
+        raster::crs(r1) <- obj$my_shp@proj4string
         mapview::mapview(r1,  ...)
       }else{
         sp::spplot(r1,  ..., sp.layout=bound)
@@ -1370,6 +1374,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
     if (any(names(obj) == "bound")){
       r1  <- raster::mask(raster::rasterFromXYZ(dat), obj$bound)
       if(overlay==TRUE){
+        raster::crs(r1) <- obj$my_shp@proj4string
         mapview::mapview(r1,  ...)
       }else{
         sp::spplot(r1, ..., sp.layout=obj$bound)
@@ -1379,6 +1384,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
       if(is.null(bound)) stop("please supply the boundary of the region")
       r1  <- raster::mask(raster::rasterFromXYZ(dat), bound)
       if(overlay==TRUE){
+        raster::crs(r1) <- obj$my_shp@proj4string
         mapview::mapview(r1,  ...)
       }else{
         sp::spplot(r1,  ..., sp.layout=bound)
@@ -1393,6 +1399,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
       r2  <- raster::mask(raster::rasterFromXYZ(dat2), obj$bound)
       s <- raster::stack(r1, r2)
       if(overlay==TRUE){
+        raster::crs(s) <- obj$my_shp@proj4string
         mapview::mapview(s,  ...)
       }else{
         sp::spplot(s, colorkey=list(space="bottom"), ..., sp.layout=obj$bound)
@@ -1405,6 +1412,7 @@ plot_continuous <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...)
       r2  <- raster::mask(raster::rasterFromXYZ(dat2), bound)
       s <- raster::stack(r1, r2)
       if(overlay==TRUE){
+        raster::crs(s) <- obj$my_shp@proj4string
         mapview::mapview(s,  ...)
       }else{
         sp::spplot(s, colorkey=list(space="bottom"), ..., sp.layout=bound)
@@ -1444,6 +1452,7 @@ SDALGCPexceedance <- function(obj , thresholds, continuous=TRUE) {
 ##' @param thresholds either a vector  of numbers or a vector of single value.
 ##' @param bound optional; it gives the boundary of the region, only useful when the predictive location is supplied in \link{SDALGCPPred}.
 ##' @param continuous logical; TRUE for spatially continuous relative risk and FALSE for region specific relative risk. default is TRUE.
+##' @param overlay optional; a logical operation to indicate either to add a base map.
 ##' @param ... further arguments passed to \link{plot}.
 ##' @return The plot of the exceedance probability map
 ##' @seealso \link{SDALGCPPred}
@@ -1494,6 +1503,7 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
 ##' @param continuous logical; TRUE for spatially continuous relative risk and FALSE for region specific relative risk. default is TRUE
 ##' @param thresholds optional; (only used if you want to plot the exceedance probability) either a vector  of numbers or a vector of single value.
 ##' @param bound optional; it gives the boundary of the region, only useful when the predictive location is supplied in \link{SDALGCPPred}
+##' @param overlay optional; a logical operation to indicate either to add a base map.
 ##' @param ... further arguments passed to \link{plot}.
 ##' @details This function plots the inference from \code{\link{SDALGCPPred}} function. It plots for region-specific inference; incidence and covariate adjusted relative risk while for spatially continuous inference it plots the relative risk. It can as well plot the exceedance probability for spatially discrete and continuous inference.
 ##' @seealso \link{SDALGCPPred}, \link{plot_continuous}, \link{plot_discrete}, \link{plot_SDALGCPexceedance}, \link{SDALGCPexceedance}
@@ -1538,21 +1548,19 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound=NULL, continuous=TRUE,
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @export
 plot.Pred.SDALGCP <- function(x,  type='relrisk', continuous=NULL, thresholds=NULL, bound=NULL, overlay=FALSE, ...){
-  if(is.null(continuous)){
-    continuous <- attr(x, 'continuous')
-  }
+  if(is.null(continuous)) continuous <- attr(x, 'continuous')
   if(continuous){
     if(is.null(thresholds)){
-      plot_continuous(obj=x, bound=bound, type=type, overlay=FALSE, ...)
+      plot_continuous(obj=x, bound=bound, type=type, overlay=overlay, ...)
     } else {
-      plot_SDALGCPexceedance(obj=x , thresholds=thresholds, bound=bound, continuous=continuous, overlay=FALSE, ...)
+      plot_SDALGCPexceedance(obj=x , thresholds=thresholds, bound=bound, continuous=continuous, overlay=overlay, ...)
     }
   }else{
     if (is.null(thresholds)){
       if (type=='relrisk') stop("Since you have made a spatially discrete inference, please set type to be one of these four options, choices are 'incidence' (=exp(mu+S)); 'SEincidence' (standard error of incidence); 'CovAdjRelRisk' (=exp(S)); or 'SECovAdjRelRisk' (standard error of covariate adjusted relative risk)")
-      plot_discrete(obj=x, type=type, overlay=FALSE, ...)
+      plot_discrete(obj=x, type=type, overlay=overlay, ...)
     } else{
-      plot_SDALGCPexceedance(obj=x , thresholds=thresholds, bound=bound, continuous=continuous, overlay=FALSE, ...)
+      plot_SDALGCPexceedance(obj=x , thresholds=thresholds, bound=bound, continuous=continuous, overlay=overlay, ...)
     }
   }
 }
@@ -1637,7 +1645,7 @@ controlmcmcSDA <- function(n.sim, burnin, thin, h, c1.h, c2.h){
 ##' @export
 ##'
 SDAProfilePhi <- function(obj){
-  if(class(obj) != "STALGCP") stop("please check the input, it must be an output of SDALGCPMCML function of class SDALGCP")
+  if(class(obj) != "SDALGCP") stop("please check the input, it must be an output of SDALGCPMCML function of class SDALGCP")
   output <- obj$all_para
   plot(output[,1], output[,2], type='l', ylab='loglik', xlab='phi', col="red")
 }
