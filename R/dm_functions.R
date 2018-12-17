@@ -816,8 +816,9 @@ SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, pl
   output <- as.data.frame(do.call('rbind', lapply(ress, function(x) x$par)))
   output2 <-  lapply(ress, function(x) x$cov)
   ########to get predictors names
-  mt <- attr(mf, "terms")
-  predictorsnames <- c("(intercept)", attr(mt, "term.labels"))
+  # mt <- attr(mf, "terms")
+  # predictorsnames <- c("(intercept)", attr(mt, "term.labels"))
+  predictorsnames <- colnames(D)
   ##########
   colnames(output) <- c('phi', 'value', predictorsnames, 'sigma2')
   #i need to redo the col name when par0 is specified
@@ -1163,8 +1164,8 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi=NULL, method=1, pop_sh
 }
 
 ##########################################
-##' @title Spatial continuous predictions of the relative risk using plug-in of MCML estimates
-##' @description This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
+##' @title Spatial prediction using plug-in of MCML estimates
+##' @description This function performs spatial continuous and discrete prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
 ##' @param para_est an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.
 ##' @param cellsize the size of the computational grid
 ##' @param pred.loc optional, the dataframe of the predictive grid.
@@ -1325,7 +1326,6 @@ plot_discrete <- function(obj, type='incidence', overlay=FALSE, ...){
   }else{
     sp::spplot(obj$my_shp, type, ...)
   }
-
 }
 
 ###################################################################
