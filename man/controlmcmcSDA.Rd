@@ -26,12 +26,12 @@ A list with processed arguments to be passed to the main function.
 This function helps to define the number of iteration, burn-in, thining, and the tunning parameters of the adaptive MALA
 }
 \details{
-To be used in SDA
+To be used as one of the arguments of \code{\link{SDALGCPMCML}}
 }
 \examples{
 n <- 545
 h <- 1.65/(n^(1/6))
-control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, 
+control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000,
 thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 str(control.mcmc)
 }

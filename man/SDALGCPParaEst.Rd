@@ -23,8 +23,8 @@ SDALGCPParaEst(formula, data, corr, par0 = NULL, control.mcmc = NULL,
 \item{messages}{logical; if message=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.}
 }
 \value{
-An object of class "PrevMap".
-The function \code{\link{summary.PrevMap}} is used to print a summary of the fitted model.
+An object of class "SDALGCP".
+The function \code{\link{summary.SDALGCP}} is used to print a summary of the fitted model.
 The object is a list with the following components:
 
 \code{D}: matrix of covariates.

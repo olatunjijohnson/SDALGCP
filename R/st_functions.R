@@ -4,8 +4,8 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
   n.time <- dim(as.matrix(U))[1]
   n.region <- dim(corr)[1]
   p <- ncol(D)
-  
-  
+
+
   # #######################################
   # #functions for the derivative of matern
   matern.grad.nu <- function(U, nu, kappa) {
@@ -19,7 +19,7 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
     diag(grad.nu.mat) <- rep(der.nu(0,nu,kappa),n)
     grad.nu.mat
   }
-  
+
   der.nu <- function(u,nu,kappa) {
     u <- u+10e-16
     if(kappa==0.5) {
@@ -32,7 +32,7 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
     }
     out
   }
-  
+
   der2.nu <- function(u,nu,kappa) {
     u <- u+10e-16
     if(kappa==0.5) {
@@ -50,7 +50,7 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
     }
     out
   }
-  
+
   matern.hessian.nu <- function(U, nu, kappa) {
     n <- attr(U,"Size")
     hess.nu.mat <- matrix(NA,nrow=n,ncol=n)
@@ -62,8 +62,8 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
     diag(hess.nu.mat) <- rep(der2.nu(0,nu,kappa),n)
     hess.nu.mat
   }
-  
-  
+
+
   #likelihood
   Log.Joint.dens.S.Y <-function(S,val) {
     llik <- sum(y*S-m*exp(S))
@@ -72,10 +72,10 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
     return(-0.5*(n*log(val$sigma2)+ val$ldetR+
                    AAA/val$sigma2)+ llik)
   }
-  
+
   s.corr <- corr
   inv.s.corr <- solve(s.corr)
-  
+
   #it computes the density of S for each sample of S
   Num.Monte.Carlo.Log.Lik <- function(par) {
     beta <- par[1:p]
@@ -95,23 +95,23 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
     ##################################
     return(sapply(1:(dim(S.sim)[1]),function(i) Log.Joint.dens.S.Y(S.sim[i,],val)))
   }
-  
+
   Monte.Carlo.Log.Lik <- function(par) {
     log(mean(exp(Num.Monte.Carlo.Log.Lik(par)-Denominator)))
   }
-  
+
   # Monte.Carlo.Log.Lik(new.par)
-  
+
   grad.Monte.Carlo.Log.Lik <- function(par){
     beta <- par[1:p]
     mu <- as.numeric(D%*%beta)
     sigma2 <- exp(par[p+1])
     nu <- exp(par[p+2])
-    
+
     ###########
     #############
-    
-    
+
+
     First.deriv.S.param <- function(S){
       t.corr <- geoR::varcov.spatial(dists.lowertri=U, kappa=kappa, cov.pars=c(1, nu))$varcov
       s.corr <- corr
@@ -119,7 +119,7 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
       inv.s.corr <- inv.s.corr
       R.inv <- kronecker(inv.t.corr, inv.s.corr)
       ############# derivative of nu
-      R1.nu <- kronecker(matern.grad.nu(U,nu,kappa), s.corr) 
+      R1.nu <- kronecker(matern.grad.nu(U,nu,kappa), s.corr)
       m1.nu <- R.inv%*%R1.nu
       t1.nu <- -0.5*sum(diag(m1.nu))
       m2.nu <- m1.nu%*%R.inv
@@ -132,11 +132,11 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
       der.par <- c(grad.beta, grad.log.sigma2, grad.log.nu)
       return(der.par)
     }
-    
+
     ratio <- exp(Num.Monte.Carlo.Log.Lik(par)-Denominator)
     sum.ratio <- sum(ratio)
-    part.deriv <- ratio/sum.ratio            
-    
+    part.deriv <- ratio/sum.ratio
+
     cumm <- rep(0,length(par))
     for(i in 1:(dim(S.sim)[1])) {
       full.deriv <- part.deriv[i]*First.deriv.S.param(S.sim[i,])
@@ -144,7 +144,7 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
     }
     return(cumm)
   }
-  
+
   #######################
   # all.equal(grad(Monte.Carlo.Log.Lik,new.par),grad.Monte.Carlo.Log.Lik(new.par))
   # ####
@@ -154,7 +154,7 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
   #   t0=new.par
   # )
   #######################
-  
+
   #The second derivative of the Monte Carlo approximation
   hess.Monte.Carlo.Log.Lik <- function(par) {
     beta <- par[1:p]
@@ -169,61 +169,61 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
     inv.s.corr <- inv.s.corr
     R.inv <- kronecker(inv.t.corr, inv.s.corr)
     ############# first derivative of nu
-    R1.nu <- kronecker(matern.grad.nu(U,nu,kappa), s.corr) 
+    R1.nu <- kronecker(matern.grad.nu(U,nu,kappa), s.corr)
     m1.nu <- R.inv%*%R1.nu
     t1.nu <- -0.5*sum(diag(m1.nu))
     m2.nu <- m1.nu%*%R.inv
     ##second derivative of nu
-    R2.nu <- kronecker(matern.hessian.nu(U,nu,kappa), s.corr)  
+    R2.nu <- kronecker(matern.hessian.nu(U,nu,kappa), s.corr)
     t2.nu <- -0.5*sum(diag(R.inv%*%R2.nu-R.inv%*%R1.nu%*%R.inv%*%R1.nu))
     n2.nu <- R.inv%*%(2*R1.nu%*%R.inv%*%R1.nu-R2.nu)%*%R.inv
     #############
-    
+
     H <- matrix(0,nrow=length(par),ncol=length(par))
     H[1:p,1:p] <- (-t(D)%*%R.inv%*%D)/sigma2
-    
+
     Second.deriv.S.param <- function(S, part.deriv) {
-      
+
       diff.S <- S-mu
       q.f <- t(diff.S)%*%R.inv%*%diff.S
-      
+
       grad.beta <-  t(D)%*%R.inv%*%(diff.S)/sigma2
       grad.log.sigma2 <- (-n/(2*sigma2)+0.5*q.f/(sigma2^2))*sigma2
       grad.log.nu <- (t1.nu+0.5*as.numeric(t(diff.S)%*%m2.nu%*%(diff.S))/sigma2)*nu
-      
+
       der.par <- c(grad.beta, grad.log.sigma2, grad.log.nu)
-      
-      
+
+
       H[1:p,p+1] <- H[p+1,1:p] <- -t(D)%*%R.inv%*%(diff.S)/sigma2
-      
+
       H[1:p,p+2] <-  -nu*as.numeric(t(D)%*%m2.nu%*%(diff.S))/sigma2
-      
+
       H[p+2,1:p] <- -nu*as.numeric(t(D)%*%m2.nu%*%(diff.S))/sigma2
-      
+
       H[p+2,p+2] <- (t2.nu-0.5*t(diff.S)%*%n2.nu%*%(diff.S)/sigma2)*nu^2 + grad.log.nu
-      
+
       H[p+1,p+1] <- (n/(2*sigma2^2)-q.f/(sigma2^3))*sigma2^2 + grad.log.sigma2
-      
+
       H[p+1,p+2] <- (grad.log.nu/nu-t1.nu)*(-nu)
-      
+
       H[p+2,p+1] <- (grad.log.nu/nu-t1.nu)*(-nu)
-      
+
       #using the expected fisher
       # H[p+2,p+2] <- (-0.5*sum(diag(R.inv%*%(R1.nu%*%(R.inv%*%R1.nu)))))*nu^2 + grad.log.nu
-      
+
       out <- list()
       out$first.term<- part.deriv*(der.par%*%t(der.par)+H)
       out$grad <- der.par*part.deriv
       out
     }
-    
-    
-    
+
+
+
     ratio <- exp(Num.Monte.Carlo.Log.Lik(par)-Denominator)
     sum.ratio <- sum(ratio)
     part.deriv <- ratio/sum.ratio
-    
-    
+
+
     last.term <- rep(0,length(par))
     cumm <- matrix(0,length(par),length(par))
     for(i in 1:(dim(S.sim)[1])) {
@@ -234,12 +234,12 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
     out <- cumm-last.term%*%t(last.term)
     return(out)
   }
-  
+
   new.par <- par0[-length(par0)]
   new.par[(p+1)] <- log(new.par[(p+1)])
   new.par[(p+2)] <- log(new.par[(p+2)])
-  
-  
+
+
   output <- list()
   # print(Monte.Carlo.Log.Lik(new.par))
   # print(grad.Monte.Carlo.Log.Lik(new.par))
@@ -258,16 +258,16 @@ Aggregated_poisson_log_MCML_ST <- function(y, D, m, corr, par0, kappa, U, contro
   # output$estimate <- estimBFGS$estimate
   # output$covariance <- solve(-estimBFGS$hessian)
   # output$value <- estimBFGS$maximum
-  
+
   ###########################################
   # estimBFGS <- maxLik::maxNR(Monte.Carlo.Log.Lik,grad.Monte.Carlo.Log.Lik,hess.Monte.Carlo.Log.Lik,
   #                              new.par,print.level=1*messages)
   # output$estimate <- estimBFGS$estimate
   # output$covariance <- solve(-estimBFGS$hessian)
   # output$value <- estimBFGS$maximum
-  
+
   #i can change trace =0, so that it doesn't print result
-  
+
   output$S <- S.sim
   names(output$estimate)[1:p] <- colnames(D)
   names(output$estimate)[(p+1)] <- c("sigma^2") #note that it stored log(sigma^2)
@@ -299,17 +299,17 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
   n.time <- dim(as.matrix(U))[1]
   n.region <- dim(corr$R[,,1])[1]
   if(any(startsWith(names(mf), 'offset')==TRUE)) {
-    m <-  exp(model.offset(mf))   
+    m <-  exp(model.offset(mf))
   } else {
     m <- rep(1, n)
   }
   if(is.null(par0)) {
-    phi <- as.numeric(corr$phi)                
+    phi <- as.numeric(corr$phi)
     n.phi <- length(phi)
     R <- corr$R
     model <- glm(formula, family="poisson", data=data)
     beta.start <-coef(model)
-    sigma2.start <- mean(model$residuals^2) 
+    sigma2.start <- mean(model$residuals^2)
     nu.start <- 0.1
     phi.start <- median(phi)
     par0 <- c(beta.start, sigma2.start, nu.start, phi.start)
@@ -325,7 +325,7 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
   if(any(par0[-(1:p)] <= 0)) stop("the covariance parameters in 'par0' must be positive.")
   if(is.null(control.mcmc)) control.mcmc <- list(n.sim = 10000, burnin = 2000, thin= 8, h=1.65/(n^(1/6)),
                                                  c1.h = 0.01, c2.h = 1e-04)
-  
+
   #######################################MCMC
   #initial values
   beta0 <- par0[1:p]
@@ -337,25 +337,25 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
   Sigma0 <- sigma2.0 * kronecker(tcorr0, corr0)
   #####
   cat("\n Simulating the linear predictor given the initial parameter \n")
-  S.sim.res <- tryCatch(PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y, units.m=m, 
+  S.sim.res <- tryCatch(PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y, units.m=m,
                                                   control.mcmc=control.mcmc,
                                                   plot.correlogram=FALSE, messages=messages,
                                                   poisson.llik=TRUE), error=identity)
   if (is(S.sim.res, "error"))   stop("Error from simulating the linear predictor, change the initial value of the scale parameters, phi in par0 argument")
   S.sim <- S.sim.res$samples
-  
-  
+
+
   ################# compute the denominator
   Log.Joint.dens.S.Y <- function(S,val) {
-    
+
     llik <- sum(y*S-m*exp(S))
     diff.S <- S-val$mu
     AAA <-    t(diff.S)%*%val$R.inv0%*%(diff.S)
-    KKK <- -0.5*(n*log(val$sigma2) + val$ldetR0 + AAA/val$sigma2) 
+    KKK <- -0.5*(n*log(val$sigma2) + val$ldetR0 + AAA/val$sigma2)
     return(KKK + llik)
   }
-  
-  
+
+
   #it computes the density of S for each sample of S
   Num.Monte.Carlo.Log.Lik <- function(par) {
     beta <- par[1:p]
@@ -378,7 +378,7 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
   func <- function(x, par0){
     cat("\n For phi = ", phi[x], "\n")
     result <- Aggregated_poisson_log_MCML_ST(y=y, D=D, m=m, corr= R[,,x], par0=par0, U=U, kappa=kappa,
-                                             control.mcmc=control.mcmc, S.sim=S.sim, 
+                                             control.mcmc=control.mcmc, S.sim=S.sim,
                                              Denominator = Den.Monte.Carlo.Log.Lik, messages=messages)
     result$estimate[p+1] <- exp(result$estimate[p+1])
     result$estimate[p+2] <- exp(result$estimate[p+2])
@@ -403,7 +403,7 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
   predictorsnames <- colnames(D)
   ##########
   colnames(output) <- c('phi', 'value', predictorsnames, 'sigma2', "nu")
-  #i need to redo the col name when par0 is specified 
+  #i need to redo the col name when par0 is specified
   if (plot_profile) plot(output[,1], output[,2], type='l', ylab='loglik', xlab='phi', col="red")
   max.ind <- which.max(output[,'value'])
   max.res=output[max.ind,]
@@ -419,8 +419,8 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
   out$nu_opt <- as.numeric(max.res['nu'])
   out$phi_opt <- as.numeric(max.res['phi'])
   out$cov <- cov.max.res
-  out$Sigma_mat_opt <- out$sigma2_opt* kronecker(geoR::varcov.spatial(dists.lowertri=U, kappa=kappa, cov.pars=c(1, out$nu_opt))$varcov, R[,,which.max(output[,'value'])])    
-  out$inv_Sigma_mat_opt <- (1/out$sigma2_opt)*kronecker(solve(geoR::varcov.spatial(dists.lowertri=U, kappa=kappa, cov.pars=c(1, out$nu_opt))$varcov), solve(R[,,which.max(output[,'value'])]))    
+  out$Sigma_mat_opt <- out$sigma2_opt* kronecker(geoR::varcov.spatial(dists.lowertri=U, kappa=kappa, cov.pars=c(1, out$nu_opt))$varcov, R[,,which.max(output[,'value'])])
+  out$inv_Sigma_mat_opt <- (1/out$sigma2_opt)*kronecker(solve(geoR::varcov.spatial(dists.lowertri=U, kappa=kappa, cov.pars=c(1, out$nu_opt))$varcov), solve(R[,,which.max(output[,'value'])]))
   out$llike_val_opt <- as.numeric(max.res['value'])
   out$mu <- D%*%out$beta_opt
   out$all_para <- output
@@ -441,11 +441,11 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
 ##' @title Parameter estimation for spatio-temporal SDA-LGCP Using Monte Carlo Maximum likelihood
 ##' @description This function provides the maximum likelihood estimation of the parameter given a set of values of scale parameter of the Gaussian process, phi.
 ##' @param formula an object of class \code{\link{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted.
-##' @param st_data  data frame containing the variables in the model which of class spacetime.
-##' @param my_shp A SpatialPolygons or SpatialPolygonsDataFrame  object containing the polygons (i.e each regions).
+##' @param st_data  data frame containing the variables in the model and the polygons of the region, which of class spacetime.
 ##' @param delta distance between points
 ##' @param phi the discretised values of the scale parameter phi. if not supplied, it uses the default, which is 20 phis' which ranges from size of the smallest region to the one-tenth of the size of the entire domain.
 ##' @param pop_shp Optional, The raster of population density map for population weighted approach
+##' @param kappa the smoothness parameter of the matern correlation function assumed for the temporal correlation, default to 0.5 which corresponds to exponential correlation function.
 ##' @param weighted To specify if you want to use the population density, default to FALSE, i.e population density is not used.
 ##' @param method To specify which method to use to sample the points, the options are 1 for Simple Sequential Inhibition (SSI) process, 2 for Uniform sampling and 3 for regular grid. 1 is the default
 ##' @param par0 the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi). Default; beta, the estimates from the glm; sigma2, variance of the residual; phi, the median of the supplied phi.
@@ -459,7 +459,7 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
 ##' \bold{Monte Carlo Maximum likelihood.}
 ##' The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic expression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}. The first stage of estimation is generating locations inside the polygon, followed by precomputing the correlation matrices, then optimising the likelihood.
 ##' @return An object of class "SDALGCP".
-##' The function \code{\link{summary.SDALGCP}} is used to print a summary of the fitted model.
+##' The function \code{\link{summary.SDALGCPST}} is used to print a summary of the fitted model.
 ##' The object is a list with the following components:
 ##' @return \code{D}: matrix of covariates.
 ##' @return \code{y}: the count, response observations.
@@ -482,11 +482,12 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @importFrom pdist pdist
+##' @importFrom geoR varcov.spatial
 ##' @importFrom sp bbox
 ##' @importFrom spacetime stplot
 ##' @references Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08
 ##' @references Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
-##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}},  \link{summary.SDALGCP}
+##' @seealso \link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}},  \link{summary.SDALGCPST}
 ##' @export
 SDALGCPMCML_ST <- function(formula, st_data, delta, phi=NULL, method=1, pop_shp=NULL,  kappa=0.5,
                            weighted=FALSE, par0=NULL, control.mcmc=NULL, plot=FALSE, plot_profile=TRUE, rho=NULL,
@@ -499,11 +500,11 @@ SDALGCPMCML_ST <- function(formula, st_data, delta, phi=NULL, method=1, pop_shp=
   if(class(formula)!="formula") stop("formula must be a 'formula' object that indicates the variables of the fitted model.")
   if(!is.null(control.mcmc) & length(control.mcmc) != 6) stop("please check the input of the controlmcmc argument")
   if(is.null(phi)){
-    phi <- seq(sqrt(min(sapply(1:length(my_shp), function(x) my_shp@polygons[[x]]@area))), 
+    phi <- seq(sqrt(min(sapply(1:length(my_shp), function(x) my_shp@polygons[[x]]@area))),
                min(apply(sp::bbox(my_shp), 1, diff))/10, length.out = 20)
   }
   #############create point
-  my_list <- SDALGCPpolygonpoints(my_shp=my_shp, delta=delta, method=1, pop_shp=pop_shp, 
+  my_list <- SDALGCPpolygonpoints(my_shp=my_shp, delta=delta, method=1, pop_shp=pop_shp,
                                   weighted=weighted, plot=plot, rho=rho, giveup = giveup)
   #############precompute matrix
   if(is.null(par0)){
@@ -512,7 +513,7 @@ SDALGCPMCML_ST <- function(formula, st_data, delta, phi=NULL, method=1, pop_shp=
     phi <- c(phi, par0[length(par0)])
     my_preMatrix <- precomputeCorrMatrix(S.coord = my_list, phi = phi)
   }
-  
+
   #############estimate parameter
   my_est <- SDALGCPParaEst_ST(formula=formula, data=data, corr= my_preMatrix, par0=par0, time=time, kappa=kappa,
                               control.mcmc=control.mcmc, plot_profile=plot_profile, messages=messages)
@@ -527,10 +528,10 @@ SDALGCPMCML_ST <- function(formula, st_data, delta, phi=NULL, method=1, pop_shp=
 
 
 ############################
-SDADiscretePred <- function(para_est, control.mcmc=NULL,
+SDADiscretePred_ST <- function(para_est, control.mcmc=NULL,
                             divisor=1, plot.correlogram=FALSE, messages=TRUE){
   st_data <- attr(para_est, 'st_data')
-  beta <- para_est$beta_opt 
+  beta <- para_est$beta_opt
   mu0 <- para_est$mu
   sigma2 <- para_est$sigma2_opt*median(diag(para_est$Sigma_mat_opt))
   phi <-  para_est$phi_opt
@@ -539,7 +540,7 @@ SDADiscretePred <- function(para_est, control.mcmc=NULL,
   if (is.null(control.mcmc)) control.mcmc <- para_est$control.mcmc
   m <- para_est$m
   y <- para_est$y
-  S.sim.res <- PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y, 
+  S.sim.res <- PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y,
                                          units.m=m, control.mcmc = control.mcmc,
                                          plot.correlogram=plot.correlogram, messages=messages,
                                          poisson.llik=TRUE)
@@ -563,7 +564,7 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
   my_shp <- st_data@sp
   weight <- attr(para_est, 'weighted')
   S.coord <- attr(para_est, 'S_coord')
-  beta <- para_est$beta_opt 
+  beta <- para_est$beta_opt
   mu0 <- para_est$mu
   sigma2 <- para_est$sigma2_opt*median(diag(para_est$Sigma_mat_opt))
   phi <-  para_est$phi_opt
@@ -575,7 +576,7 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
   if (is.null(control.mcmc)) control.mcmc <- para_est$control.mcmc
   m <- para_est$m
   y <- para_est$y
-  S.sim.res <- PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y, 
+  S.sim.res <- PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y,
                                          units.m=m, control.mcmc = control.mcmc,
                                          plot.correlogram=plot.correlogram, messages=messages,
                                          poisson.llik=TRUE)
@@ -635,7 +636,7 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
         }
         return(R)
       }
-      ##########  
+      ##########
       cov.matrix.x.A2=function(pred.loc, S.coord, phi){
         n.pred.loc <- nrow(pred.loc)
         n.distr <- length(S.coord)
@@ -713,7 +714,7 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
       }
       return(R)
     }
-    ##########  
+    ##########
     cov.matrix.x.A2=function(pred.loc, S.coord, phi){
       n.pred.loc <- nrow(pred.loc)
       n.distr <- length(S.coord)
@@ -810,7 +811,7 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
 ##' @references Banerjee, S., Carlin, B. P., & Gelfand, A. E. (2014). Hierarchical modeling and analysis for spatial data. CRC press.
-##' @seealso \link{plot.Pred.SDALGCP}, \link{SDAContinuousPred}, \link{SDADiscretePred}, \link{plot_continuous}, \link{plot_discrete}
+##' @seealso \link{plot.Pred.SDALGCPST}, \link{SDAContinuousPred}, \link{SDADiscretePred}, \link{plot_continuous}, \link{plot_discrete}
 ##' @importFrom sp spsample coordinates
 ##' @importFrom spacetime stplot STFDF
 ##' @importFrom Matrix solve chol
@@ -869,7 +870,7 @@ print.SDALGCPST <- function(x, ...) {
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
-##' @method summary SDALGCP
+##' @method summary SDALGCPST
 ##' @export
 summary.SDALGCPST <- function(object, ...) {
   out <- list()
@@ -889,7 +890,7 @@ summary.SDALGCPST <- function(object, ...) {
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
 ##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
 ##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
-##' @method print summary.SDALGCP
+##' @method print summary.SDALGCPST
 ##' @export
 print.summary.SDALGCPST <- function(x, ...){
   cat("Call: \n")
@@ -978,9 +979,9 @@ plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ..
         # raster::crs(r1) <- obj$my_shp@proj4string
         # mapview::mapview(r1,  ...)
       }else{
-        spacetime::stplot(obj[,,"relrisk"], sp.layout = attr(obj, "bound"), ...) 
+        spacetime::stplot(obj[,,"relrisk"], sp.layout = attr(obj, "bound"), ...)
       }
-      
+
     } else{
       if(is.null(bound)) stop("please supply the boundary of the region")
       # r1  <- raster::mask(raster::rasterFromXYZ(dat), bound)
@@ -988,9 +989,9 @@ plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ..
         # raster::crs(r1) <- obj$my_shp@proj4string
         # mapview::mapview(r1,  ...)
       }else{
-        spacetime::stplot(obj[,,"relrisk"], sp.layout = attr(obj, "bound"), ...) 
+        spacetime::stplot(obj[,,"relrisk"], sp.layout = attr(obj, "bound"), ...)
       }
-      
+
     }
   }else if (type=='SErelrisk'){
     # dat <- data.frame(x=obj$pred.loc[,1], y=obj$pred.loc[,2], z = as.numeric(obj$predSD))
@@ -1000,9 +1001,9 @@ plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ..
         # raster::crs(r1) <- obj$my_shp@proj4string
         # mapview::mapview(r1,  ...)
       }else{
-        spacetime::stplot(obj[,,"SErelrisk"], sp.layout = attr(obj, "bound"), ...) 
+        spacetime::stplot(obj[,,"SErelrisk"], sp.layout = attr(obj, "bound"), ...)
       }
-      
+
     } else{
       if(is.null(bound)) stop("please supply the boundary of the region")
       # r1  <- raster::mask(raster::rasterFromXYZ(dat), bound)
@@ -1010,9 +1011,9 @@ plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ..
         # raster::crs(r1) <- obj$my_shp@proj4string
         # mapview::mapview(r1,  ...)
       }else{
-        spacetime::stplot(obj[,,"SErelrisk"], sp.layout = attr(obj, "bound"), ...) 
+        spacetime::stplot(obj[,,"SErelrisk"], sp.layout = attr(obj, "bound"), ...)
       }
-      
+
     }
   }else if (length(type)==2){
     dat1 <- data.frame(x=obj$pred.loc[,1], y=obj$pred.loc[,2], z = as.numeric(obj$pred))
@@ -1026,10 +1027,10 @@ plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ..
         mapview::mapview(s,  ...)
       }else{
         #change later
-        spacetime::stplot(obj[,,"SErelrisk"], sp.layout = attr(obj, "bound"), colorkey=list(space="bottom"), ...)  
+        spacetime::stplot(obj[,,"SErelrisk"], sp.layout = attr(obj, "bound"), colorkey=list(space="bottom"), ...)
       }
       #use names.attr = c('Relative Risk', 'Standard Error of Relative Risk') to name the plot
-      
+
     } else{
       if(is.null(bound)) stop("please supply the boundary of the region")
       r1  <- raster::mask(raster::rasterFromXYZ(dat1), bound)
@@ -1040,9 +1041,9 @@ plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ..
         mapview::mapview(s,  ...)
       }else{
         #change latter
-        spacetime::stplot(obj[,,"SErelrisk"], sp.layout =attr(obj, "bound"), colorkey=list(space="bottom"), ...)  
+        spacetime::stplot(obj[,,"SErelrisk"], sp.layout =attr(obj, "bound"), colorkey=list(space="bottom"), ...)
       }
-      
+
     }
   }else if (type=="incidence" | type=="CovAdjRelRisk"){
     plot_discrete(obj=obj, type=type, overlay=FALSE, ...)
@@ -1097,27 +1098,27 @@ plot_SDALGCPexceedanceST <- function(obj, thresholds, bound=NULL, continuous=TRU
       if(overlay==TRUE){
         mapview::mapview(r1,  ...)
       }else{
-        spacetime::stplot(obj[,,"prob"], sp.layout =attr(obj, "bound"), ...) 
+        spacetime::stplot(obj[,,"prob"], sp.layout =attr(obj, "bound"), ...)
       }
-      
+
     } else{
       if(is.null(bound)) stop("please supply the boundary of the region")
       r1  <- raster::mask(raster::rasterFromXYZ(dat), bound)
       if(overlay==TRUE){
         mapview::mapview(r1,  ...)
       }else{
-        spacetime::stplot(obj[,,"prob"], sp.layout =attr(obj, "bound"), ...) 
+        spacetime::stplot(obj[,,"prob"], sp.layout =attr(obj, "bound"), ...)
       }
-      
+
     }
   }else{
     obj$prob <- SDALGCPexceedance(obj, thresholds=thresholds, continuous=FALSE)
     if(overlay==TRUE){
       mapview::mapview(r1,  ...)
     }else{
-      spacetime::stplot(obj[,,"prob"], sp.layout =attr(obj, "bound"), ...) 
+      spacetime::stplot(obj[,,"prob"], sp.layout =attr(obj, "bound"), ...)
     }
-    
+
   }
 }
 
@@ -1134,7 +1135,7 @@ plot_SDALGCPexceedanceST <- function(obj, thresholds, bound=NULL, continuous=TRU
 ##' @details This function plots the inference from \code{\link{SDALGCPPred}} function. It plots for region-specific inference; incidence and covariate adjusted relative risk while for spatially continuous inference it plots the relative risk. It can as well plot the exceedance probability for spatially discrete and continuous inference.
 ##' @seealso \link{SDALGCPPred_ST}, \link{plot_continuousST}, \link{plot_discreteST}, \link{plot_SDALGCPexceedanceST}, \link{SDALGCPexceedanceST}
 ##' @return The function does not return any value.
-##' @method plot Pred.SDALGCP
+##' @method plot Pred.SDALGCPST
 ##' @importFrom spacetime stplot
 ##' @examples
 ##' # check vignette for examples

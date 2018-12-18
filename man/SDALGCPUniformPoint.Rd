@@ -5,8 +5,8 @@
 \title{SDALGCPUniformPoint function}
 \usage{
 SDALGCPUniformPoint(poly, delta, weighted = FALSE, pop_shp = NULL,
-  lambdamax = NULL, pop = NULL, n = NULL, rho = NULL, giveup = NULL,
-  bound = NULL)
+  lambdamax = NULL, pop = NULL, n = NULL, rho = NULL,
+  giveup = NULL, bound = NULL)
 }
 \arguments{
 \item{poly}{polygon in which to generate the points}

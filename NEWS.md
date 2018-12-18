@@ -1,8 +1,12 @@
-# mypackage 0.1.0.9000
-This is now a development version.
+# mypackage 0.2.0
+These are the improvements in these version.
 
-* removed methods from the description file
-* removed pbapply from the description file
+## Major changes
+* provides a spatio-temporal extension of the model
+* provides an option to include a base map
+## Bug fixes
+* fix the bug with method
+* remove the pbapply function and use progress 
 
 # mypackage 0.1.0
 
