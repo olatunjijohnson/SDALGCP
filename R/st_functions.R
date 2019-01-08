@@ -546,16 +546,16 @@ SDADiscretePred_ST <- function(para_est, control.mcmc=NULL,
                                          poisson.llik=TRUE)
   S.sim <- S.sim.res$samples
   n.sim <- dim(S.sim)[1]
-  print(n.sim)
-  print(S.sim)
   st_data$pMean_ARR <- exp(apply(sapply(1:n.sim, function(x) S.sim[x,]-mu0), 1, mean))
   st_data$pSD_ARR <- apply(sapply(1:n.sim, function(x) exp(S.sim[x,]-mu0)), 1, sd)
   st_data$pMean_RR <- exp(apply(sapply(1:n.sim, function(x) S.sim[x,]), 1, mean))
   st_data$pSD_RR <- apply(sapply(1:n.sim, function(x) exp(S.sim[x,])), 1, sd)
+  print(1)
   attr(st_data, 'S.draw') <- S.sim
   attr(st_data, 'para_est') <- para_est
   attr(st_data, 'call') <- match.call()
   attr(st_data, 'weighted') <- attr(para_est, 'weighted')
+  print(1)
   return(st_data)
 }
 
@@ -776,17 +776,18 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
   }
   M.E.S.x2 <- exp(apply(S.x2, 2, mean))
   SD.E.S.x2 <- apply(exp(S.x2), 2, sd)
-  print(M.E.S.x2)
-  print(SD.E.S.x2)
   st_data2$pred <- M.E.S.x2
   st_data2$predSD <- SD.E.S.x2
+  print(1)
   attr(st_data2, 'pred.draw') <- S.x2
   attr(st_data2, 'S.draw') <- S.sim
   attr(st_data2, 'para_est') <- para_est
   attr(st_data2, 'call') <- match.call()
   attr(st_data2, 'bound') <- bound
   attr(st_data2, 'weighted') <- attr(para_est, 'weighted')
+  print(1)
   attr(st_data2, 'st_data') <- st_data
+  print(1)
   return(st_data2)
 }
 
