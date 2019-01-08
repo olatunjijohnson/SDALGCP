@@ -546,6 +546,8 @@ SDADiscretePred_ST <- function(para_est, control.mcmc=NULL,
                                          poisson.llik=TRUE)
   S.sim <- S.sim.res$samples
   n.sim <- dim(S.sim)[1]
+  print(n.sim)
+  print(S.sim)
   st_data$pMean_ARR <- exp(apply(sapply(1:n.sim, function(x) S.sim[x,]-mu0), 1, mean))
   st_data$pSD_ARR <- apply(sapply(1:n.sim, function(x) exp(S.sim[x,]-mu0)), 1, sd)
   st_data$pMean_RR <- exp(apply(sapply(1:n.sim, function(x) S.sim[x,]), 1, mean))
@@ -606,7 +608,6 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
     #inv.Sigma.A2 <- (1/para_est$sigma2_opt)*kronecker(solve(attr(para_est, "prematrix")$R[,,4]), solve(geoR::varcov.spatial(dists.lowertri=U, kappa=kappa, cov.pars=c(1, nu))$varcov))
     ###############
     pred.loc2 <- split.data.frame(pred.loc, 1:n.window)
-    print(1)
     S.x2 <- c()
     for(win.iter in 1:n.window){
       cat("iter", win.iter, "\n")
@@ -775,6 +776,8 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
   }
   M.E.S.x2 <- exp(apply(S.x2, 2, mean))
   SD.E.S.x2 <- apply(exp(S.x2), 2, sd)
+  print(M.E.S.x2)
+  print(SD.E.S.x2)
   st_data2$pred <- M.E.S.x2
   st_data2$predSD <- SD.E.S.x2
   attr(st_data2, 'pred.draw') <- S.x2

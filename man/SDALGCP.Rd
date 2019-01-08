@@ -6,16 +6,22 @@
 \alias{SDALGCP-package}
 \title{SDALGCP: A package to make continuous inference from spatially aggregated disease count data.}
 \description{
-The SDALGCP package provides two categories of important functions:
-\code{SDALGCPMCML} and \code{SDALGCPPred}.
+The SDALGCP package provides four main functions:
+\code{SDALGCPMCML}, \code{SDALGCPMCML_ST},  \code{SDALGCPPred} and \code{SDALGCPPred_ST}.
 }
 \section{SDALGCP functions}{
 
-The \link{SDALGCPMCML} function uses Monte Carlo Maximum Likelihood to estimate the parameter of a 
-poisson log-linear model with spatially continuous random effect.
+The \link{SDALGCPMCML} function uses Monte Carlo Maximum Likelihood to estimate the parameter of a
+poisson log-linear model with spatially continuous random effect for static spatial case.
 
-The \link{SDALGCPPred} function delivers spatially discrete prediction of the incidence and the 
-covariate adjusted relative risk and spatially continuous prediction of the covariate adjusted relative risk.
+The \link{SDALGCPPred} function delivers spatially discrete prediction of the incidence and the
+covariate adjusted relative risk and spatially continuous prediction of the covariate adjusted relative risk for static spatial case.
+
+The \link{SDALGCPMCML_ST} function uses Monte Carlo Maximum Likelihood to estimate the parameter of a
+poisson log-linear model with spatially continuous random effect for spatio-temporal case.
+
+The \link{SDALGCPPred_ST} function delivers spatially discrete prediction of the incidence and the
+covariate adjusted relative risk and spatially continuous prediction of the covariate adjusted relative risk for spatio-temporal case.
 
 Functions such as \link{summary}, \link{confint}  and \link{print} also can be applied to the output.
 }
@@ -28,6 +34,6 @@ Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping
 Banerjee, S., Carlin, B. P., & Gelfand, A. E. (2014). Hierarchical modeling and analysis for spatial data. CRC press.
 }
 \author{
-Olatunji O. Johnson, Emanuele Giorgi, Peter Diggle. All from CHICAS, Lancaster Medical School, 
+Olatunji O. Johnson, Emanuele Giorgi, Peter Diggle. All from CHICAS, Lancaster Medical School,
 Faculty of Health and Medicine, Lancaster University
 }
