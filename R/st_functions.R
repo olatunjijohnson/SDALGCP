@@ -821,7 +821,7 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
 SDALGCPPred_ST <- function(para_est, cellsize, continuous=TRUE, control.mcmc=NULL, pred.loc=NULL,
                         divisor=1, plot.correlogram=F, messages=TRUE, parallel=FALSE, n.window=1){
   #############prediction
-  if(class(para_est)!="SDALGCP") stop("para_est must be of class 'SDALGCP', that is be an output of SDALGCPMCML function")
+  if(class(para_est)!="SDALGCPST") stop("para_est must be of class 'SDALGCPST', that is an output of SDALGCPMCML_ST function")
   if(continuous && length(cellsize)==0) stop("if continuous is TRUE, cellsize must be provided")
   if (continuous){
     Con_pred <- SDAContinuousPred_ST(para_est=para_est,  cellsize=cellsize, pred.loc=pred.loc, parallel = parallel, divisor = divisor,
