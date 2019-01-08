@@ -144,7 +144,8 @@ require(sp)
 ohiorespMort <- read.csv("https://raw.githubusercontent.com/olatunjijohnson/dataset/master/OhioRespMort.csv")
 download.file("https://github.com/olatunjijohnson/dataset/raw/master/ohio_shapefile.zip", "ohio_shapefile.zip")
 unzip("ohio_shapefile.zip")
-ohio_shp <- rgdal::readOGR("ohio_shapefile","tl_2010_39_county00")
+ohio_shp <- rgdal::readOGR("ohio_shapefile/","tl_2010_39_county00")
+# and for windows use ohio_shp <- rgdal::readOGR("ohio_shapefile","tl_2010_39_county00")
 ohio_shp <- sp::spTransform(ohio_shp, sp::CRS("+init=epsg:32617"))
 ```
 
