@@ -550,12 +550,10 @@ SDADiscretePred_ST <- function(para_est, control.mcmc=NULL,
   st_data$pSD_ARR <- apply(sapply(1:n.sim, function(x) exp(S.sim[x,]-mu0)), 1, sd)
   st_data$pMean_RR <- exp(apply(sapply(1:n.sim, function(x) S.sim[x,]), 1, mean))
   st_data$pSD_RR <- apply(sapply(1:n.sim, function(x) exp(S.sim[x,])), 1, sd)
-  print(1)
   attr(st_data, 'S.draw') <- S.sim
   attr(st_data, 'para_est') <- para_est
   attr(st_data, 'call') <- match.call()
   attr(st_data, 'weighted') <- attr(para_est, 'weighted')
-  print(1)
   return(st_data)
 }
 
@@ -778,16 +776,13 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
   SD.E.S.x2 <- apply(exp(S.x2), 2, sd)
   st_data2$pred <- M.E.S.x2
   st_data2$predSD <- SD.E.S.x2
-  print(1)
   attr(st_data2, 'pred.draw') <- S.x2
   attr(st_data2, 'S.draw') <- S.sim
   attr(st_data2, 'para_est') <- para_est
   attr(st_data2, 'call') <- match.call()
   attr(st_data2, 'bound') <- bound
   attr(st_data2, 'weighted') <- attr(para_est, 'weighted')
-  print(1)
   attr(st_data2, 'st_data') <- st_data
-  print(1)
   return(st_data2)
 }
 
@@ -835,9 +830,13 @@ SDALGCPPred_ST <- function(para_est, cellsize, continuous=TRUE, control.mcmc=NUL
     Con_pred <- SDADiscretePred_ST(para_est=para_est, control.mcmc = control.mcmc, divisor = divisor,
                                 plot.correlogram = plot.correlogram, messages = messages)
   }
+  print(1)
   Con_pred$call <- match.call()
+  print(1)
   attr(Con_pred, 'continuous') <- continuous
+  print(1)
   class(Con_pred) <- "Pred.SDALGCPST"
+  print(1)
   return(Con_pred)
 }
 
