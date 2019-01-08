@@ -817,7 +817,7 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
 ##' @importFrom pdist pdist
 ##' @importFrom stats median
 ##' @export
-SDALGCPPred_ST <- function(para_est, cellsize, continuous=TRUE, control.mcmc=NULL, pred.loc=NULL,
+SDALGCPPred_ST <- function(para_est, cellsize, continuous = TRUE, control.mcmc=NULL, pred.loc=NULL,
                         divisor=1, plot.correlogram=F, messages=TRUE, parallel=FALSE, n.window=1){
   #############prediction
   if(class(para_est)!="SDALGCPST") stop("para_est must be of class 'SDALGCPST', that is an output of SDALGCPMCML_ST function")
@@ -831,7 +831,7 @@ SDALGCPPred_ST <- function(para_est, cellsize, continuous=TRUE, control.mcmc=NUL
                                 plot.correlogram = plot.correlogram, messages = messages)
   }
   print(1)
-  Con_pred$call <- match.call()
+  # Con_pred$call <- match.call()
   print(1)
   attr(Con_pred, 'continuous') <- continuous
   print(1)
