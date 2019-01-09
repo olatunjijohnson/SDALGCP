@@ -786,16 +786,16 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
   return(st_data2)
 }
 
-############################################################################
+##########################################################################################
 ##' @title Spatial prediction using plug-in of MCML estimates
 ##' @description This function performs spatial continuous and discrete prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
 ##' @param para_est an object of class "SDALGCPST" obtained as a result of a call to \code{\link{SDALGCPMCML_ST}}.
-##' @param cellsize the size of the computational grid
+##' @param cellsize the size of the computational grid.
 ##' @param pred.loc optional, the dataframe of the predictive grid.
-##' @param continuous logical; to choose which prediction to do perform, discrete or continuous. the default is continuous.
-##' @param control.mcmc output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation
-##' @param divisor optional, the value to use to convert the dimension of the polygon, default is 1 which implies no conversion
-##' @param plot.correlogram logical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.
+##' @param continuous logical; to choose which prediction to do perform, discrete or continuous, the default is continuous.
+##' @param control.mcmc output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation.
+##' @param divisor optional, the value to use to convert the dimension of the polygon, default is 1 which implies no conversion.
+##' @param plot.correlogram logical; if plot.correlogram = TRUE the autocorrelation plot of the conditional simulations is displayed.
 ##' @param messages logical; if messages=TRUE then status messages are printed on the screen (or output device) while the function is running. Default is messages=TRUE.
 ##' @param parallel to parallelize some part of the function.
 ##' @param n.window the number of partitions to use for prediction. This is basically stratifying the predictive grid into fewer pieces
@@ -830,13 +830,9 @@ SDALGCPPred_ST <- function(para_est, cellsize, continuous = TRUE, control.mcmc=N
     Con_pred <- SDADiscretePred_ST(para_est=para_est, control.mcmc = control.mcmc, divisor = divisor,
                                 plot.correlogram = plot.correlogram, messages = messages)
   }
-  print(1)
   # Con_pred$call <- match.call()
-  print(1)
   attr(Con_pred, 'continuous') <- continuous
-  print(1)
   class(Con_pred) <- "Pred.SDALGCPST"
-  print(1)
   return(Con_pred)
 }
 
@@ -943,12 +939,12 @@ print.SDALGCPST <- function(x, ...) {
 ##' @importFrom sp spplot
 ##' @keywords internal
 plot_discreteST <- function(obj, type='incidence', overlay=FALSE, ...){
-  obj$incidence  <- obj$pMean_RR
-  obj$SEincidence  <- obj$pSD_RR
-  obj$CovAdjRelRisk  <- obj$pMean_ARR
-  obj$SECovAdjRelRisk  <- obj$pSD_ARR
+  obj@data$incidence  <- obj@data$pMean_RR
+  obj@data$SEincidence  <- obj@data$pSD_RR
+  obj@data$CovAdjRelRisk  <- obj@data$pMean_ARR
+  obj@data$SECovAdjRelRisk  <- obj@data$pSD_ARR
   if(overlay==TRUE){
-    mapview::mapview(obj$my_shp, type, ...)
+    mapview::mapview(obj@sp, type, ...)
   }else{
     spacetime::stplot(obj[,, type], ...)
   }
@@ -972,8 +968,8 @@ plot_discreteST <- function(obj, type='incidence', overlay=FALSE, ...){
 ##' @importFrom spacetime stplot
 ##' @keywords internal
 plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ...){
-  obj$relrisk  <- obj$pred
-  obj$SErelrisk <- obj$predSD
+  obj@data$relrisk  <- obj@data$pred
+  obj@data$SErelrisk <- obj@data$predSD
   if (type=="relrisk"){
     # dat <- data.frame(x=obj$pred.loc[,1], y=obj$pred.loc[,2], z = as.numeric(obj$pred))
     if (any(names(obj) == "bound"))  {
@@ -986,7 +982,7 @@ plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ..
       }
 
     } else{
-      if(is.null(bound)) stop("please supply the boundary of the region")
+      # if(is.null(bound)) stop("please supply the boundary of the region")
       # r1  <- raster::mask(raster::rasterFromXYZ(dat), bound)
       if(overlay==TRUE){
         # raster::crs(r1) <- obj$my_shp@proj4string
@@ -994,7 +990,6 @@ plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ..
       }else{
         spacetime::stplot(obj[,,"relrisk"], sp.layout = attr(obj, "bound"), ...)
       }
-
     }
   }else if (type=='SErelrisk'){
     # dat <- data.frame(x=obj$pred.loc[,1], y=obj$pred.loc[,2], z = as.numeric(obj$predSD))
@@ -1006,9 +1001,8 @@ plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ..
       }else{
         spacetime::stplot(obj[,,"SErelrisk"], sp.layout = attr(obj, "bound"), ...)
       }
-
     } else{
-      if(is.null(bound)) stop("please supply the boundary of the region")
+      # if(is.null(bound)) stop("please supply the boundary of the region")
       # r1  <- raster::mask(raster::rasterFromXYZ(dat), bound)
       if(overlay==TRUE){
         # raster::crs(r1) <- obj$my_shp@proj4string
@@ -1035,7 +1029,7 @@ plot_continuousST <- function(obj, bound=NULL, type='relrisk', overlay=FALSE, ..
       #use names.attr = c('Relative Risk', 'Standard Error of Relative Risk') to name the plot
 
     } else{
-      if(is.null(bound)) stop("please supply the boundary of the region")
+      # if(is.null(bound)) stop("please supply the boundary of the region")
       r1  <- raster::mask(raster::rasterFromXYZ(dat1), bound)
       r2  <- raster::mask(raster::rasterFromXYZ(dat2), bound)
       s <- raster::stack(r1, r2)
@@ -1149,12 +1143,14 @@ plot_SDALGCPexceedanceST <- function(obj, thresholds, bound=NULL, continuous=TRU
 plot.Pred.SDALGCPST <- function(x,  type='relrisk', continuous=NULL, thresholds=NULL, bound=NULL, overlay=FALSE, ...){
   if(is.null(continuous)) continuous <- attr(x, 'continuous')
   if(continuous){
+    class(x) <- class(x@st_data)
     if(is.null(thresholds)){
       plot_continuousST(obj=x, bound=bound, type=type, overlay=overlay, ...)
     } else {
       plot_SDALGCPexceedanceST(obj=x , thresholds=thresholds, bound=bound, continuous=continuous, overlay=overlay, ...)
     }
   }else{
+    class(x) <-  class(attr(x@para_est, "st_data"))
     if (is.null(thresholds)){
       if (type=='relrisk') stop("Since you have made a spatially discrete inference, please set type to be one of these four options, choices are 'incidence' (=exp(mu+S)); 'SEincidence' (standard error of incidence); 'CovAdjRelRisk' (=exp(S)); or 'SECovAdjRelRisk' (standard error of covariate adjusted relative risk)")
       plot_discreteST(obj=x, type=type, overlay=overlay, ...)
