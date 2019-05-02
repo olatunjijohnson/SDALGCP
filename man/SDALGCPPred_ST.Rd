@@ -12,17 +12,17 @@ SDALGCPPred_ST(para_est, cellsize, continuous = TRUE,
 \arguments{
 \item{para_est}{an object of class "SDALGCPST" obtained as a result of a call to \code{\link{SDALGCPMCML_ST}}.}
 
-\item{cellsize}{the size of the computational grid}
+\item{cellsize}{the size of the computational grid.}
 
-\item{continuous}{logical; to choose which prediction to do perform, discrete or continuous. the default is continuous.}
+\item{continuous}{logical; to choose which prediction to do perform, discrete or continuous, the default is continuous.}
 
-\item{control.mcmc}{output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation}
+\item{control.mcmc}{output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation.}
 
 \item{pred.loc}{optional, the dataframe of the predictive grid.}
 
-\item{divisor}{optional, the value to use to convert the dimension of the polygon, default is 1 which implies no conversion}
+\item{divisor}{optional, the value to use to convert the dimension of the polygon, default is 1 which implies no conversion.}
 
-\item{plot.correlogram}{logical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.}
+\item{plot.correlogram}{logical; if plot.correlogram = TRUE the autocorrelation plot of the conditional simulations is displayed.}
 
 \item{messages}{logical; if messages=TRUE then status messages are printed on the screen (or output device) while the function is running. Default is messages=TRUE.}
 
