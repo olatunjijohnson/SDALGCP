@@ -4,8 +4,7 @@
 \alias{plot_continuousST}
 \title{plot_continuous}
 \usage{
-plot_continuousST(obj, bound = NULL, type = "relrisk",
-  overlay = FALSE, ...)
+plot_continuousST(obj, bound = NULL, type = "relrisk", overlay = FALSE, ...)
 }
 \arguments{
 \item{obj}{an object of class "Pred.SDALGCPST" obtained as result of a call to \code{\link{SDALGCPPred_ST}}}

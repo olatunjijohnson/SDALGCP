@@ -4,8 +4,17 @@
 \alias{Aggregated_poisson_log_MCML}
 \title{Aggregated_poisson_log_MCML function}
 \usage{
-Aggregated_poisson_log_MCML(y, D, m, corr, par0, control.mcmc, S.sim,
-  Denominator, messages)
+Aggregated_poisson_log_MCML(
+  y,
+  D,
+  m,
+  corr,
+  par0,
+  control.mcmc,
+  S.sim,
+  Denominator,
+  messages
+)
 }
 \arguments{
 \item{y}{the data}

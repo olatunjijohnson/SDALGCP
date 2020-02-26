@@ -1620,7 +1620,7 @@ SDALGCPParaEst_ST2 <- function(formula, data, corr, par0=NULL, time, kappa, cont
 
   S.sim <- laplace.sampling2(mu = as.numeric(mu0), Sigma = corr0, y = as.numeric(y), units.m = as.numeric(m),
                              sigma2 = sigma2.0, rho = nu0, control.mcmc=control.mcmc, messages=messages,
-                             plot.correlogram=plot.correlogram)$S
+                             plot.correlogram=FALSE)$S
 
 
   ######
@@ -1740,6 +1740,7 @@ SDALGCPParaEst_ST2 <- function(formula, data, corr, par0=NULL, time, kappa, cont
 ##' @param plot To display the plot of the points inside the polygon, default to TRUE
 ##' @param plot_profile logical; if TRUE the profile-likelihood is plotted. default is FALSE
 ##' @param messages logical; if messages=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.
+##' @param nu.start the initial value of the time parameter, default is null
 ##' @details This function performs parameter estimation for a SDALGCP Model
 ##' \bold{Monte Carlo Maximum likelihood.}
 ##' The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic expression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}. The first stage of estimation is generating locations inside the polygon, followed by precomputing the correlation matrices, then optimising the likelihood.
@@ -2605,7 +2606,8 @@ Aggregated_poisson_log_MCML_ST2 <- function(y, D, m, corr, par0, kappa, time, co
 
 
 ##################
-SDALGCPParaEst_ST2 <- function(formula, data, corr, par0=NULL, time, kappa, control.mcmc=NULL, plot_profile=FALSE, messages=FALSE, nu.start=NULL){
+SDALGCPParaEst_ST2 <- function(formula, data, corr, par0=NULL, time, kappa, control.mcmc=NULL,
+                               plot_profile=FALSE, messages=FALSE, nu.start=NULL){
 
   cat("\n Now preparing for parameter estimation!\n")
   mf <- model.frame(formula=formula,data=data)
@@ -2670,7 +2672,7 @@ SDALGCPParaEst_ST2 <- function(formula, data, corr, par0=NULL, time, kappa, cont
 
   S.sim <- laplace.sampling2(mu = as.numeric(mu0), Sigma = corr0, y = as.numeric(y), units.m = as.numeric(m),
                              sigma2 = sigma2.0, rho = nu0, control.mcmc=control.mcmc, messages=messages,
-                             plot.correlogram=plot.correlogram)$S
+                             plot.correlogram=FALSE)$S
 
 
   ######

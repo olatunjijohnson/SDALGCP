@@ -4,9 +4,16 @@
 \alias{SDAContinuousPred}
 \title{SDAContinuousPred function}
 \usage{
-SDAContinuousPred(para_est, cellsize, control.mcmc = NULL,
-  pred.loc = NULL, divisor = 1, plot.correlogram = F,
-  messages = TRUE, parallel = FALSE)
+SDAContinuousPred(
+  para_est,
+  cellsize,
+  control.mcmc = NULL,
+  pred.loc = NULL,
+  divisor = 1,
+  plot.correlogram = F,
+  messages = TRUE,
+  parallel = FALSE
+)
 }
 \arguments{
 \item{para_est}{an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.}

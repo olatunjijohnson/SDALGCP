@@ -4,9 +4,17 @@
 \alias{SDALGCPPred}
 \title{Spatial prediction using plug-in of MCML estimates}
 \usage{
-SDALGCPPred(para_est, cellsize, continuous = TRUE, control.mcmc = NULL,
-  pred.loc = NULL, divisor = 1, plot.correlogram = F,
-  messages = TRUE, parallel = FALSE)
+SDALGCPPred(
+  para_est,
+  cellsize,
+  continuous = TRUE,
+  control.mcmc = NULL,
+  pred.loc = NULL,
+  divisor = 1,
+  plot.correlogram = F,
+  messages = TRUE,
+  parallel = FALSE
+)
 }
 \arguments{
 \item{para_est}{an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.}

@@ -4,9 +4,19 @@
 \alias{SDALGCPCreatePoint}
 \title{SDALGCPCreatePoint function}
 \usage{
-SDALGCPCreatePoint(my_shp, delta, weighted = FALSE, lambdamax = NULL,
-  pop = NULL, pop_shp = NULL, n = NULL, method = 1, plot = FALSE,
-  rho = NULL, giveup = NULL)
+SDALGCPCreatePoint(
+  my_shp,
+  delta,
+  weighted = FALSE,
+  lambdamax = NULL,
+  pop = NULL,
+  pop_shp = NULL,
+  n = NULL,
+  method = 1,
+  plot = FALSE,
+  rho = NULL,
+  giveup = NULL
+)
 }
 \arguments{
 \item{my_shp}{A SpatialPolygons or SpatialPolygonsDataFrame  object containing the polygons (i.e each regions).}

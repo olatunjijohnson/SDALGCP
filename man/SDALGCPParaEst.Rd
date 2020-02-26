@@ -4,8 +4,15 @@
 \alias{SDALGCPParaEst}
 \title{SDALGCPParaEst function.}
 \usage{
-SDALGCPParaEst(formula, data, corr, par0 = NULL, control.mcmc = NULL,
-  plot_profile = FALSE, messages = FALSE)
+SDALGCPParaEst(
+  formula,
+  data,
+  corr,
+  par0 = NULL,
+  control.mcmc = NULL,
+  plot_profile = FALSE,
+  messages = FALSE
+)
 }
 \arguments{
 \item{formula}{an object of class \code{\link{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted.}

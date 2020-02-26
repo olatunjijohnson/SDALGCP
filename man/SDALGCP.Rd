@@ -3,7 +3,6 @@
 \docType{package}
 \name{SDALGCP}
 \alias{SDALGCP}
-\alias{SDALGCP-package}
 \title{SDALGCP: A package to make continuous inference from spatially aggregated disease count data.}
 \description{
 The SDALGCP package provides four main functions:

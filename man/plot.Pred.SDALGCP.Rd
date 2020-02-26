@@ -4,8 +4,15 @@
 \alias{plot.Pred.SDALGCP}
 \title{plot.Pred.SDALGCP function}
 \usage{
-\method{plot}{Pred.SDALGCP}(x, type = "relrisk", continuous = NULL,
-  thresholds = NULL, bound = NULL, overlay = FALSE, ...)
+\method{plot}{Pred.SDALGCP}(
+  x,
+  type = "relrisk",
+  continuous = NULL,
+  thresholds = NULL,
+  bound = NULL,
+  overlay = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}.}

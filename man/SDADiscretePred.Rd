@@ -4,8 +4,13 @@
 \alias{SDADiscretePred}
 \title{SDADiscretePred function}
 \usage{
-SDADiscretePred(para_est, control.mcmc = NULL, divisor = 1,
-  plot.correlogram = FALSE, messages = TRUE)
+SDADiscretePred(
+  para_est,
+  control.mcmc = NULL,
+  divisor = 1,
+  plot.correlogram = FALSE,
+  messages = TRUE
+)
 }
 \arguments{
 \item{para_est}{an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.}

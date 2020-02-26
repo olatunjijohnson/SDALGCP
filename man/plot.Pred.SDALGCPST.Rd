@@ -4,8 +4,15 @@
 \alias{plot.Pred.SDALGCPST}
 \title{plot.Pred.SDALGCPST function}
 \usage{
-\method{plot}{Pred.SDALGCPST}(x, type = "relrisk", continuous = NULL,
-  thresholds = NULL, bound = NULL, overlay = FALSE, ...)
+\method{plot}{Pred.SDALGCPST}(
+  x,
+  type = "relrisk",
+  continuous = NULL,
+  thresholds = NULL,
+  bound = NULL,
+  overlay = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{an object of class "Pred.SDALGCPST" obtained as result of a call to \code{\link{SDALGCPPred_ST}}.}

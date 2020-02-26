@@ -4,9 +4,18 @@
 \alias{SDALGCPRegularPoint}
 \title{SDALGCPRegularPoint function}
 \usage{
-SDALGCPRegularPoint(poly, delta, weighted = FALSE, pop_shp = NULL,
-  lambdamax = NULL, pop = NULL, n = NULL, rho = NULL,
-  giveup = NULL, bound = NULL)
+SDALGCPRegularPoint(
+  poly,
+  delta,
+  weighted = FALSE,
+  pop_shp = NULL,
+  lambdamax = NULL,
+  pop = NULL,
+  n = NULL,
+  rho = NULL,
+  giveup = NULL,
+  bound = NULL
+)
 }
 \arguments{
 \item{poly}{polygon in which to generate the points}

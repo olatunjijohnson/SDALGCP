@@ -4,10 +4,23 @@
 \alias{SDALGCPMCML_ST}
 \title{Parameter estimation for spatio-temporal SDA-LGCP Using Monte Carlo Maximum likelihood}
 \usage{
-SDALGCPMCML_ST(formula, st_data, delta, phi = NULL, method = 1,
-  pop_shp = NULL, kappa = 0.5, weighted = FALSE, par0 = NULL,
-  control.mcmc = NULL, plot = FALSE, plot_profile = TRUE,
-  rho = NULL, giveup = NULL, messages = FALSE)
+SDALGCPMCML_ST(
+  formula,
+  st_data,
+  delta,
+  phi = NULL,
+  method = 1,
+  pop_shp = NULL,
+  kappa = 0.5,
+  weighted = FALSE,
+  par0 = NULL,
+  control.mcmc = NULL,
+  plot = FALSE,
+  plot_profile = TRUE,
+  rho = NULL,
+  giveup = NULL,
+  messages = FALSE
+)
 }
 \arguments{
 \item{formula}{an object of class \code{\link{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted.}

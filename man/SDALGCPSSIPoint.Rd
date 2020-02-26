@@ -4,9 +4,17 @@
 \alias{SDALGCPSSIPoint}
 \title{SDALGCPSSIPoint function}
 \usage{
-SDALGCPSSIPoint(poly, delta, weighted = FALSE, pop_shp = NULL,
-  lambdamax = NULL, pop = NULL, n = NULL, rho = NULL,
-  giveup = NULL)
+SDALGCPSSIPoint(
+  poly,
+  delta,
+  weighted = FALSE,
+  pop_shp = NULL,
+  lambdamax = NULL,
+  pop = NULL,
+  n = NULL,
+  rho = NULL,
+  giveup = NULL
+)
 }
 \arguments{
 \item{poly}{polygon in which to generate the points.}

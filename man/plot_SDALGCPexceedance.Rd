@@ -4,8 +4,14 @@
 \alias{plot_SDALGCPexceedance}
 \title{plot_SDALGCPexceedance}
 \usage{
-plot_SDALGCPexceedance(obj, thresholds, bound = NULL,
-  continuous = TRUE, overlay = FALSE, ...)
+plot_SDALGCPexceedance(
+  obj,
+  thresholds,
+  bound = NULL,
+  continuous = TRUE,
+  overlay = FALSE,
+  ...
+)
 }
 \arguments{
 \item{obj}{an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}.}
