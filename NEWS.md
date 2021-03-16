@@ -1,3 +1,6 @@
+# mypackage 0.4.0
+Fix the dependence problem with spatstat. The package now depend on spatstat (>= 2.0-0)
+
 # mypackage 0.3.0
 Update the spatio-temporal model
 

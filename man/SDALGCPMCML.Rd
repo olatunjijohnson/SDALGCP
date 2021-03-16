@@ -104,7 +104,7 @@ data <- as.data.frame(PBCshp@data)  #get the data
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime +
 Environment +  offset(log(pop))
 ### set the discretised phi
-phi <- seq(500, 1700, length.out = 20)
+phi <- seq(500, 1700, length.out = 10)
 #### get the initial parameter
 model <- glm(formula=FORM, family="poisson", data=data)
 beta.start <-coef(model)
@@ -118,7 +118,7 @@ control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000,
                  thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 ###Run the model
 \donttest{
-my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1,
+my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=500, phi=phi, method=1,
                      weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
 }
 }

@@ -1,6 +1,6 @@
 Package: SDALGCP
 Title: Spatially Discrete Approximation to Log-Gaussian Cox Processes for Aggregated Disease Count Data
-Version: 0.3.0
+Version: 0.4.0
 Authors@R: c(
     person("Olatunji", "Johnson", email = "olatunjijohnson21111@gmail.com", role = c("aut", "cre")),
     person("Emanuele", "Giorgi", email = "e.giorgi@lancaster.ac.uk", role = "aut"),
@@ -10,8 +10,8 @@ Depends: R (>= 3.4.0)
 License: GPL-2 | GPL-3 
 Encoding: UTF-8
 LazyData: true
-Imports: pdist(>= 1.2), Matrix(>= 1.2.14), PrevMap(>= 1.4.1), raster(>= 2.6.7), sp(>= 1.2.7), spatstat(>= 1.55.1), splancs(>= 2.1.40), maptools(>= 0.9.2), progress(>= 1.1.2), methods, spacetime(>= 1.2.2), mapview(>= 2.6.0), geoR(>= 1.7-5.2.1)
-RoxygenNote: 7.0.0
+Imports: pdist(>= 1.2), Matrix(>= 1.2.14), PrevMap(>= 1.4.1), raster(>= 2.6.7), sp(>= 1.2.7), spatstat(>= 2.0-0), splancs(>= 2.1.40), maptools(>= 1.1-1), progress(>= 1.1.2), methods, spacetime(>= 1.2.2), mapview(>= 2.6.0), geoR(>= 1.7-5.2.1), spatstat.geom
+RoxygenNote: 7.0.2
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr

@@ -20,7 +20,7 @@
 ##' points <- SDALGCPSSIPoint(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
-##' @importFrom spatstat as.owin ppp
+##' @importFrom spatstat.geom as.owin ppp
 ##' @importFrom sp SpatialPolygons Polygons Polygon spsample
 ##' @importFrom splancs areapl csr
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
@@ -163,7 +163,7 @@ SDALGCPSSIPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambdamax
 ##' point <- SDALGCPUniformPoint(poly=poly, delta=100, n=1, bound = bound)
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
-##' @importFrom spatstat as.owin ppp
+##' @importFrom spatstat.geom as.owin ppp
 ##' @importFrom sp SpatialPolygons Polygons Polygon spsample
 ##' @importFrom splancs areapl csr
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
@@ -276,7 +276,7 @@ SDALGCPUniformPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambd
 ##' point <- SDALGCPRegularPoint(poly=poly, delta=100, n=1, bound = bound)
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
-##' @importFrom spatstat as.owin ppp
+##' @importFrom spatstat.geom as.owin ppp
 ##' @importFrom sp SpatialPolygons Polygons Polygon spsample
 ##' @importFrom splancs areapl csr
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
@@ -323,7 +323,7 @@ SDALGCPRegularPoint <- function(poly, delta, weighted=FALSE, pop_shp=NULL, lambd
 ##' @seealso \link{SDALGCPSSIPoint}, \link{SDALGCPUniformPoint}, \link{SDALGCPRegularPoint}
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
-##' @importFrom spatstat as.owin ppp
+##' @importFrom spatstat.geom as.owin ppp
 ##' @importFrom sp SpatialPolygons Polygons Polygon spsample
 ##' @importFrom splancs areapl csr
 ##' @importFrom maptools as.owin.SpatialPolygons
@@ -374,9 +374,9 @@ SDALGCPCreatePoint <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, po
 
   if (plot==TRUE) {
     if (class(my_shp)[1]=="Polygon"){
-      sampled_locations <- spatstat::ppp(x = xycand$xy[,1], y = xycand$xy[,2], window = maptools::as.owin.SpatialPolygons(bound))
+      sampled_locations <- spatstat.geom::ppp(x = xycand$xy[,1], y = xycand$xy[,2], window = maptools::as.owin.SpatialPolygons(bound))
     }else{
-      sampled_locations <- spatstat::ppp(x = xycand$xy[,1], y = xycand$xy[,2], window = spatstat::as.owin(bound))
+      sampled_locations <- spatstat.geom::ppp(x = xycand$xy[,1], y = xycand$xy[,2], window = spatstat.geom::as.owin(bound))
     }
     plot(sampled_locations)
     graphics::axis(1)
@@ -401,7 +401,7 @@ SDALGCPCreatePoint <- function(my_shp, delta, weighted=FALSE, lambdamax=NULL, po
 ##' @seealso \link{SDALGCPCreatePoint}, \link{SDALGCPSSIPoint}, \link{SDALGCPUniformPoint}, \link{SDALGCPRegularPoint}
 ##' @importFrom raster extract aggregate
 ##' @importFrom graphics axis
-##' @importFrom spatstat as.owin ppp
+##' @importFrom spatstat.geom as.owin ppp
 ##' @importFrom sp SpatialPolygons Polygons Polygon spsample
 ##' @importFrom splancs areapl csr
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
@@ -750,8 +750,8 @@ SDALGCPParaEst <- function(formula, data, corr, par0=NULL, control.mcmc=NULL, pl
     phi <- as.numeric(corr$phi)
     phi <- phi[-(length(phi))]
     n.phi <- length(phi)
+    corr0 <- corr$R[,,(n.phi+1)]
     R <- corr$R[,,(-(n.phi+1))]
-    corr0 <- R[,,(n.phi+1)]
   }
   if(any(par0[-(1:p)] <= 0)) stop("the covariance parameters in 'par0' must be positive.")
   if(is.null(control.mcmc)) control.mcmc <- list(n.sim = 10000, burnin = 2000, thin= 8, h=1.65/(n^(1/6)),
@@ -1107,7 +1107,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime +
 ##' Environment +  offset(log(pop))
 ##' ### set the discretised phi
-##' phi <- seq(500, 1700, length.out = 20)
+##' phi <- seq(500, 1700, length.out = 10)
 ##' #### get the initial parameter
 ##' model <- glm(formula=FORM, family="poisson", data=data)
 ##' beta.start <-coef(model)
@@ -1121,7 +1121,7 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc=NULL, pred.loc=NU
 ##'                  thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
 ##' ###Run the model
 ##' \donttest{
-##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1,
+##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=500, phi=phi, method=1,
 ##'                      weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
 ##' }
 ##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
