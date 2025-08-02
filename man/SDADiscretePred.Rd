@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{SDADiscretePred}
 \alias{SDADiscretePred}
-\title{SDADiscretePred function}
+\title{Discrete Prediction for SDALGCP}
 \usage{
 SDADiscretePred(
   para_est,
@@ -13,34 +13,31 @@ SDADiscretePred(
 )
 }
 \arguments{
-\item{para_est}{an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.}
+\item{para_est}{An object of class \code{SDALGCP} obtained from \code{SDALGCPParaEst()}.}
 
-\item{control.mcmc}{output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation}
+\item{control.mcmc}{Optional list of control parameters for posterior simulation. If not provided, uses the settings from \code{para_est}.}
 
-\item{divisor}{optional, if the coordinate of the shapefile is rescaled, default is 1}
+\item{divisor}{Numeric; if coordinates are rescaled (e.g. for numerical stability), specify the factor. Default is 1.}
 
-\item{plot.correlogram}{logical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.}
+\item{plot.correlogram}{Logical; if TRUE, displays autocorrelation diagnostics of the posterior simulations.}
 
-\item{messages}{logical; if messages=TRUE then status messages are printed on the screen (or output device) while the function is running. Default is messages=TRUE.}
+\item{messages}{Logical; if TRUE, prints messages during computation.}
 }
 \value{
-It returns the following list
-
-S.draw: the samples of the linear predictor \eqn{d(x)'\beta + S(A)}
-
-incidence: the region-specific incidence
-
-SEincidence: Standard error of the region-specific incidence
-
-CovRR: the prediction of the covariate adjusted relative risk
-
-SECovRR: the standard error of the covariate adjusted relative risk
+A list of class \code{SDALGCP} with the following components:
+\describe{
+\item{S.draw}{Matrix of sampled latent field draws.}
+\item{incidence}{Mean posterior region-specific incidence (\eqn{\exp(S(A))}).}
+\item{SEincidence}{Posterior standard error of incidence.}
+\item{CovRR}{Mean covariate-adjusted relative risk \eqn{\exp(S(A) - \mu)}.}
+\item{SECovRR}{Posterior standard error of CovRR.}
+\item{my_shp}{The input shapefile with added columns for mean and standard errors.}
+\item{para_est}{The original fitted model.}
+\item{call}{Function call.}
+}
 }
 \description{
-This function performs spatial discrete prediction for a fixed the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
-}
-\details{
-The function returns the region-specific incidence and the covariate adjusted relative risk exp(S(A))
+Computes region-specific predictions and relative risks from a fitted SDALGCP model using polygon-level aggregations.
 }
 \author{
 Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}

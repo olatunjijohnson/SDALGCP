@@ -4,7 +4,8 @@
 \name{PBCshp}
 \alias{PBCshp}
 \title{PBC count data and index of multiple deprivation data.}
-\format{A SpatialPolygonsDataFrame of object containing the PBC cases count for each LSOA in Newcastle upon Tyne, UK, as well as the index of multiple deprivation.
+\format{
+A SpatialPolygonsDataFrame of object containing the PBC cases count for each LSOA in Newcastle upon Tyne, UK, as well as the index of multiple deprivation.
 \describe{
   \item{X}{PBC count}
   \item{pop}{population count}
@@ -22,7 +23,8 @@
   \item{Crime}{deprivation due to crime}
   \item{Environment}{living environment deprivation}
   ...
-}}
+}
+}
 \usage{
 data(PBCshp)
 }

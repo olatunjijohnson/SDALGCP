@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{plot.Pred.SDALGCP}
 \alias{plot.Pred.SDALGCP}
-\title{plot.Pred.SDALGCP function}
+\title{Plot for SDA-LGCP Predictions}
 \usage{
 \method{plot}{Pred.SDALGCP}(
   x,
@@ -15,71 +15,40 @@
 )
 }
 \arguments{
-\item{x}{an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}.}
+\item{x}{An object of class \code{"Pred.SDALGCP"} returned from \code{\link{SDALGCPPred}}.}
 
-\item{type}{Character string: what type of plot to produce. For discrete inference choices are "incidence" (=exp(mu+S)); "SEincidence" (standard error of incidence); "CovAdjRelRisk" (=exp(S)); or "SECovAdjRelRisk" (standard error of covariate adjusted relative risk); while for continuous inference, choices are "relrisk" (=exp(S)); "SErelrisk" (standard error of the relative risk).}
+\item{type}{Character string specifying the prediction type to plot. For discrete predictions:
+\itemize{
+  \item \code{"incidence"} for incidence = exp(mu + S),
+  \item \code{"SEincidence"} for standard error of incidence,
+  \item \code{"CovAdjRelRisk"} for covariate-adjusted relative risk = exp(S),
+  \item \code{"SECovAdjRelRisk"} for its standard error.
+}
+For continuous prediction, use:
+\itemize{
+  \item \code{"relrisk"} for exp(S),
+  \item \code{"SErelrisk"} for standard error of relative risk.
+}}
 
-\item{continuous}{logical; TRUE for spatially continuous relative risk and FALSE for region specific relative risk. default is TRUE}
+\item{continuous}{Logical; set to TRUE for spatially continuous prediction and FALSE for discrete prediction. If NULL, determined from object.}
 
-\item{thresholds}{optional; (only used if you want to plot the exceedance probability) either a vector  of numbers or a vector of single value.}
+\item{thresholds}{Numeric or vector; threshold value(s) for plotting exceedance probabilities (optional).}
 
-\item{bound}{optional; it gives the boundary of the region, only useful when the predictive location is supplied in \link{SDALGCPPred}}
+\item{bound}{Optional \code{sf} object representing the boundary to overlay.}
 
-\item{overlay}{optional; a logical operation to indicate either to add a base map.}
+\item{overlay}{Logical; whether to plot the boundary as an overlay.}
 
-\item{...}{further arguments passed to \link{plot}.}
+\item{...}{Additional plotting arguments (e.g., color scale).}
 }
 \value{
-The function does not return any value.
+This function produces a plot and returns no value.
 }
 \description{
-Simple plotting function for both discrete and continuous prediction from the object of class "Pred.SDALGCP".
+Plot predictions from an object of class \code{"Pred.SDALGCP"}, produced by \code{\link{SDALGCPPred}}.
 }
 \details{
-This function plots the inference from \code{\link{SDALGCPPred}} function. It plots for region-specific inference; incidence and covariate adjusted relative risk while for spatially continuous inference it plots the relative risk. It can as well plot the exceedance probability for spatially discrete and continuous inference.
-}
-\examples{
-### Prepare the input of the model
-data(PBCshp)
-data <- as.data.frame(PBCshp@data)  #get the data
-### Write the formula of the model
-FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime +
-Environment +  offset(log(pop))
-### set the discretised phi
-phi <- seq(500, 1700, length.out = 20)
-#### get the initial parameter
-model <- glm(formula=FORM, family="poisson", data=data)
-beta.start <-coef(model)
-sigma2.start <- mean(model$residuals^2)
-phi.start <- median(phi)
-par0 <- c(beta.start, sigma2.start, phi.start)
-# setup the control arguments for the MCMC
-n <- 545
-h <- 1.65/(n^(1/6))
-control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000,
-                 thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
-###Run the model
-\donttest{
-my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1,
-                     weighted=FALSE,  plot=TRUE, par0=NULL, control.mcmc=control.mcmc)
-Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)
-#to plot the spatially continuous relative risk
-plot(Con_pred, type="relrisk")
-#to plot the incidence
-plot(Con_pred, type="incidence", continuous=FALSE)
-#to plot the exceedance probability of the relative risk
-plot(Con_pred, type="relrisk", thresholds= 2)
-#to plot the exceedance probability of the incidence
-plot(Con_pred, type="incidence", continuous=FALSE, thresholds= 0.001)
-}
+If \code{thresholds} is provided, the function will display exceedance probability maps for both discrete and continuous inference. Otherwise, the appropriate predicted values or standard errors are plotted.
 }
 \seealso{
-\link{SDALGCPPred}, \link{plot_continuous}, \link{plot_discrete}, \link{plot_SDALGCPexceedance}, \link{SDALGCPexceedance}
-}
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
+\code{\link{SDALGCPPred}}, \code{\link{plot_continuous}}, \code{\link{plot_discrete}}, \code{\link{plot_SDALGCPexceedance}}
 }

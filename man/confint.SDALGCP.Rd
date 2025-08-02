@@ -2,34 +2,27 @@
 % Please edit documentation in R/dm_functions.R
 \name{confint.SDALGCP}
 \alias{confint.SDALGCP}
-\title{Confidence Intervals for SDALGCP Model Parameters}
+\title{Confidence Intervals for SDALGCP Parameters}
 \usage{
 \method{confint}{SDALGCP}(object, parm, level = 0.95, dp = 3, ...)
 }
 \arguments{
-\item{object}{an object of class "SDALGCP" obtained as result of a call to \code{\link{SDALGCPMCML}}.}
+\item{object}{an object of class "SDALGCP" from \code{\link{SDALGCPMCML}}.}
 
-\item{parm}{a specification of which parameters are to be given confidence intervals, either a vector of numbers or a vector of names. If missing, all parameters are considered.}
+\item{parm}{optional vector of parameter names or indices.}
 
-\item{level}{the confidence level required.}
+\item{level}{confidence level (default 0.95).}
 
-\item{dp}{the number of decimal places for the result}
+\item{dp}{number of decimal places.}
 
-\item{...}{additional argument(s) for methods.}
+\item{...}{further arguments (ignored).}
 }
 \value{
-A matrix (or vector) with columns giving lower and upper confidence limits for each parameter. These will be labelled as (1-level)/2 and 1 - (1-level)/2 in % (by default 2.5% and 97.5%).
+A matrix with lower and upper confidence limits.
 }
 \description{
-Computes confidence intervals for one or more parameters in a fitted SDALGCP model from the object of class "SDALGCP", based on asymptotic normality.
+Computes Wald-type confidence intervals for the model parameters using the estimated covariance matrix.
 }
 \seealso{
-\link{confint.lm}, \link{confint.default}, \link{SDALGCPMCML}
-}
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
+\code{\link{SDALGCPMCML}}, \code{\link{confint.default}}
 }

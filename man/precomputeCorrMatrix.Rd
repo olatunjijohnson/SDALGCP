@@ -2,32 +2,30 @@
 % Please edit documentation in R/dm_functions.R
 \name{precomputeCorrMatrix}
 \alias{precomputeCorrMatrix}
-\title{precomputeCorrMatrix function}
+\title{Precompute Correlation Matrices for Spatial Regions}
 \usage{
 precomputeCorrMatrix(S.coord, phi)
 }
 \arguments{
-\item{S.coord}{The list of the coordinates of the points created in each polygon}
+\item{S.coord}{A list of lists, each containing at least a matrix named \code{xy} with point coordinates. If \code{attr(S.coord, "weighted")} is \code{TRUE}, each element must also include a vector named \code{weight}.}
 
-\item{phi}{The vector of the scale parameter}
+\item{phi}{A numeric vector of spatial scale (decay) parameters.}
 }
 \value{
-return an array of the covariance matrix for the specified vectors of phi
+A list containing:
+\describe{
+  \item{R}{An array of dimension \code{[n_regions, n_regions, length(phi)]} containing the correlation matrices.}
+  \item{phi}{The input vector of spatial scale parameters.}
+}
 }
 \description{
-This function precomputes the covariance matrix
+Computes correlation matrices between spatial regions using an exponential covariance function. This function supports both unweighted and population-weighted formulations.
 }
 \details{
-This function precompute the covariance matrix using the exponential covariance function
-}
-\seealso{
-\code{\link{SDALGCPpolygonpoints}},
-}
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
+The function uses the exponential correlation function:
+\deqn{\mathrm{Corr}(d) = \exp(-d / \phi)}
+where \eqn{d} is the Euclidean distance between points and \eqn{\phi} is a spatial scale parameter.
 
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
+If \code{weighted = TRUE}, the function computes correlations as weighted sums using the product of weights and the exponential kernel values. Otherwise, it uses unweighted averages.
 }
 \keyword{internal}

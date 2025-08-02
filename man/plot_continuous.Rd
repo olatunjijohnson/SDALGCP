@@ -2,35 +2,27 @@
 % Please edit documentation in R/dm_functions.R
 \name{plot_continuous}
 \alias{plot_continuous}
-\title{plot_continuous}
+\title{Plot Continuous SDALGCP Predictions}
 \usage{
 plot_continuous(obj, bound = NULL, type = "relrisk", overlay = FALSE, ...)
 }
 \arguments{
-\item{obj}{an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}}
+\item{obj}{An object of class \code{"Pred.SDALGCP"} containing a continuous relative risk surface as a \code{stars} object.}
 
-\item{bound}{the boundary of the predictive grid, not required if predictive grid is not supplied}
+\item{bound}{Optional boundary polygon as an \code{sf} object to overlay.}
 
-\item{type}{Character string: what type of plot to produce. Choices are "relrisk" (=exp(S)); "SErelrisk" (standard error of the relative risk).}
+\item{type}{Character string: either \code{"relrisk"} for relative risk or \code{"SErelrisk"} for its standard error.}
 
-\item{overlay}{optional; a logical operation to indicate either to add a base map.}
+\item{overlay}{Logical; if \code{TRUE}, overlays the boundary outline.}
 
-\item{...}{further arguments passed to \code{\link{plot}}.}
+\item{...}{Further arguments passed to \code{ggplot2::ggplot}.}
 }
 \value{
-The function does not return any value.
+A \code{ggplot2} plot of the spatially continuous prediction surface.
 }
 \description{
-A generic function for mapping spatially continuous prediction for \code{\link{SDALGCPPred}} function in \link{SDALGCP} package. Not for general purposes
+Visualizes a continuous surface of relative risk or its standard error from a fitted SDALGCP model using `stars` and `ggplot2`.
 }
 \seealso{
-\code{\link{SDALGCPPred}}
+\code{\link{SDALGCPPred}}, \code{\link{plot.Pred.SDALGCP}}
 }
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
-}
-\keyword{internal}

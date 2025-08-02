@@ -41,7 +41,7 @@ SDALGCPMCML_ST(
 
 \item{par0}{the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi). Default; beta, the estimates from the glm; sigma2, variance of the residual; phi, the median of the supplied phi.}
 
-\item{control.mcmc}{list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.}
+\item{control.mcmc}{list from \code{\link{controlmcmcSDA}} to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.}
 
 \item{plot}{To display the plot of the points inside the polygon, default to TRUE}
 

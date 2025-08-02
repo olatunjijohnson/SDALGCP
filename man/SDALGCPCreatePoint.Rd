@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{SDALGCPCreatePoint}
 \alias{SDALGCPCreatePoint}
-\title{SDALGCPCreatePoint function}
+\title{Create Candidate Sampling Points for SDA-LGCP Models}
 \usage{
 SDALGCPCreatePoint(
   my_shp,
@@ -19,45 +19,50 @@ SDALGCPCreatePoint(
 )
 }
 \arguments{
-\item{my_shp}{A SpatialPolygons or SpatialPolygonsDataFrame  object containing the polygons (i.e each regions).}
+\item{my_shp}{An `sf` object of geometry type `POLYGON` or `MULTIPOLYGON`, representing the study region.}
 
-\item{delta}{distance between points}
+\item{delta}{A positive numeric value indicating the point spacing (for regular grid or minimum distance in SSI).}
 
-\item{weighted}{To specify if you want to use the population density, default to FALSE, i.e population density is not used.}
+\item{weighted}{Logical; if `TRUE`, population-weighted sampling is used (only relevant if `pop` or `pop_shp` is supplied).}
 
-\item{lambdamax}{the maximum value of the population density in the polygon.}
+\item{lambdamax}{Optional; maximum intensity for Poisson process in rejection sampling.}
 
-\item{pop}{the population density.}
+\item{pop}{Optional; numeric vector of population weights associated with the region.}
 
-\item{pop_shp}{Optional, The raster of population density map for population weighted approach.}
+\item{pop_shp}{Optional; a raster layer of population density to support weighted sampling.}
 
-\item{n}{optional; the number of points to create in the polygon, if not supplied, it is computed as \eqn{n = rho*|A|*4/(\pi*delta^2)}}
+\item{n}{Optional; number of points to generate (used in uniform and regular grid methods).}
 
-\item{method}{To specify which method to use to sample the points, the options are 1 for Simple Sequential Inhibition (SSI) process, 2 for Uniform sampling and 3 for regular grid. 1 is the default}
+\item{method}{An integer indicating the point generation method: 1 = Simple Sequential Inhibition (SSI), 2 = Uniform sampling, 3 = Regular grid. Default is 1.}
 
-\item{plot}{To display the plot of the points inside the polygon, default to TRUE.}
+\item{plot}{Logical; if `TRUE`, the generated point pattern is plotted over the region. Default is `FALSE`.}
 
-\item{rho}{Optional, The packing density, default set to 0.55}
+\item{rho}{Optional; packing density for SSI point process. Default is `NULL`.}
 
-\item{giveup}{Number of rejected proposals after which the algorithm should terminate.}
+\item{giveup}{Optional; number of failed attempts after which SSI sampling stops. Default is `NULL`.}
 }
 \value{
-It returns a list of the coordinates of the points created in each polygon and it has an associated attribute weighted which is either TRUE or FALSE to indicate if the population density is used or not.
+A list with the following elements:
+\describe{
+  \item{xy}{A matrix of coordinates (x, y) of the sampled points.}
+  \item{n}{Number of sampled points.}
+  \item{bound}{The union of the study region polygons, returned as an `sf` object.}
+}
 }
 \description{
-This wrapper function generate a random point pattern using Simple Sequential Inhibition (SSI) process, uniform sampling and regular grid point.
+Generates spatial point samples (candidate locations) within a polygonal study region for use in spatial statistical models. The function supports only `sf` polygon formats and allows different point generation strategies: Simple Sequential Inhibition (SSI), uniform random sampling, or regular grid.
 }
 \details{
-This algorithm generates points inside the polygon using three algorithms specified in the method.
+This function is primarily used internally within the `SDALGCP` framework to generate candidate spatial locations inside a study region.
+Available point generation methods include:
+\itemize{
+  \item Simple Sequential Inhibition via \code{\link{SDALGCPSSIPoint}}
+  \item Uniform random sampling via \code{\link{SDALGCPUniformPoint}}
+  \item Regular grid via \code{\link{SDALGCPRegularPoint}}
+}
+
+If plotting is enabled, the function uses `spatstat.geom::as.owin()` to convert the boundary for plotting.
 }
 \seealso{
-\link{SDALGCPSSIPoint}, \link{SDALGCPUniformPoint}, \link{SDALGCPRegularPoint}
+\code{\link{SDALGCPSSIPoint}}, \code{\link{SDALGCPUniformPoint}}, \code{\link{SDALGCPRegularPoint}}, \code{\link{SDALGCPMCML}}
 }
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
-}
-\keyword{internal}

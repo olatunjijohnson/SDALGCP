@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{SDAContinuousPred}
 \alias{SDAContinuousPred}
-\title{SDAContinuousPred function}
+\title{Continuous Prediction for SDALGCP}
 \usage{
 SDAContinuousPred(
   para_est,
@@ -10,42 +10,41 @@ SDAContinuousPred(
   control.mcmc = NULL,
   pred.loc = NULL,
   divisor = 1,
-  plot.correlogram = F,
+  plot.correlogram = FALSE,
   messages = TRUE,
   parallel = FALSE
 )
 }
 \arguments{
-\item{para_est}{an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.}
+\item{para_est}{An object of class \code{SDALGCP} returned by \code{SDALGCPParaEst()}.}
 
-\item{cellsize}{the size of the computational grid}
+\item{cellsize}{Grid resolution for prediction if \code{pred.loc} is not supplied.}
 
-\item{control.mcmc}{output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation}
+\item{control.mcmc}{Optional MCMC control parameters. Defaults to those used in \code{para_est}.}
 
-\item{pred.loc}{optional, the dataframe of the predictive grid.}
+\item{pred.loc}{Optional data frame of prediction coordinates with columns \code{x} and \code{y}.}
 
-\item{divisor}{optional, the value to use to convert the dimension of the polygon, default is 1 which implies no conversion}
+\item{divisor}{Optional numeric divisor to rescale coordinates. Default is 1.}
 
-\item{plot.correlogram}{logical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.}
+\item{plot.correlogram}{Logical; if TRUE, plot autocorrelation diagnostics.}
 
-\item{messages}{logical; if messages=TRUE then status messages are printed on the screen (or output device) while the function is running. Default is messages=TRUE.}
+\item{messages}{Logical; if TRUE, print messages during prediction.}
 
-\item{parallel}{to parallelize some part of the function.}
+\item{parallel}{Logical; future flag for parallel computation (currently not active).}
 }
 \value{
-pred.draw: the samples of the prediction
-
-pred: the prediction of the relative risk
-
-predSD: the standard error of the prediction
-
-Pred.loc: The coordinates of the predictive locations
+A list of class \code{SDALGCP} containing:
+\describe{
+\item{pred.draw}{Matrix of posterior samples at prediction locations.}
+\item{pred}{Posterior mean prediction of relative risk.}
+\item{predSD}{Posterior standard deviation of prediction.}
+\item{pred.loc}{Coordinates of prediction locations.}
+\item{my_shp}{Shapefile with summary relative risk values.}
+\item{call}{Function call.}
+}
 }
 \description{
-This function performs spatial continuous prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
-}
-\details{
-The function returns the prediction of the relative risk exp(S(x))
+Computes spatial predictions on a regular grid for relative risks using a fitted SDALGCP model.
 }
 \author{
 Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}

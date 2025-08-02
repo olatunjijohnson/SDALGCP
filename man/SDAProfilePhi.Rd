@@ -2,26 +2,16 @@
 % Please edit documentation in R/dm_functions.R
 \name{SDAProfilePhi}
 \alias{SDAProfilePhi}
-\title{plot profile likelihood of phi}
+\title{Profile Likelihood of Phi}
 \usage{
 SDAProfilePhi(obj)
 }
 \arguments{
-\item{obj}{the output of \code{\link{SDALGCPMCML}} of class "SDALGCP"}
+\item{obj}{an object of class "SDALGCP" from \code{\link{SDALGCPMCML}}.}
 }
 \value{
-A plot
+A base R plot.
 }
 \description{
-This function plots the profile likelihood of phi
-}
-\details{
-To be used to view the value of the likelihood versus the scale parameter phi
-}
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
+Plots the log-likelihood profile of the spatial scale parameter \code{phi}.
 }

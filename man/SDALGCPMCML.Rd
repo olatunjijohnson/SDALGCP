@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{SDALGCPMCML}
 \alias{SDALGCPMCML}
-\title{Parameter estimation for SDA-LGCP Using Monte Carlo Maximum likelihood}
+\title{Parameter Estimation for SDA-LGCP Using Monte Carlo Maximum Likelihood}
 \usage{
 SDALGCPMCML(
   formula,
@@ -23,117 +23,92 @@ SDALGCPMCML(
 )
 }
 \arguments{
-\item{formula}{an object of class \code{\link{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted.}
+\item{formula}{A \code{formula} describing the fixed effects structure of the model (e.g., \code{cases ~ covariate1 + offset(log(pop))}).}
 
-\item{data}{data frame containing the variables in the model.}
+\item{data}{A data frame containing variables used in the model.}
 
-\item{my_shp}{A SpatialPolygons or SpatialPolygonsDataFrame  object containing the polygons (i.e each regions).}
+\item{my_shp}{An `sf`, `SpatialPolygons`, or `SpatialPolygonsDataFrame` object defining the study region polygons.}
 
-\item{delta}{distance between points}
+\item{delta}{A numeric value controlling the spatial resolution for polygon sampling (e.g., spacing between points).}
 
-\item{phi}{the discretised values of the scale parameter phi. if not supplied, it uses the default, which is 20 phis' which ranges from size of the smallest region to the one-tenth of the size of the entire domain.}
+\item{phi}{Optional numeric vector of spatial range (scale) parameters to evaluate during optimization. If \code{NULL}, defaults to a sequence based on spatial extent.}
 
-\item{method}{To specify which method to use to sample the points, the options are 1 for Simple Sequential Inhibition (SSI) process, 2 for Uniform sampling and 3 for regular grid. 1 is the default}
+\item{method}{Integer indicating sampling method: 1 = Simple Sequential Inhibition (default), 2 = Uniform random, 3 = Regular grid.}
 
-\item{pop_shp}{Optional, The raster of population density map for population weighted approach}
+\item{pop_shp}{Optional population raster (e.g., from `terra` or `raster`) used for population-weighted point sampling.}
 
-\item{weighted}{To specify if you want to use the population density, default to FALSE, i.e population density is not used.}
+\item{weighted}{Logical; if \code{TRUE}, candidate point sampling is weighted by \code{pop_shp}. Default is \code{FALSE}.}
 
-\item{par0}{the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi). Default; beta, the estimates from the glm; sigma2, variance of the residual; phi, the median of the supplied phi.}
+\item{par0}{Optional numeric vector of initial values: \code{c(beta coefficients, sigma^2, phi)}.}
 
-\item{control.mcmc}{list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.}
+\item{control.mcmc}{A list of MCMC settings created using \code{\link{controlmcmcSDA}}.}
 
-\item{plot}{To display the plot of the points inside the polygon, default to TRUE}
+\item{plot}{Logical; if \code{TRUE}, sampled points are visualized. Default is \code{FALSE}.}
 
-\item{plot_profile}{logical; if TRUE the profile-likelihood is plotted. default is FALSE}
+\item{plot_profile}{Logical; if \code{TRUE}, profile likelihood for \code{phi} is plotted. Default is \code{TRUE}.}
 
-\item{rho}{Optional, the packing density, default set to 0.55}
+\item{rho}{Packing density for SSI sampling (method 1). Default is \code{NULL}.}
 
-\item{giveup}{Optional, number of rejected proposals after which the algorithm should terminate, default set to 1000}
+\item{giveup}{Maximum number of failed point insertions before SSI stops. Default is \code{NULL}.}
 
-\item{messages}{logical; if messages=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.}
+\item{messages}{Logical; if \code{TRUE}, estimation progress is printed. Default is \code{FALSE}.}
 }
 \value{
-An object of class "SDALGCP".
-The function \code{\link{summary.SDALGCP}} is used to print a summary of the fitted model.
-The object is a list with the following components:
-
-\code{D}: matrix of covariates.
-
-\code{y}: the count, response observations.
-
-\code{m}: offset
-
-\code{beta_opt}: estimates of the fixed effects of the model.
-
-\code{sigma2_opt}: estimates of the variance of the Gaussian process.
-
-\code{phi_opt}: estimates of the scale parameter phi of the Gaussian process.
-
-\code{cov}: covariance matrix of the MCML estimates.
-
-\code{Sigma_mat_opt}: covariance matrix of the Gaussian process that corresponds to the optimal value
-
-\code{llike_val_opt}: maximum value of the log-likelihood.
-
-\code{mu}: mean of the linear predictor
-
-\code{all_para}: the entire estimates for the different values of phi.
-
-\code{all_cov}: the entire covariance matrix of the estimates for the different values of phi.
-
-\code{par0}: the initial parameter of the fixed effects beta and the variance sigmasq used in the estimation
-
-\code{control.mcmc}: the burnin, thining, the number of iteration and the turning parameters used see \code{\link{controlmcmcSDA}}.
-
-\code{call}: the matched call.
+An object of class \code{"SDALGCP"} with components:
+\describe{
+  \item{\code{D}}{Design matrix for fixed effects.}
+  \item{\code{y}}{Response variable (counts).}
+  \item{\code{m}}{Offset vector (e.g., population).}
+  \item{\code{beta_opt}}{Estimated fixed effect coefficients.}
+  \item{\code{sigma2_opt}}{Estimated process variance.}
+  \item{\code{phi_opt}}{Estimated spatial scale parameter.}
+  \item{\code{cov}}{Covariance matrix of estimated parameters.}
+  \item{\code{Sigma_mat_opt}}{Covariance matrix for optimal parameters.}
+  \item{\code{llike_val_opt}}{Maximum log-likelihood value.}
+  \item{\code{mu}}{Fitted linear predictor values.}
+  \item{\code{all_para}}{Parameter estimates across all \code{phi} values.}
+  \item{\code{all_cov}}{Covariance matrices across all \code{phi} values.}
+  \item{\code{par0}}{Initial values used in optimization.}
+  \item{\code{control.mcmc}}{MCMC control settings used.}
+  \item{\code{call}}{The original function call.}
+}
 }
 \description{
-This function provides the maximum likelihood estimation of the parameter given a set of values of scale parameter of the Gaussian process, phi.
+Fits a spatially discrete approximation to a log-Gaussian Cox process (SDA-LGCP) model for areal count data
+via Monte Carlo Maximum Likelihood (MCML). The function supports both `sp` and `sf` formats and includes spatial point sampling,
+correlation matrix precomputation, and likelihood optimization.
 }
 \details{
-This function performs parameter estimation for a SDALGCP Model
-\bold{Monte Carlo Maximum likelihood.}
-The Monte Carlo maximum likelihood method uses conditional simulation from the distribution of the random effect \eqn{T(x) = d(x)'\beta+S(x)} given the data \code{y}, in order to approximate the high-dimensional intractable integral given by the likelihood function. The resulting approximation of the likelihood is then maximized by a numerical optimization algorithm which uses analytic expression for computation of the gradient vector and Hessian matrix. The functions used for numerical optimization are \code{\link{nlminb}}. The first stage of estimation is generating locations inside the polygon, followed by precomputing the correlation matrices, then optimising the likelihood.
+This function implements the spatially discrete approximation to LGCP models as proposed in Christensen (2004) and Giorgi & Diggle (2017),
+estimating the latent Gaussian process and fixed effects using MCML. The approach involves:
+\enumerate{
+  \item Generating candidate locations within each polygon.
+  \item Precomputing correlation matrices for candidate points and a grid of \code{phi} values.
+  \item Performing likelihood-based parameter estimation using Langevin-Hastings MCMC.
+}
 }
 \examples{
-### Prepare the input of the model
 data(PBCshp)
-data <- as.data.frame(PBCshp@data)  #get the data
-### Write the formula of the model
+df <- as.data.frame(PBCshp@data)
 FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime +
-Environment +  offset(log(pop))
-### set the discretised phi
-phi <- seq(500, 1700, length.out = 10)
-#### get the initial parameter
-model <- glm(formula=FORM, family="poisson", data=data)
-beta.start <-coef(model)
-sigma2.start <- mean(model$residuals^2)
-phi.start <- median(phi)
-par0 <- c(beta.start, sigma2.start, phi.start)
-# setup the control arguments for the MCMC
-n <- 545
-h <- 1.65/(n^(1/6))
-control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000,
-                 thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
-###Run the model
-\donttest{
-my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=500, phi=phi, method=1,
-                     weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
-}
+           Environment + offset(log(pop))
+phi_vals <- seq(500, 1700, length.out = 5)
+glm_mod <- glm(FORM, family = poisson, data = df)
+par0 <- c(coef(glm_mod), mean(residuals(glm_mod)^2), median(phi_vals))
+control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000, thin = 8,
+                               h = 1.65/(545^(1/6)), c1.h = 0.01, c2.h = 1e-4)
+
+
 }
 \references{
-Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08
-
-Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
+Giorgi, E., & Diggle, P. J. (2017). PrevMap: An R package for prevalence mapping. *Journal of Statistical Software*, 78(8), 1–29. \doi{10.18637/jss.v078.i08} \cr
+Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. *Journal of Computational and Graphical Statistics*, 13(3), 702–718. \doi{10.1198/106186004X2525}
 }
 \seealso{
-\link{Aggregated_poisson_log_MCML}, \code{\link{Laplace.sampling}},  \link{summary.SDALGCP}
+\code{\link{controlmcmcSDA}}, \code{\link{SDALGCPpolygonpoints}}, \code{\link{Laplace.sampling}}, \code{\link{summary.SDALGCP}}
 }
 \author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
+Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk} \cr
+Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk} \cr
 Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
 }

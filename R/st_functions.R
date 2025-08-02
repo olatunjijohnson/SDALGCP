@@ -339,7 +339,7 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
   Sigma0 <- sigma2.0 * kronecker(tcorr0, corr0)
   #####
   cat("\n Simulating the linear predictor given the initial parameter \n")
-  S.sim.res <- tryCatch(PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y, units.m=m,
+  S.sim.res <- tryCatch(Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y, units.m=m,
                                                   control.mcmc=control.mcmc,
                                                   plot.correlogram=FALSE, messages=messages,
                                                   poisson.llik=TRUE), error=identity)
@@ -451,7 +451,7 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
 ##' @param weighted To specify if you want to use the population density, default to FALSE, i.e population density is not used.
 ##' @param method To specify which method to use to sample the points, the options are 1 for Simple Sequential Inhibition (SSI) process, 2 for Uniform sampling and 3 for regular grid. 1 is the default
 ##' @param par0 the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi). Default; beta, the estimates from the glm; sigma2, variance of the residual; phi, the median of the supplied phi.
-##' @param control.mcmc list from PrevMap package to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.
+##' @param control.mcmc list from \code{\link{controlmcmcSDA}} to define the burnin, thining, the number of iteration and the turning parameters see \code{\link{controlmcmcSDA}}.
 ##' @param rho Optional, the packing density, default set to 0.55
 ##' @param giveup Optional, number of rejected proposals after which the algorithm should terminate, default set to 1000
 ##' @param plot To display the plot of the points inside the polygon, default to TRUE
@@ -494,12 +494,12 @@ SDALGCPParaEst_ST <- function(formula, data, corr, par0=NULL, time, kappa, contr
 SDALGCPMCML_ST <- function(formula, st_data, delta, phi=NULL, method=1, pop_shp=NULL,  kappa=0.5,
                            weighted=FALSE, par0=NULL, control.mcmc=NULL, plot=FALSE, plot_profile=TRUE, rho=NULL,
                            giveup=NULL, messages=FALSE){
-  if(class(st_data) != "STFDF") stop("the st_data must be of spacetime class, please check documentation or spacetime package")
+  if(!inherits(st_data, "STFDF")) stop("the st_data must be of spacetime class, please check documentation or spacetime package")
   data <- st_data@data
   my_shp <- st_data@sp
   time <- 1:length(st_data@time)
   if(any(is.na(data))) stop("missing values are not accepted")
-  if(class(formula)!="formula") stop("formula must be a 'formula' object that indicates the variables of the fitted model.")
+  if (!inherits(formula, "formula")) stop("formula must be a 'formula' object that indicates the variables of the fitted model.")
   if(!is.null(control.mcmc) & length(control.mcmc) != 6) stop("please check the input of the controlmcmc argument")
   if(is.null(phi)){
     phi <- seq(sqrt(min(sapply(1:length(my_shp), function(x) my_shp@polygons[[x]]@area))),
@@ -542,7 +542,7 @@ SDADiscretePred_ST <- function(para_est, control.mcmc=NULL,
   if (is.null(control.mcmc)) control.mcmc <- para_est$control.mcmc
   m <- para_est$m
   y <- para_est$y
-  S.sim.res <- PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y,
+  S.sim.res <- Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y,
                                          units.m=m, control.mcmc = control.mcmc,
                                          plot.correlogram=plot.correlogram, messages=messages,
                                          poisson.llik=TRUE)
@@ -578,7 +578,7 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
   if (is.null(control.mcmc)) control.mcmc <- para_est$control.mcmc
   m <- para_est$m
   y <- para_est$y
-  S.sim.res <- PrevMap::Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y,
+  S.sim.res <- Laplace.sampling(mu=mu0, Sigma=Sigma0, y=y,
                                          units.m=m, control.mcmc = control.mcmc,
                                          plot.correlogram=plot.correlogram, messages=messages,
                                          poisson.llik=TRUE)
@@ -822,7 +822,7 @@ SDAContinuousPred_ST <- function(para_est, cellsize, control.mcmc=NULL, pred.loc
 SDALGCPPred_ST <- function(para_est, cellsize, continuous = TRUE, control.mcmc=NULL, pred.loc=NULL,
                            divisor=1, plot.correlogram=F, messages=TRUE, parallel=FALSE, n.window=1){
   #############prediction
-  if(class(para_est)!="SDALGCPST") stop("para_est must be of class 'SDALGCPST', that is an output of SDALGCPMCML_ST function")
+  if(!inherits(para_est, "SDALGCPST")) stop("para_est must be of class 'SDALGCPST', that is an output of SDALGCPMCML_ST function")
   if(continuous && length(cellsize)==0) stop("if continuous is TRUE, cellsize must be provided")
   if (continuous){
     Con_pred <- SDAContinuousPred_ST(para_est=para_est,  cellsize=cellsize, pred.loc=pred.loc, parallel = parallel, divisor = divisor,
@@ -1778,12 +1778,12 @@ SDALGCPParaEst_ST2 <- function(formula, data, corr, par0=NULL, time, kappa, cont
 SDALGCPMCML_ST2 <- function(formula, st_data, delta, phi=NULL, method=1, pop_shp=NULL,  kappa=0.5,
                             weighted=FALSE, par0=NULL, control.mcmc=NULL, plot=FALSE, plot_profile=TRUE, rho=NULL,
                             giveup=NULL, messages=FALSE, nu.start=NULL){
-  if(class(st_data) != "STFDF") stop("the st_data must be of spacetime class, please check documentation or spacetime package")
+  if(!inherits(st_data, "STFDF")) stop("the st_data must be of spacetime class, please check documentation or spacetime package")
   data <- st_data@data
   my_shp <- st_data@sp
   time <- 1:length(st_data@time)
   if(any(is.na(data))) stop("missing values are not accepted")
-  if(class(formula)!="formula") stop("formula must be a 'formula' object that indicates the variables of the fitted model.")
+  if (!inherits(formula, "formula")) stop("formula must be a 'formula' object that indicates the variables of the fitted model.")
   if(!is.null(control.mcmc) & length(control.mcmc) != 6) stop("please check the input of the controlmcmc argument")
   if(is.null(phi)){
     phi <- seq(sqrt(min(sapply(1:length(my_shp), function(x) my_shp@polygons[[x]]@area))),
@@ -2354,7 +2354,7 @@ SDAContinuousPred_ST_Extrapolate <- function(para_est, cellsize, control.mcmc=NU
 SDALGCPPred_ST2 <- function(para_est, cellsize, continuous = TRUE, control.mcmc=NULL, pred.loc=NULL,
                             divisor=1, plot.correlogram=F, messages=TRUE, parallel=FALSE, n.window=1){
   #############prediction
-  if(class(para_est)!="SDALGCPST") stop("para_est must be of class 'SDALGCPST', that is an output of SDALGCPMCML_ST function")
+  if(!inherits(para_est, "SDALGCPST")) stop("para_est must be of class 'SDALGCPST', that is an output of SDALGCPMCML_ST function")
   if(continuous && length(cellsize)==0) stop("if continuous is TRUE, cellsize must be provided")
   if (continuous){
     Con_pred <- SDAContinuousPred_ST2(para_est=para_est,  cellsize=cellsize, pred.loc=pred.loc, parallel = parallel, divisor = divisor,

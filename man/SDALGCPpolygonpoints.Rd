@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{SDALGCPpolygonpoints}
 \alias{SDALGCPpolygonpoints}
-\title{SDALGCPpolygonpoints function}
+\title{Generate Sampling Points from a Polygon Layer}
 \usage{
 SDALGCPpolygonpoints(
   my_shp,
@@ -16,39 +16,36 @@ SDALGCPpolygonpoints(
 )
 }
 \arguments{
-\item{my_shp}{A SpatialPolygons or SpatialPolygonsDataFrame  object containing the polygons (i.e each regions).}
+\item{my_shp}{An `sf` object containing polygon geometries.}
 
-\item{delta}{distance between points}
+\item{delta}{Grid resolution or minimum separation distance between candidate points.}
 
-\item{method}{To specify which method to use to sample the points, the options are 1 for Simple Sequential Inhibition (SSI) process, 2 for Uniform sampling and 3 for regular grid. 1 is the default}
+\item{method}{Integer specifying the sampling method: 1 = SSI, 2 = Uniform, 3 = Regular.}
 
-\item{pop_shp}{Optional, The raster of population density map for population weighted approach}
+\item{pop_shp}{Optional `terra::rast` object representing population density.}
 
-\item{weighted}{To specify if you want to use the population density, default to FALSE, i.e population density is not used.}
+\item{weighted}{Logical indicating whether to use population weighting.}
 
-\item{rho}{Optional, The packing density, default set to 0.55}
+\item{rho}{Optional packing density for SSI (default = 0.55).}
 
-\item{plot}{To display the plot of the points inside the polygon, default to TRUE}
+\item{plot}{Logical. If TRUE, plots the generated points.}
 
-\item{giveup}{Number of rejected proposals after which the algorithm should terminate.}
+\item{giveup}{Optional integer for maximum failed SSI attempts (default = 1000).}
 }
 \value{
-It returns a list of the coordinates of the points created in each polygon and it has an associated attribute weighted which is either TRUE or FALSE to indicate if the population density is used or not.
+A list of length equal to number of polygons in `my_shp`. Each element contains:
+\describe{
+  \item{xy}{matrix of candidate point coordinates}
+  \item{n}{number of points}
+  \item{bound}{the polygon geometry used}
+  }
 }
 \description{
-This function generate a random point pattern using Simple Sequential Inhibition (SSI) process, uniform sampling and regular grid point.
+Creates candidate sampling points within each polygon feature of an `sf` object, either uniformly or weighted by population density.
 }
-\details{
-This algorithm generates points inside the polygon using three algorithms specified in the method.
+\examples{
+data(PBCshp)
+PBCsf <- sf::st_as_sf(PBCshp)
+pts <- SDALGCPpolygonpoints(my_shp = PBCsf, delta = 500, method = 3)
+head(pts[[1]]$xy)
 }
-\seealso{
-\link{SDALGCPCreatePoint}, \link{SDALGCPSSIPoint}, \link{SDALGCPUniformPoint}, \link{SDALGCPRegularPoint}
-}
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
-}
-\keyword{internal}

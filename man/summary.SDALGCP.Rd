@@ -2,33 +2,24 @@
 % Please edit documentation in R/dm_functions.R
 \name{summary.SDALGCP}
 \alias{summary.SDALGCP}
-\title{Summarizing the parameter estimates of SDALGCP model}
+\title{Summary method for SDALGCP model object}
 \usage{
 \method{summary}{SDALGCP}(object, ...)
 }
 \arguments{
-\item{object}{an object of class "SDALGCP" obtained as result of a call to \code{\link{SDALGCPMCML}} .}
+\item{object}{An object of class \code{SDALGCP} obtained from \code{\link{SDALGCPMCML}}.}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-A list with the following components
-
-\code{parameter_estimate_result}: the parameter of the SDALGCP model
-
-\code{phi}: the scale parameter of the Gaussian process
-
-\code{ll}: value of likelihood function at the maximum likelihood estimates.
-
-\code{call}: matched call.
+A list with components:
+\describe{
+\item{parameter_estimate_result}{Matrix of parameter estimates, standard errors, z-values and p-values.}
+\item{phi}{Scale parameter estimate.}
+\item{ll}{Value of the log-likelihood at maximum.}
+\item{call}{Matched function call.}
+}
 }
 \description{
-\code{summary} method for the class "SDALGCP" that computes the standard errors and p-values of SDALGCP.
-}
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
+Computes standard errors and p-values for parameter estimates from an SDALGCP model.
 }

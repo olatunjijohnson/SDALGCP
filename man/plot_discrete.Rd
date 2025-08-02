@@ -2,33 +2,25 @@
 % Please edit documentation in R/dm_functions.R
 \name{plot_discrete}
 \alias{plot_discrete}
-\title{plot_discrete}
+\title{Plot Discrete SDALGCP Predictions}
 \usage{
 plot_discrete(obj, type = "incidence", overlay = FALSE, ...)
 }
 \arguments{
-\item{obj}{an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}}
+\item{obj}{An object of class \code{"Pred.SDALGCP"} containing discrete predictions and associated spatial polygons.}
 
-\item{type}{Character string: what type of plot to produce. Choices are "incidence" (=exp(mu+S)); "SEincidence" (standard error of incidence); "CovAdjRelRisk" (=exp(S)); or "SECovAdjRelRisk" (standard error of covariate adjusted relative risk);.}
+\item{type}{Character string indicating what to plot. One of: \code{"incidence"}, \code{"SEincidence"}, \code{"CovAdjRelRisk"}, \code{"SECovAdjRelRisk"}.}
 
-\item{overlay}{optional; a logical operation to indicate either to add a base map.}
+\item{overlay}{Logical; if \code{TRUE}, overlays polygon borders.}
 
-\item{...}{further arguments passed to \code{\link{plot}}.}
+\item{...}{Additional arguments passed to \code{ggplot2::ggplot}.}
 }
 \value{
-The function does not return any value.
+A \code{ggplot2} object visualizing spatial discrete predictions.
 }
 \description{
-A generic function for mapping spatially discrete prediction for \code{\link{SDALGCPPred}} function in \link{SDALGCP} package. Not for general purposes
+Plots region-specific predicted values from a fitted SDALGCP model using `sf` polygons.
 }
 \seealso{
-\code{\link{SDALGCPPred}}
+\code{\link{plot.Pred.SDALGCP}}, \code{\link{SDALGCPPred}}
 }
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
-}
-\keyword{internal}

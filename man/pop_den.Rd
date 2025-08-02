@@ -4,7 +4,9 @@
 \name{pop_den}
 \alias{pop_den}
 \title{Population density raster shapefile of Newcastle Upon Tyne in the UK.}
-\format{This is a raster file of population density, 300 X 300 meters.}
+\format{
+This is a raster file of population density, 300 X 300 meters.
+}
 \usage{
 data(pop_den)
 }

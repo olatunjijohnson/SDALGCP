@@ -2,57 +2,49 @@
 % Please edit documentation in R/dm_functions.R
 \name{SDALGCPSSIPoint}
 \alias{SDALGCPSSIPoint}
-\title{SDALGCPSSIPoint function}
+\title{Generate Points Using Simple Sequential Inhibition (SSI)}
 \usage{
 SDALGCPSSIPoint(
   poly,
   delta,
   weighted = FALSE,
+  pop = NULL,
   pop_shp = NULL,
   lambdamax = NULL,
-  pop = NULL,
   n = NULL,
   rho = NULL,
-  giveup = NULL
+  giveup = NULL,
+  bound
 )
 }
 \arguments{
-\item{poly}{polygon in which to generate the points.}
+\item{poly}{matrix of coordinates defining the polygon boundary.}
 
-\item{delta}{distance between points.}
+\item{delta}{inhibition distance for the SSI process.}
 
-\item{weighted}{To specify if you want to use the population density, default to FALSE, i.e population density is not used.}
+\item{weighted}{logical; whether to sample based on population weights (default = FALSE).}
 
-\item{pop_shp}{Optional, The raster of population density map for population weighted approach.}
+\item{pop}{numeric vector of population weights (if weighted = TRUE).}
 
-\item{lambdamax}{the maximum value of the population density in the polygon.}
+\item{pop_shp}{optional; an `sf` object representing the spatial population shape (used if weighted = TRUE).}
 
-\item{pop}{the population density.}
+\item{lambdamax}{optional; maximum intensity (required if `pop` is used).}
 
-\item{n}{optional; the number of points to create in the polygon, if not supplied, it is computed as \eqn{n = rho*|A|*4/(\pi*delta^2)}}
+\item{n}{optional; fixed number of points to generate.}
 
-\item{rho}{Optional, The packing density, default set to 0.55.}
+\item{rho}{optional; population intensity per unit area for adaptive point generation.}
 
-\item{giveup}{Number of rejected proposals after which the algorithm should terminate.}
+\item{giveup}{optional; maximum number of rejection attempts.}
+
+\item{bound}{`sf` object representing the sampling boundary (required).}
 }
 \value{
-It returns a list of the coordinates of the points created in each polygon.
+A list with components:
+\describe{
+  \item{xy}{matrix of sampled coordinates.}
+  \item{win}{sampling window (class `"owin"`).}
+}
 }
 \description{
-This function generate a random point pattern using Simple Sequential Inhibition (SSI) process. An internal function for \code{\link{SDALGCP}} package.
+Generates spatial points inside a polygon using the Simple Sequential Inhibition (SSI) process.
 }
-\details{
-This algorithm generates points inside the polygon using Simple Sequential Inhibition (SSI) process.
-}
-\examples{
-data(PBCshp)
-points <- SDALGCPSSIPoint(poly=PBCshp@polygons[[1]]@Polygons[[1]]@coords, delta=100)
-}
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
-}
-\keyword{internal}

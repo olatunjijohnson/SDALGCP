@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{Aggregated_poisson_log_MCML}
 \alias{Aggregated_poisson_log_MCML}
-\title{Aggregated_poisson_log_MCML function}
+\title{Aggregated Poisson Log MCML Estimation}
 \usage{
 Aggregated_poisson_log_MCML(
   y,
@@ -13,56 +13,59 @@ Aggregated_poisson_log_MCML(
   control.mcmc,
   S.sim,
   Denominator,
-  messages
+  messages = FALSE
 )
 }
 \arguments{
-\item{y}{the data}
+\item{y}{A numeric vector of observed counts.}
 
-\item{D}{the design matrix}
+\item{D}{A design matrix for the fixed effects (dimension: n × p).}
 
-\item{m}{the offset term}
+\item{m}{A numeric vector of offset values (e.g., population at risk).}
 
-\item{corr}{the correlation matrix from exponential correlation function}
+\item{corr}{The spatial correlation matrix (e.g., from \code{\link{precomputeCorrMatrix}}).}
 
-\item{par0}{the initial parameter of the fixed effects beta, the variance sigmasq and the scale parameter phi, specified as c(beta, sigma2, phi)}
+\item{par0}{Initial parameter vector: \code{c(beta, sigma2, phi)} where beta is of length \code{ncol(D)}.}
 
-\item{control.mcmc}{output from \code{\link{controlmcmcSDA}}.}
+\item{control.mcmc}{Output from \code{\link{controlmcmcSDA}} specifying the MCMC control options (not used in this function but passed for compatibility).}
 
-\item{S.sim}{the posterior sample of the linear predictor given the initial parameters}
+\item{S.sim}{A matrix of posterior samples of the latent spatial field (dimension: nsim × n).}
 
-\item{Denominator}{the value of the denominator of the likelihood}
+\item{Denominator}{A numeric value representing the importance sampling denominator (normalizing constant).}
 
-\item{messages}{logical; if message=TRUE, it prints the results objective function and the parameters at every phi iteration. Default is FALSE.}
+\item{messages}{Logical; if \code{TRUE}, progress messages are printed during optimization. Default is \code{FALSE}.}
 }
 \value{
-\code{estimate}: estimates of the model parameters; beta's and with sigma2 on the log scale
-
-\code{covariance}: covariance matrix of the MCML estimates.
-
-\code{log.lik}: maximum value of the log-likelihood.
-
-\code{S}: the linear predictor given the initial parameter
+A list with the following elements:
+\describe{
+  \item{estimate}{Named vector of MCML estimates for the fixed effects and log-variance \code{log(sigma^2)}.}
+  \item{covariance}{Covariance matrix of the parameter estimates.}
+  \item{value}{The log-likelihood at the optimum.}
+  \item{S}{The posterior samples of the latent field used in the optimization.}
+}
 }
 \description{
-This function performs Monte Carlo maximum likelihood (MCML) estimation for the geostatistical Poisson model with log link function.
+Performs Monte Carlo Maximum Likelihood (MCML) estimation for the spatial Poisson log-linear model with aggregated data using a given correlation matrix.
 }
 \details{
-The function helps to obtain the MCML estimate for a given value of correlation matrix, i.e for a given value of the scale parameter phi.
+The function uses Laplace importance sampling and numerical optimization via \code{nlminb} to maximize the MCML objective function.
+The spatial field \code{S.sim} should be drawn from the Laplace approximation to the posterior of the latent field under initial parameters.
+
+The correlation matrix is treated as fixed (conditioned on \code{phi}), and only the fixed effects and variance parameters are estimated.
 }
 \references{
-Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. Journal of Statistical Software, 78(8), 1-29. doi:10.18637/jss.v078.i08.
+Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. \emph{Journal of Statistical Software}, 78(8), 1–29. \doi{10.18637/jss.v078.i08}
 
-Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. Journal of Computational and Graphical Statistics 13, 702-718.
+Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. \emph{Journal of Computational and Graphical Statistics}, 13(3), 702–718.
 }
 \seealso{
-\code{\link{controlmcmcSDA}}
+\code{\link{precomputeCorrMatrix}}, \code{\link{controlmcmcSDA}}, \code{\link{Laplace.sampling}}
 }
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
-}
+\keyword{MCML}
+\keyword{Poisson}
+\keyword{geostatistics}
 \keyword{internal}
+\keyword{likelihood}
+\keyword{model}
+\keyword{optimization}
+\keyword{spatial}

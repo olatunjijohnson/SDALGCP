@@ -2,7 +2,7 @@
 % Please edit documentation in R/dm_functions.R
 \name{plot_SDALGCPexceedance}
 \alias{plot_SDALGCPexceedance}
-\title{plot_SDALGCPexceedance}
+\title{Plot Exceedance Probabilities from SDALGCP Predictions}
 \usage{
 plot_SDALGCPexceedance(
   obj,
@@ -14,32 +14,24 @@ plot_SDALGCPexceedance(
 )
 }
 \arguments{
-\item{obj}{an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}.}
+\item{obj}{An object of class \code{"Pred.SDALGCP"} containing exceedance probability results.}
 
-\item{thresholds}{either a vector  of numbers or a vector of single value.}
+\item{thresholds}{A numeric value or vector of thresholds used in exceedance probability estimation.}
 
-\item{bound}{optional; it gives the boundary of the region, only useful when the predictive location is supplied in \link{SDALGCPPred}.}
+\item{bound}{Optional boundary \code{sf} object for overlay on continuous surfaces.}
 
-\item{continuous}{logical; TRUE for spatially continuous relative risk and FALSE for region specific relative risk. default is TRUE.}
+\item{continuous}{Logical; \code{TRUE} for continuous surface, \code{FALSE} for discrete region-level results.}
 
-\item{overlay}{optional; a logical operation to indicate either to add a base map.}
+\item{overlay}{Logical; if \code{TRUE}, overlays polygon or boundary outline.}
 
-\item{...}{further arguments passed to \link{plot}.}
+\item{...}{Additional arguments passed to \code{ggplot2::ggplot}.}
 }
 \value{
-The plot of the exceedance probability map
+A \code{ggplot2} object showing exceedance probabilities.
 }
 \description{
-A generic function for mapping the exceedance probability for a given threshold of the spatially continuous relative risk or the region specific relative risk from the object of class "Pred.SDALGCP". Not for general purposes.
+Plots exceedance probabilities from SDALGCP predictions, either continuous (`stars`) or discrete (`sf` polygons).
 }
 \seealso{
-\link{SDALGCPPred}
+\code{\link{SDALGCPexceedance}}, \code{\link{SDALGCPPred}}
 }
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
-}
-\keyword{internal}

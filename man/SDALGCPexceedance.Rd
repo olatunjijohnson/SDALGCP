@@ -7,23 +7,16 @@
 SDALGCPexceedance(obj, thresholds, continuous = TRUE)
 }
 \arguments{
-\item{obj}{an object of class "Pred.SDALGCP" obtained as result of a call to \code{\link{SDALGCPPred}}.}
+\item{obj}{object of class "Pred.SDALGCP" from \code{\link{SDALGCPPred}}.}
 
-\item{thresholds}{either a vector  of numbers or a vector of single value.}
+\item{thresholds}{numeric; threshold(s) for exceedance.}
 
-\item{continuous}{logical; TRUE for spatially continuous relative risk and FALSE for region specific relative risk. default is TRUE}
+\item{continuous}{logical; TRUE for continuous predictions, FALSE for region-specific.}
 }
 \value{
-A vector or dataframe(for more than one value of the threshold) of the exceedance probability
+Vector or data frame of exceedance probabilities.
 }
 \description{
-Computes the exceedance probability for a given threshold of the spatially continuous relative risk or the region specific relative risk from the object of class "Pred.SDALGCP".
-}
-\author{
-Olatunji O. Johnson \email{o.johnson@lancaster.ac.uk}
-
-Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk}
-
-Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
+Computes exceedance probabilities for thresholds applied to predicted relative risk surfaces.
 }
 \keyword{internal}
