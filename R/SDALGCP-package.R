@@ -1,35 +1,31 @@
-#' SDALGCP: A package to make continuous inference from spatially aggregated disease count data.
+#' @title SDALGCP: Spatially Discrete Approximation to Log-Gaussian Cox Processes
 #'
-#' @description The SDALGCP package provides four main functions:
-#' \code{\link{SDALGCPMCML}}, \code{\link{SDALGCPMCML_ST}}, \code{\link{SDALGCPPred}}, and \code{\link{SDALGCPPred_ST}}.
+#' @description
+#' The SDALGCP package provides tools for continuous spatial and spatio-temporal inference using spatially aggregated disease count data. It implements a computationally efficient approximation to a log-Gaussian Cox process (LGCP) model using Monte Carlo Maximum Likelihood (MCML).
 #'
-#' @section SDALGCP functions:
-#' The \link{SDALGCPMCML} function uses Monte Carlo Maximum Likelihood to estimate the parameters of a
-#' Poisson log-linear model with a spatially continuous random effect for static spatial datasets.
-#'
-#' The \link{SDALGCPPred} function delivers spatially discrete prediction of the incidence and the
-#' covariate-adjusted relative risk, and spatially continuous prediction of the covariate-adjusted relative risk.
-#'
-#' The \link{SDALGCPMCML_ST} function uses Monte Carlo Maximum Likelihood to estimate the parameters of a
-#' Poisson log-linear model with a spatially continuous random effect for spatio-temporal datasets.
-#'
-#' The \link{SDALGCPPred_ST} function provides predictions for both spatially discrete and continuous risk
-#' in the spatio-temporal setting.
-#'
-#' Functions such as \link{summary}, \link{confint}, and \link{print} can also be applied to the model outputs.
+#' @details
+#' The package includes functionality for model fitting and prediction:
+#' \itemize{
+#'   \item \code{\link{SDALGCPMCML}} estimates model parameters using MCML for spatial data.
+#'   \item \code{\link{SDALGCPPred}} performs spatial prediction (discrete and continuous) from fitted models.
+#'   \item \code{\link{SDALGCPMCML_ST}} extends the MCML approach to spatio-temporal data.
+#'   \item \code{\link{SDALGCPPred_ST}} provides prediction for spatio-temporal settings.
+#' }
+#' Additional methods include \code{\link{summary}}, \code{\link{print}}, and \code{\link{confint}} for model interpretation.
 #'
 #' @author
-#' Olatunji O. Johnson, Emanuele Giorgi, Peter Diggle. All from CHICAS, Lancaster Medical School,
-#' Faculty of Health and Medicine, Lancaster University
+#' Olatunji O. Johnson \email{olatunjijohnson21111@gmail.com},
+#' Emanuele Giorgi \email{e.giorgi@lancaster.ac.uk},
+#' Peter J. Diggle \email{p.diggle@lancaster.ac.uk}
 #'
 #' @references
-#' Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics.
-#' *Journal of Computational and Graphical Statistics*, 13(3), 702–718. \doi{10.1198/106186004X2525}
+#' Christensen, O. F. (2004). Monte Carlo maximum likelihood in model-based geostatistics. \emph{Journal of Computational and Graphical Statistics}, 13(3), 702–718. \doi{10.1198/106186004X2525}
 #'
-#' Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping.
-#' *Journal of Statistical Software*, 78(8), 1–29. \doi{10.18637/jss.v078.i08}
+#' Johnson, O., Giorgi, E., & Diggle, P. J. (2019). A spatially discrete approximation to log-Gaussian Cox processes for modeling aggregated disease count data. \emph{Statistics in Medicine}, 38(19), 3666–3681. \doi{10.1002/sim.8339}
 #'
-#' Banerjee, S., Carlin, B. P., & Gelfand, A. E. (2014). *Hierarchical Modeling and Analysis for Spatial Data*. CRC Press.
+#' Giorgi, E., & Diggle, P. J. (2017). PrevMap: an R package for prevalence mapping. \emph{Journal of Statistical Software}, 78(8), 1–29. \doi{10.18637/jss.v078.i08}
 #'
-#' @keywords internal
+#' Banerjee, S., Carlin, B. P., & Gelfand, A. E. (2014). \emph{Hierarchical Modeling and Analysis for Spatial Data}. CRC Press.
+#'
+#' @keywords package
 "_PACKAGE"

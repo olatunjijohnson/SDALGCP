@@ -514,10 +514,12 @@ SDALGCPCreatePoint <- function(my_shp, delta, weighted = FALSE, lambdamax = NULL
 ##'   \item{bound}{the polygon geometry used}
 ##'   }
 ##' @examples
+##' \donttest{
 ##' data(PBCshp)
 ##' PBCsf <- sf::st_as_sf(PBCshp)
 ##' pts <- SDALGCPpolygonpoints(my_shp = PBCsf, delta = 500, method = 3)
 ##' head(pts[[1]]$xy)
+##' }
 ##' @importFrom sf st_geometry st_as_sf st_area st_union st_crop
 ##' @importFrom terra extract vect
 ##' @importFrom progress progress_bar

@@ -44,8 +44,10 @@ A list of length equal to number of polygons in `my_shp`. Each element contains:
 Creates candidate sampling points within each polygon feature of an `sf` object, either uniformly or weighted by population density.
 }
 \examples{
+\donttest{
 data(PBCshp)
 PBCsf <- sf::st_as_sf(PBCshp)
 pts <- SDALGCPpolygonpoints(my_shp = PBCsf, delta = 500, method = 3)
 head(pts[[1]]$xy)
+}
 }
