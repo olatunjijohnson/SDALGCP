@@ -1,4 +1,5 @@
 url: https://olatunjijohnson.github.io/SDALGCP/
 template:
   bootstrap: 5
+  bootswatch: cerulean
 
