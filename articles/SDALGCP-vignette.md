@@ -1,0 +1,263 @@
+# A Spatially Discrete Approximation to Log-Gaussian Cox Processes for Modelling Aggregated Disease Count Data
+
+## Introduction
+
+This article presents a simple tutorial code from SDALGCP package to
+make inference on spatially aggregated disease count data when one
+assume that the disease risk is spatially continious. There are two main
+functions provided by the package, for parameter estimation and for
+prediction.
+
+### Model
+
+Our goal is to analyse of diease count data, more specifically when
+disease cases are aggregated over a partition, say
+$\left( \mathcal{R}_{1},\ldots,\mathcal{R}_{n} \right)$, of the area of
+interest, $A$, which can be written mathematically as $$\begin{array}{r}
+{\mathcal{D} = \left\{ \left( y_{i},d_{i},\mathcal{R}_{i} \right):i = 1,\ldots,n \right\}}
+\end{array}$$ where $y_{i}$ and $d_{i}$ are the number of reported cases
+and a vector of explanatory variables associated with $i$-th region
+$\mathcal{R}_{i}$, respectively. Hence, we model $y_{i}$ conditional on
+the stochastic process $S(X)$ as poission distribution with mean
+$\lambda_{i} = m_{i}\exp\{ d_{i}\beta^{*} + S_{i}^{*}\}$. Then we assume
+that $S^{*} \sim MVN(0,\Sigma)$, where
+$$\Sigma_{ij} = \sigma^{2}\int_{\mathcal{R}_{i}}\int_{\mathcal{R}_{j}}w_{i}(x)w_{j}(x\prime)\ \rho( \parallel x - x\prime \parallel ;\phi)\ dx\ dx\prime$$,
+where $w(x)$ is population density weight. There are two classes of
+models in this package; one is when we approximate
+$$S_{i}^{*} = \int_{\mathcal{R}_{i}}w_{i}(x)S^{*}(x)\ dx$$ and the other
+is
+$$S_{i}^{*} = \frac{1}{\mathcal{R}_{i}}\int_{\mathcal{R}_{i}}S^{*}(x)\ dx.$$
+\## Inference We used Monte Carlo Maximum Likelihood for inference. The
+likelihood function for this class of model is usually intractible,
+hence we approximate the likelihood function as
+$$\frac{1}{N}\ \sum\limits_{j = 1}^{N}\ \frac{f\left( \eta_{(j)};\psi \right)}{f\left( \eta_{(j)};\psi_{0} \right)}.$$,
+where $\psi$ is the vector of the parameters.
+
+This vignette walk you through how to analyse spatial and
+spatio-temporal dataset using package. Two illustrative examples were
+provided; application to primary biliary cirrhosis in
+Newcastle-upon-tyne, UK (static spatial case) and Lung cancer mortality
+in Ohio, USA (spatio-temporal case).
+
+## Tutorial
+
+This part illustrates how to fit an SDALGCP model to spatially
+aggregated data. We used the example dataset that is supplied in the
+package.
+
+load the package
+
+``` r
+require(SDALGCP)
+```
+
+load the data
+
+``` r
+data("PBCshp")
+```
+
+extract the dataframe containing data from the object loaded
+
+``` r
+data <- as.data.frame(PBCshp@data)
+```
+
+load the population density raster
+
+``` r
+data("pop_den")
+```
+
+set any population density that is NA to zero
+
+``` r
+pop_den[is.na(pop_den[])] <- 0
+```
+
+write a formula of the model you want to fit
+
+``` r
+FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
+  Environment +  offset(log(pop))
+```
+
+Now to proceed to fitting the model, note that there two types of model
+that can be fitted. One is when approximate the intensity of LGCP by
+taking the population weighted average and the other is by taking the
+simple average. We shall consider both cases in this tutorial, starting
+with population weighted since we have population density on a raster
+grid of 300m by 300m.
+
+### SDALGCP I (population weighted): application to primary biliary cirrhosis in Newcastle-upon-tyne, UK
+
+Here we estimate the parameters of the model
+
+Discretise the value of scale parameter $\phi$
+
+``` r
+phi <- seq(500, 1700, length.out = 20)
+```
+
+estimate the parameter using MCML
+
+``` r
+my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=200, phi=phi, method=1, pop_shp=pop_den, 
+                      weighted=TRUE, par0=NULL, control.mcmc=NULL)
+```
+
+To print the summary of the parameter estimates as well as the
+confidence interval, use;
+
+``` r
+summary(my_est)
+#and for confidence interval use
+confint(my_est)
+```
+
+We create a function to compute the confidence interval of the scale
+parameter using the deviance method. It also provides the deviance plot.
+
+``` r
+phiCI(my_est, coverage = 0.95, plot = TRUE)
+```
+
+Having estimated the parameters of the model, one might be interested in
+area-level inference or spatially continuous inference.
+
+1.  If interested in STRICTLY area-level inference use the code below.
+    This can either give either region-specific covariate-adjusted
+    relative risk or region-specific incidence. This is achieved by
+    simply setting in the function.
+
+``` r
+Dis_pred <- SDALGCPPred(para_est=my_est,  continuous=FALSE)
+```
+
+From this discrete inference one can map either the region-specific
+incidence or the covariate adjusted relative risk.
+
+``` r
+#to map the incidence
+plot(Dis_pred, type="incidence", continuous = FALSE)
+#and its standard error
+plot(Dis_pred, type="SEincidence", continuous = FALSE)
+#to map the covariate adjusted relative risk
+plot(Dis_pred, type="CovAdjRelRisk", continuous = FALSE)
+#and its standard error
+plot(Dis_pred, type="SECovAdjRelRisk", continuous = FALSE)
+#to map the exceedance probability that the covariate-adjusted relative risk is greter than a particular threshold
+plot(Dis_pred, type="CovAdjRelRisk", continuous = FALSE, thresholds=3.0)
+```
+
+2.  If interested in spatially continuous prediction of the covariate
+    adjusted relative risk. This is achieved by simply setting in the
+    function.
+
+``` r
+Con_pred <- SDALGCPPred(para_est=my_est, cellsize = 300, continuous=TRUE)
+```
+
+Then we map the spatially continuous covariate adjusted relative risk.
+
+``` r
+#to map the covariate adjusted relative risk
+plot(Con_pred, type="relrisk")
+#and its standard error
+plot(Con_pred, type="SErelrisk")
+#to map the exceedance probability that the relative risk is greter than a particular threshold
+plot(Con_pred, type="relrisk", thresholds=1.5)
+```
+
+### SDALGCP II (Unweighted)
+
+As for the unweighted which is typically by taking the simple average of
+the intensity an LGCP model, the entire code in the weighted can be used
+by just setting in the line below.
+
+``` r
+my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=200, phi=phi, method=1, 
+                      weighted=FALSE,  plot=FALSE, par0=NULL, control.mcmc=NULL, messages = TRUE, plot_profile = TRUE)
+```
+
+## Spatio-temporal SDALGCP: application to Lung cancer mortality in Ohio.
+
+Download the dataset
+
+``` r
+require(rgdal)
+require(sp)
+require(spacetime)
+ohiorespMort <- read.csv("https://raw.githubusercontent.com/olatunjijohnson/dataset/master/OhioRespMort.csv")
+download.file("https://github.com/olatunjijohnson/dataset/raw/master/ohio_shapefile.zip", "ohio_shapefile.zip")
+unzip("ohio_shapefile.zip")
+ohio_shp <- rgdal::readOGR("ohio_shapefile/","tl_2010_39_county00")
+ohio_shp <- sp::spTransform(ohio_shp, sp::CRS("+init=epsg:32617"))
+```
+
+create a spacetime object as an input of the spatio-temporal SDALGCP
+model
+
+``` r
+m <- length(ohio_shp)
+TT <- 21
+Y <- ohiorespMort$y
+X <- ohiorespMort$year
+pop <- ohiorespMort$n
+E <- ohiorespMort$E
+data <- data.frame(Y=Y, X=X, pop=pop, E=E)
+formula <- Y ~  X + offset(log(E))
+phi <- seq(10, 300, length.out = 10)
+control.mcmc <- controlmcmcSDA(n.sim=10000, burnin=2000, thin=80, h=1.65/((m*TT)^(1/6)), c1.h=0.01, c2.h=0.0001)
+time <- as.POSIXct(paste(1968:1988, "-01-01", sep = ""), tz = "")
+st_data <- spacetime::STFDF(sp = ohio_shp, time = time, data = data)
+```
+
+Plot the spatio-temporal count data
+
+``` r
+spacetime::stplot(st_data[,,"Y"])
+```
+
+Parameter estimation
+
+``` r
+model.fit <- SDALGCPMCML_ST(formula=formula, st_data = st_data,  delta=800, 
+                            phi=phi, method=2, pop_shp=NULL,  kappa=0.5,
+                            weighted=FALSE, par0=NULL, control.mcmc=control.mcmc, 
+                            plot=TRUE, plot_profile=TRUE, rho=NULL,
+                            giveup=50, messages=TRUE)
+summary(model.fit)
+```
+
+Area-level of the spatio-temporal prediction
+
+``` r
+dis_pred <- SDALGCPPred_ST(para_est = model.fit, continuous = FALSE)
+```
+
+Ploting the area-level incidence and the covariate adjusted relative
+risk
+
+``` r
+plot(dis_pred, type="CovAdjRelRisk", main="Relative Risk", continuous=FALSE)
+plot(dis_pred,  type="incidence", main="Incidence", continuous=FALSE)
+```
+
+Spatially continuous prediction of the covariate adjusted relative risk
+
+``` r
+con_pred <- SDALGCPPred_ST(para_est = model.fit, cellsize = 2500, continuous=TRUE, n.window = 1)
+```
+
+Ploting the spatially continuous covariate-adjusted relative risk
+
+``` r
+plot(con_pred, type="relrisk", continuous=TRUE)
+```
+
+\#Discussion Using SDALGCP package for analysis of spatially aggregated
+data provides two main advantages. One, it allows the user to make
+spatially continous inference irrespective of the level of aggregation
+of the data. Second, it is more computationally efficient than the lgcp
+model for aggregated data that was implemented in package.

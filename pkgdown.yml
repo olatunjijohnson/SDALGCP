@@ -1,0 +1,9 @@
+pandoc: 3.1.11
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  SDALGCP-vignette: SDALGCP-vignette.html
+last_built: 2025-11-18T23:16Z
+urls:
+  reference: https://olatunjijohnson.github.io/SDALGCP/reference
+  article: https://olatunjijohnson.github.io/SDALGCP/articles
