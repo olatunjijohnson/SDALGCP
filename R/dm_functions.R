@@ -251,94 +251,194 @@ Laplace.sampling <- function(mu, Sigma, y, units.m,
 #' @param poly matrix of coordinates defining the polygon boundary.
 #' @param delta inhibition distance for the SSI process.
 #' @param weighted logical; whether to sample based on population weights (default = FALSE).
-#' @param pop numeric vector of population weights (if weighted = TRUE).
-#' @param pop_shp optional; an `sf` object representing the spatial population shape (used if weighted = TRUE).
-#' @param lambdamax optional; maximum intensity (required if `pop` is used).
+#' @param pop numeric; total population within the polygon (required if weighted).
+#' @param pop_shp RasterLayer or SpatRaster representing population density (required if weighted).
+#' @param lambdamax numeric; maximum intensity (required if weighted).
 #' @param n optional; fixed number of points to generate.
-#' @param rho optional; population intensity per unit area for adaptive point generation.
+#' @param rho optional; packing intensity factor for adaptive point generation.
 #' @param giveup optional; maximum number of rejection attempts.
-#' @param bound `sf` object representing the sampling boundary (required).
+#' @param bound sf object representing the polygon boundary (required).
 #'
 #' @return A list with components:
 #' \describe{
 #'   \item{xy}{matrix of sampled coordinates.}
-#'   \item{win}{sampling window (class `"owin"`).}
+#'   \item{weight}{(if weighted) normalized weights.}
+#'   \item{win}{sampling window (class 'owin').}
 #' }
-#' @importFrom sf st_union st_as_sf st_geometry_type st_coordinates st_make_valid
+#' @importFrom sf st_union st_make_valid
 #' @importFrom spatstat.geom as.owin
-#' @importFrom spatstat.random rSSI
+#' @importFrom splancs csr areapl
 #' @export
 SDALGCPSSIPoint <- function(poly, delta, weighted = FALSE, pop = NULL, pop_shp = NULL,
                             lambdamax = NULL, n = NULL, rho = NULL, giveup = NULL, bound) {
-  # Convert polygon coordinates into owin window
-  if (!inherits(bound, "sf")) {
-    stop("bound must be an 'sf' object.")
+  if (!inherits(bound, "sf")) stop("'bound' must be an 'sf' object.")
+
+  if (weighted) {
+    if (is.null(pop)) stop("For weighted sampling, 'pop' must be provided.")
+    if (is.null(lambdamax)) stop("For weighted sampling, 'lambdamax' must be provided.")
+    if (is.null(pop_shp)) stop("For weighted sampling, 'pop_shp' raster must be provided.")
   }
 
-  bound <- sf::st_make_valid(sf::st_union(bound))
-  win <- spatstat.geom::as.owin(bound)
+  if (is.null(rho)) rho <- 0.55
+  if (is.null(giveup)) giveup <- 1000
 
-  # Determine number of points if not provided
-  if (is.null(n)) {
-    area <- as.numeric(sf::st_area(bound))
-    if (is.null(rho)) rho <- 0.55
-    n <- round((rho * area * 4) / (pi * delta^2))
+  area <- as.numeric(sf::st_area(sf::st_union(bound)))
+  if (is.null(n)) n <- round((rho * area * 4) / (pi * delta^2))
+
+  win <- spatstat.geom::as.owin(sf::st_make_valid(sf::st_union(bound)))
+
+  if (!weighted) {
+    pts <- spatstat.random::rSSI(r = delta, n = n, win = win, giveup = giveup)
+    xy <- cbind(pts$x, pts$y)
+    rownames(xy) <- 1:nrow(xy)
+    colnames(xy) <- c("x", "y")
+    return(list(xy = xy, win = win))
+  } else {
+    # Weighted SSI with rejection sampling
+    xy <- matrix(splancs::csr(poly, 1), 1, 2)
+    v0 <- terra::extract(pop_shp, xy)[[1]]
+    prob <- v0 / lambdamax
+    wei <- v0 / pop
+
+    if (is.na(prob)) prob <- 1
+    if (is.na(wei)) wei <- 1 / n
+
+    out.wei <- c(wei)
+    delsq <- delta^2
+
+    if ((n * pi * delsq / 4) > splancs::areapl(poly)) {
+      warning(sprintf("Window may be too small to fit %d points at delta = %g.", n, delta))
+    }
+
+    while (nrow(xy) < n) {
+      k <- 0; dsq <- 0; prob <- 0
+      repeat {
+        k <- k + 1
+        xy.try <- splancs::csr(poly, 1)
+        dsq <- min((xy[,1] - xy.try[1])^2 + (xy[,2] - xy.try[2])^2)
+
+        v <- terra::extract(pop_shp, matrix(xy.try, 1, 2))[[1]]
+        if (is.na(v)) next
+
+        prob <- v / lambdamax
+        wei <- v / pop
+
+        # Adjust min distance for higher density areas
+        adj.delsq <- if (prob < 1) delsq * (1 - prob) else delsq
+
+        if (dsq >= adj.delsq && runif(1) < prob) break
+        if (k >= giveup) {
+          warning(sprintf("Giveup limit reached after %d tries. %d/%d points placed.", k, nrow(xy), n))
+          break
+        }
+      }
+
+      if (k >= giveup) break
+      xy <- rbind(xy, xy.try)
+      out.wei <- c(out.wei, wei)
+    }
+
+    rownames(xy) <- 1:nrow(xy)
+    colnames(xy) <- c("x", "y")
+    return(list(xy = xy, weight = out.wei / sum(out.wei), win = win))
   }
-
-  # Generate points via SSI process
-  if (is.null(giveup)) giveup <- 10000
-  pts <- spatstat.random::rSSI(r = delta, n = n, win = win, giveup = giveup)
-
-  # Extract coordinates
-  xy <- cbind(pts$x, pts$y)
-
-  return(list(xy = xy, win = win))
 }
 
 
-#' @title Generate Uniform Random Points in a Polygon
-#' @description Uniformly generates random points within a polygon defined by an `sf` boundary.
-#' @param poly matrix of coordinates (not used directly when `bound` is provided).
+
+#' @title Generate Uniform Random Points in a Polygon (Weighted or Unweighted)
+#' @description Uniformly generates random points within a polygon, optionally weighted by population density.
+#' @param poly matrix of coordinates (not used directly).
 #' @param delta unused in this method (included for consistency).
 #' @param weighted logical; whether to use population-weighted sampling. Default is FALSE.
-#' @param pop numeric vector of population weights (if weighted = TRUE).
-#' @param pop_shp optional; an `sf` object representing population distribution polygons.
-#' @param lambdamax optional; maximum population density value (used only if `weighted = TRUE`).
-#' @param n optional; number of points to generate. If NULL, will be inferred using `rho`.
-#' @param rho optional; intensity (points per unit area). Used to determine `n` if not supplied.
-#' @param giveup optional; max attempts for rejection sampling (used if `weighted = TRUE`).
-#' @param bound an `sf` polygon object representing the sampling boundary.
-#'
+#' @param pop numeric; total population within the polygon (required if weighted).
+#' @param pop_shp SpatRaster representing population density (required if weighted).
+#' @param lambdamax numeric; maximum density value in population raster (required if weighted).
+#' @param n optional; number of points to generate. If NULL, calculated using `rho`.
+#' @param rho optional; density factor used if `n` is NULL.
+#' @param giveup integer; max number of rejections per point.
+#' @param bound sf polygon object defining the sampling area.
 #' @return A list with:
 #' \describe{
-#'   \item{xy}{matrix of sampled coordinates.}
-#'   \item{win}{spatstat window object used.}
+#'   \item{xy}{matrix of sampled coordinates}
+#'   \item{weight}{(if weighted) normalized weights}
+#'   \item{win}{`owin` window used for sampling}
 #' }
-#' @importFrom sf st_area st_union st_make_valid
-#' @importFrom spatstat.geom as.owin
-#' @importFrom spatstat.random runifpoint
+#' @importFrom spatstat.geom as.owin runifpoint
 #' @export
 SDALGCPUniformPoint <- function(poly, delta, weighted = FALSE, pop = NULL, pop_shp = NULL,
                                 lambdamax = NULL, n = NULL, rho = NULL, giveup = NULL, bound) {
   if (!inherits(bound, "sf")) stop("Input 'bound' must be an 'sf' object.")
 
-  # Ensure valid geometry
+  if (weighted) {
+    if (is.null(pop)) stop("For weighted sampling, 'pop' (total population) must be supplied.")
+    if (is.null(lambdamax)) stop("For weighted sampling, 'lambdamax' (max population density) must be supplied.")
+    if (is.null(pop_shp)) stop("For weighted sampling, 'pop_shp' raster must be provided.")
+  }
+
+  if (is.null(rho)) rho <- 0.55
+  if (is.null(giveup)) giveup <- 1000
+
+  # Geometry and window setup
   bound <- sf::st_make_valid(sf::st_union(bound))
   win <- spatstat.geom::as.owin(bound)
 
   # Determine number of points
-
   if (is.null(n)) {
     area <- as.numeric(sf::st_area(bound))
-    if (is.null(rho)) rho <- 0.55
     n <- round((rho * area * 4) / (pi * delta^2))
   }
 
-  # Generate uniformly distributed points
-  pts <- spatstat.random::runifpoint(n, win = win)
-  xy <- cbind(pts$x, pts$y)
+  if (!weighted) {
+    # Unweighted: Simple uniform sampling
+    pts <- spatstat.random::runifpoint(n, win = win)
+    xy <- cbind(pts$x, pts$y)
+    return(list(xy = xy, win = win))
+  } else {
+    # Weighted: rejection sampling
+    xy_list <- list()
+    weights <- numeric()
+    accepted <- 0
 
-  return(list(xy = xy, win = win))
+    while (accepted < n) {
+      attempts <- 0
+      repeat {
+        attempts <- attempts + 1
+        pt <- spatstat.random::runifpoint(1, win = win)
+        coord <- matrix(c(pt$x, pt$y), nrow = 1)
+
+        # Extract population density
+        v <- suppressWarnings({
+          if (inherits(pop_shp, "SpatRaster")) {
+            terra::extract(pop_shp, terra::vect(sf::st_as_sf(data.frame(x = pt$x, y = pt$y), coords = c("x", "y"), crs = sf::st_crs(bound))), ID = FALSE)[[1]]
+          } else {
+            stop("Unsupported raster type for 'pop_shp'.")
+          }
+        })
+
+        if (is.na(v) || is.null(v)) next
+        prob <- v / lambdamax
+        if (runif(1) <= prob) {
+          xy_list[[length(xy_list) + 1]] <- coord
+          weights <- c(weights, v / pop)
+          accepted <- accepted + 1
+          break
+        }
+
+        if (attempts >= giveup) {
+          warning(sprintf("Reached maximum attempts (%d) after accepting %d points out of %d.", giveup, accepted, n))
+          accepted <- n
+          break
+        }
+      }
+    }
+
+    xy_mat <- do.call(rbind, xy_list)
+    colnames(xy_mat) <- c("x", "y")
+    rownames(xy_mat) <- 1:nrow(xy_mat)
+
+    return(list(xy = xy_mat, weight = weights / sum(weights), win = win))
+  }
 }
 
 
@@ -393,6 +493,10 @@ compute_area <- function(poly) {
 SDALGCPRegularPoint <- function(poly, delta, weighted = FALSE, pop = NULL, pop_shp = NULL,
                                 lambdamax = NULL, n = NULL, rho = NULL, giveup = NULL, bound) {
   if (!inherits(bound, "sf")) stop("Input 'bound' must be an 'sf' object.")
+
+  if (weighted) {
+    stop("Regular grid cannot use population density. Please use Uniform or SSI instead.")
+  }
 
   # Ensure valid boundary
   bound <- sf::st_make_valid(sf::st_union(bound))
@@ -641,6 +745,38 @@ precomputeCorrMatrix <- function(S.coord, phi) {
   )
   pb$tick(0)
 
+  # for (i in seq_len(n_regions)) {
+  #   pb$tick()
+  #   xy_i <- S.coord[[i]]$xy
+  #   w_i <- if (weight) S.coord[[i]]$weight else NULL
+  #
+  #   for (j in i:n_regions) {
+  #     xy_j <- S.coord[[j]]$xy
+  #     w_j <- if (weight) S.coord[[j]]$weight else NULL
+  #
+  #     # Compute pairwise distances
+  #     D <- as.matrix(pdist::pdist(xy_i, xy_j))  # matrix n_i x n_j
+  #
+  #     # Compute exp(-D / phi) for each phi
+  #     kernel_array <- exp(-outer(D, 1 / phi, "*"))  # dim: n_i x n_j x n_phi
+  #
+  #     if (weight) {
+  #       # Apply weights to kernel
+  #       print(w_i)
+  #       print(w_j)
+  #       W <- outer(w_i, w_j, "*")  # n_i x n_j
+  #       for (k in seq_len(n_phi)) {
+  #         R[i, j, k] <- R[j, i, k] <- sum(W * kernel_array[, , k])
+  #       }
+  #     } else {
+  #       for (k in seq_len(n_phi)) {
+  #         R[i, j, k] <- R[j, i, k] <- mean(kernel_array[, , k])
+  #       }
+  #     }
+  #   }
+  # }
+
+
   for (i in seq_len(n_regions)) {
     pb$tick()
     xy_i <- S.coord[[i]]$xy
@@ -650,15 +786,29 @@ precomputeCorrMatrix <- function(S.coord, phi) {
       xy_j <- S.coord[[j]]$xy
       w_j <- if (weight) S.coord[[j]]$weight else NULL
 
-      # Compute pairwise distances
-      D <- as.matrix(pdist::pdist(xy_i, xy_j))  # matrix n_i x n_j
+      # Cross distances or within-polygon distances
+      if (i == j) {
+        D <- as.matrix(stats::dist(xy_i))
+      } else {
+        D <- as.matrix(pdist::pdist(xy_i, xy_j))
+      }
 
-      # Compute exp(-D / phi) for each phi
-      kernel_array <- exp(-outer(D, 1 / phi, "*"))  # dim: n_i x n_j x n_phi
+      # Compute exp(-D/phi) for each phi
+      kernel_array <- exp(-outer(D, 1 / phi, "*"))
 
       if (weight) {
-        # Apply weights to kernel
-        W <- outer(w_i, w_j, "*")  # n_i x n_j
+
+        # Make sure w_i and w_j are numeric vectors of the correct length
+        if (weight) {
+          if (is.null(w_i) || is.null(w_j)) {
+            stop(paste("Weight vectors are NULL at region pair (", i, ",", j, ")"))
+          }
+          if (!is.numeric(w_i) || !is.numeric(w_j)) {
+            stop(paste("Non-numeric weights at region pair (", i, ",", j, ")"))
+          }
+        }
+
+        W <- outer(w_i, w_j, "*")
         for (k in seq_len(n_phi)) {
           R[i, j, k] <- R[j, i, k] <- sum(W * kernel_array[, , k])
         }
@@ -669,6 +819,7 @@ precomputeCorrMatrix <- function(S.coord, phi) {
       }
     }
   }
+
 
   message("Done precomputing the correlation matrix!")
 
@@ -846,7 +997,7 @@ Aggregated_poisson_log_MCML <- function(y, D, m, corr, par0, control.mcmc, S.sim
 #' @keywords internal
 SDALGCPParaEst <- function(formula, data, corr, par0 = NULL, control.mcmc = NULL,
                            plot_profile = FALSE, messages = FALSE) {
-  cat("Preparing for parameter estimation...")
+  cat("Preparing for parameter estimation...\n")
   mf <- model.frame(formula = formula, data = data)
   y <- as.numeric(model.response(mf))
   D <- model.matrix(attr(mf, "terms"), data = data)
@@ -885,7 +1036,7 @@ SDALGCPParaEst <- function(formula, data, corr, par0 = NULL, control.mcmc = NULL
   sigma2.0 <- par0[p + 1]
   Sigma0 <- sigma2.0 * corr0
 
-  cat("Simulating linear predictor given initial parameters...")
+  cat("Simulating linear predictor given initial parameters...\n ")
   S.sim <- tryCatch(
     Laplace.sampling(mu = mu0, Sigma = Sigma0, y = y, units.m = m,
                               control.mcmc = control.mcmc, plot.correlogram = FALSE,
@@ -911,7 +1062,7 @@ SDALGCPParaEst <- function(formula, data, corr, par0 = NULL, control.mcmc = NULL
   Denominator <- num_mc_loglik(c(beta0, log(sigma2.0)))
 
   run_phi <- function(i, par0) {
-    if (messages) cat("Estimating for phi =", phi[i], "")
+    if (messages) cat("Estimating for phi =", phi[i], " \n ")
     fit <- Aggregated_poisson_log_MCML(y = y, D = D, m = m, corr = R[, , i],
                                        par0 = par0, control.mcmc = control.mcmc,
                                        S.sim = S.sim, Denominator = Denominator,
@@ -920,7 +1071,7 @@ SDALGCPParaEst <- function(formula, data, corr, par0 = NULL, control.mcmc = NULL
     list(par = c(phi[i], fit$value, fit$estimate), cov = fit$covariance)
   }
 
-  cat("Fitting model for each phi value...")
+  cat("Fitting model for each phi value...\n")
   pb <- progress::progress_bar$new(format = "  [:bar:] :percent", total = n.phi, width = 70)
   pb$tick(0)
   results <- vector("list", n.phi)
@@ -943,17 +1094,18 @@ SDALGCPParaEst <- function(formula, data, corr, par0 = NULL, control.mcmc = NULL
   result <- list(
     D = D, y = y, m = m,
     beta_opt = unname(unlist(opt[colnames(D)])),
-    sigma2_opt = unname(opt["sigma2"]),
-    phi_opt = unname(opt["phi"]),
+    sigma2_opt = as.numeric(unname(opt["sigma2"])),
+    phi_opt = as.numeric(unname(opt["phi"])),
     cov = output_cov[[best_idx]],
-    Sigma_mat_opt = output_cov[[best_idx]] * opt["sigma2"],
-    llike_val_opt = unname(opt["value"]),
+    Sigma_mat_opt = as.numeric(unname(opt["sigma2"])) * R[,, best_idx],
+    llike_val_opt = as.numeric(unname(opt["value"])),
     mu = D %*% unname(unlist(opt[colnames(D)])),
     all_para = output,
     all_cov = output_cov,
     par0 = par0,
     control.mcmc = control.mcmc,
     S = S.sim,
+    S.coord = attr(corr$R, 'S_coord'),
     call = match.call()
   )
   class(result) <- "SDALGCP"
@@ -976,34 +1128,17 @@ SDALGCPParaEst <- function(formula, data, corr, par0 = NULL, control.mcmc = NULL
 #' @param plot.correlogram Logical; if TRUE, displays autocorrelation diagnostics of the posterior simulations.
 #' @param messages Logical; if TRUE, prints messages during computation.
 #'
-#' @return A list of class \code{SDALGCP} with the following components:
-#' \describe{
-#' \item{S.draw}{Matrix of sampled latent field draws.}
-#' \item{incidence}{Mean posterior region-specific incidence (\eqn{\exp(S(A))}).}
-#' \item{SEincidence}{Posterior standard error of incidence.}
-#' \item{CovRR}{Mean covariate-adjusted relative risk \eqn{\exp(S(A) - \mu)}.}
-#' \item{SECovRR}{Posterior standard error of CovRR.}
-#' \item{my_shp}{The input shapefile with added columns for mean and standard errors.}
-#' \item{para_est}{The original fitted model.}
-#' \item{call}{Function call.}
-#' }
-#' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
-#' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
-#' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
+#' @return An object of class \code{SDALGCP} with posterior summaries and sampled latent field.
 #'
-#' @importFrom sp spsample
 #' @keywords internal
 SDADiscretePred <- function(para_est, control.mcmc = NULL,
                             divisor = 1, plot.correlogram = FALSE,
                             messages = TRUE) {
-  if (!inherits(para_est, "SDALGCP")) stop("para_est must be an object of class 'SDALGCP'")
+  stopifnot(inherits(para_est, "SDALGCP"))
 
-  my_shp <- attr(para_est, 'my_shp')
-  beta <- para_est$beta_opt
+  my_shp <- attr(para_est, "my_shp")
   mu0 <- para_est$mu
-  sigma2 <- para_est$sigma2_opt * median(diag(para_est$Sigma_mat_opt))
   Sigma0 <- para_est$Sigma_mat_opt
-  phi <- para_est$phi_opt
   m <- para_est$m
   y <- para_est$y
 
@@ -1017,15 +1152,15 @@ SDADiscretePred <- function(para_est, control.mcmc = NULL,
     poisson.llik = TRUE
   )
   S.sim <- sim_res$samples
-  n.sim <- nrow(S.sim)
 
-  # Compute posterior means and standard errors
   log_risks <- sweep(S.sim, 2, mu0, '-')
-  my_shp$pMean_ARR <- exp(rowMeans(log_risks))
-  my_shp$pSD_ARR   <- apply(exp(log_risks), 1, sd)
 
-  my_shp$pMean_RR <- exp(rowMeans(S.sim))
-  my_shp$pSD_RR   <- apply(exp(S.sim), 1, sd)
+
+  my_shp$pMean_ARR <- colMeans(exp(log_risks))
+  my_shp$pSD_ARR   <- apply(exp(log_risks), 2, sd)
+
+  my_shp$pMean_RR <- colMeans(exp(S.sim))
+  my_shp$pSD_RR   <- apply(exp(S.sim), 2, sd)
 
   structure(
     list(
@@ -1043,35 +1178,21 @@ SDADiscretePred <- function(para_est, control.mcmc = NULL,
   )
 }
 
-#################################################
+
 #' @title Continuous Prediction for SDALGCP
-#' @description Computes spatial predictions on a regular grid for relative risks using a fitted SDALGCP model.
+#' @description Computes spatial predictions on a regular grid using a fitted SDALGCP model.
 #'
-#' @param para_est An object of class \code{SDALGCP} returned by \code{SDALGCPParaEst()}.
-#' @param cellsize Grid resolution for prediction if \code{pred.loc} is not supplied.
-#' @param control.mcmc Optional MCMC control parameters. Defaults to those used in \code{para_est}.
-#' @param pred.loc Optional data frame of prediction coordinates with columns \code{x} and \code{y}.
-#' @param divisor Optional numeric divisor to rescale coordinates. Default is 1.
-#' @param plot.correlogram Logical; if TRUE, plot autocorrelation diagnostics.
-#' @param messages Logical; if TRUE, print messages during prediction.
-#' @param parallel Logical; future flag for parallel computation (currently not active).
+#' @param para_est Fitted model from \code{SDALGCPParaEst()}.
+#' @param cellsize Size of grid cell for predictions (ignored if \code{pred.loc} is given).
+#' @param control.mcmc MCMC control list (optional).
+#' @param pred.loc Optional data frame with prediction coordinates (columns \code{x}, \code{y}).
+#' @param divisor Optional numeric rescaling factor for coordinates.
+#' @param plot.correlogram Logical; plot correlogram.
+#' @param messages Logical; print messages.
+#' @param parallel Logical (not yet implemented).
 #'
-#' @return A list of class \code{SDALGCP} containing:
-#' \describe{
-#' \item{pred.draw}{Matrix of posterior samples at prediction locations.}
-#' \item{pred}{Posterior mean prediction of relative risk.}
-#' \item{predSD}{Posterior standard deviation of prediction.}
-#' \item{pred.loc}{Coordinates of prediction locations.}
-#' \item{my_shp}{Shapefile with summary relative risk values.}
-#' \item{call}{Function call.}
-#' }
-#' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
-#' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
-#' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
+#' @return An object of class \code{SDALGCP} with posterior predictions on a grid.
 #'
-#' @importFrom sp spsample coordinates
-#' @importFrom Matrix solve chol
-#' @importFrom pdist pdist
 #' @keywords internal
 SDAContinuousPred <- function(para_est, cellsize, control.mcmc = NULL,
                               pred.loc = NULL, divisor = 1,
@@ -1082,12 +1203,10 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc = NULL,
 
   my_shp <- attr(para_est, 'my_shp')
   weight <- attr(para_est, 'weighted')
-  S.coord <- attr(para_est, 'S_coord')
-
-  beta <- para_est$beta_opt
+  S.coord <- para_est$S.coord
   mu0 <- para_est$mu
-  sigma2 <- para_est$sigma2_opt * median(diag(para_est$Sigma_mat_opt))
   Sigma0 <- para_est$Sigma_mat_opt
+  sigma2 <- para_est$sigma2_opt
   phi <- para_est$phi_opt
   m <- para_est$m
   y <- para_est$y
@@ -1104,69 +1223,100 @@ SDAContinuousPred <- function(para_est, cellsize, control.mcmc = NULL,
   S.sim <- sim_res$samples
   n.sim <- nrow(S.sim)
 
-  # Update polygon-level RR and ARR for display
   log_risks <- sweep(S.sim, 2, mu0, '-')
-  my_shp$pMean_ARR <- exp(rowMeans(log_risks))
-  my_shp$pSD_ARR   <- apply(exp(log_risks), 1, sd)
-  my_shp$pMean_RR  <- exp(rowMeans(S.sim))
-  my_shp$pSD_RR    <- apply(exp(S.sim), 1, sd)
 
-  # Prediction grid
+
+
+  my_shp$pMean_ARR <- colMeans(exp(log_risks))
+  my_shp$pSD_ARR   <- apply(exp(log_risks), 2, sd)
+  my_shp$pMean_RR  <- colMeans(exp(S.sim))
+  my_shp$pSD_RR    <- apply(exp(S.sim), 2, sd)
+
+
   if (is.null(pred.loc)) {
-    bound <- raster::aggregate(my_shp)
-    regpts <- sp::spsample(bound, cellsize = cellsize, type = "regular")
-    vvv <- sp::coordinates(regpts)
-    pred.loc <- data.frame(x = vvv[, 1], y = vvv[, 2]) / divisor
+    bound <- sf::st_union(my_shp)
+    grid <- sf::st_make_grid(bound, cellsize = cellsize, what = "centers", square = TRUE)
+    coords <- sf::st_coordinates(grid)
+    pred.loc <- data.frame(x = coords[, 1], y = coords[, 2]) / divisor
   }
+
+
+  if (nrow(pred.loc) == 0) {
+    stop("No prediction locations generated. Try reducing 'cellsize' or check your input shapefile.")
+  }
+
+
   n.pred.loc <- nrow(pred.loc)
-
-  # Covariance matrices
+  message("pred.loc: ", paste(dim(pred.loc), collapse = " x "))
   Sigma.x2 <- sigma2 * exp(-as.matrix(dist(pred.loc)) / phi)
+  message("Sigma.x2: ", paste(dim(Sigma.x2), collapse = " x "))
 
-  compute_cross_cov <- function(weighted) {
-    n.distr <- length(S.coord)
-    R <- matrix(NA, nrow = n.pred.loc, ncol = n.distr)
-    pb <- progress::progress_bar$new(
-      format = "   [:bar:] :percent",
-      total = n.pred.loc, width = 70, clear = FALSE
-    )
-    pb$tick(0)
-    for (i in 1:n.pred.loc) {
-      for (j in 1:n.distr) {
-        U <- as.matrix(pdist::pdist(pred.loc[i, , drop = FALSE], as.matrix(S.coord[[j]]$xy)))
-        R[i, j] <- if (weighted) {
-          sum(S.coord[[j]]$weight * exp(-U / phi))
-        } else {
-          mean(exp(-U / phi))
-        }
-      }
-      pb$tick(1)
-    }
-    return(R)
-  }
-
-  Sigma.x.A2 <- sigma2 * compute_cross_cov(weighted = weight)
+  Sigma.x.A2 <- sigma2 * compute_cross_cov(pred.loc, S.coord, phi, weight)
   inv.Sigma.A2 <- solve(Sigma0)
 
-  # Conditional simulation
   pred.var <- Sigma.x2 - Sigma.x.A2 %*% inv.Sigma.A2 %*% t(Sigma.x.A2)
+
+  # message("Sigma.x2: ", paste(dim(Sigma.x2), collapse = " x "))
+  message("Sigma.x.A2: ", paste(dim(Sigma.x.A2), collapse = " x "))
+  message("inv.Sigma.A2: ", paste(dim(inv.Sigma.A2), collapse = " x "))
+
   K <- t(chol(pred.var))
 
-  S.x <- matrix(NA, nrow = n.sim, ncol = n.pred.loc)
+  S.x <- matrix(NA_real_, nrow = n.sim, ncol = n.pred.loc)
   for (i in 1:n.sim) {
     mean_pred <- Sigma.x.A2 %*% (inv.Sigma.A2 %*% (S.sim[i, ] - mu0))
     S.x[i, ] <- mean_pred + K %*% rnorm(n.pred.loc)
   }
 
-  list(
-    pred.draw = S.x,
-    pred = exp(rowMeans(S.x)),
-    predSD = apply(exp(S.x), 1, sd),
-    pred.loc = pred.loc,
-    my_shp = my_shp,
-    call = match.call()
-  ) |>
-    structure(class = "SDALGCP", weighted = weight)
+
+  # Convert grid points to sf object and add random data
+  grid_sf <- sf::st_sf(geometry = grid)
+  grid_sf$RRmean <- colMeans(exp(S.x))
+  grid_sf$RRsd <- apply(exp(S.x), 2, sd)
+
+  # Convert to stars object
+  RR_star <- stars::st_as_stars(grid_sf)
+
+
+  structure(
+    list(
+      pred.draw = S.x,
+      pred = rowMeans(exp(S.x)),
+      predSD = apply(exp(S.x), 1, sd),
+      pred.loc = pred.loc,
+      my_shp = my_shp,
+      RR = RR_star,  # Add the stars object here
+      call = match.call()
+    ),
+    class = "SDALGCP",
+    weighted = weight
+  )
+}
+
+# Helper function to compute cross-covariance
+compute_cross_cov <- function(pred.loc, S.coord, phi, weighted) {
+  n.pred.loc <- nrow(pred.loc)
+  n.distr <- length(S.coord)
+  R <- matrix(NA_real_, nrow = n.pred.loc, ncol = n.distr)
+
+  pb <- progress::progress_bar$new(
+    format = "   [:bar:] :percent",
+    total = n.pred.loc, width = 70, clear = FALSE
+  )
+  pb$tick(0)
+
+  for (i in seq_len(n.pred.loc)) {
+    for (j in seq_len(n.distr)) {
+      U <- as.matrix(pdist::pdist(pred.loc[i, , drop = FALSE], as.matrix(S.coord[[j]]$xy)))
+      R[i, j] <- if (weighted) {
+        sum(S.coord[[j]]$weight * exp(-U / phi))
+      } else {
+        mean(as.numeric(exp(-U / phi)))
+      }
+    }
+    pb$tick()
+  }
+  R
 }
 
 
@@ -1307,82 +1457,74 @@ SDALGCPMCML <- function(formula, data, my_shp, delta, phi = NULL, method = 1, po
   return(fit)
 }
 ##########################################
-#' @title Prediction from Fitted SDA-LGCP Model
-#' @description Delivers spatially discrete or continuous prediction from the output of the `SDALGCPMCML` model.
-#' @param para_est Output object from \code{\link{SDALGCPMCML}}, of class `"SDALGCP"`.
-#' @param cellsize Grid resolution (in projection units) for continuous prediction.
-#' @param continuous Logical; if `TRUE`, performs spatially continuous prediction. If `FALSE`, performs region-specific discrete prediction.
-#' @param bound Optional `sf` object representing the prediction boundary (used for continuous prediction). Defaults to the boundary of the model.
-#' @return An object of class `"Pred.SDALGCP"` containing predictions, standard errors, and coordinates.
-#' @export
-#' @importFrom sf st_as_sf st_bbox st_make_grid st_intersects st_coordinates
-#' @importFrom stats model.matrix
-#' @examples
-#' # check vignette for examples
-
-SDALGCPPred <- function(para_est, cellsize = NULL, continuous = TRUE, bound = NULL) {
-  if (!inherits(para_est, "SDALGCP")) stop("Input must be an object of class 'SDALGCP'.")
-  if (is.null(para_est$S.coord)) stop("No coordinates found in fitted model for prediction.")
-  if (continuous && is.null(cellsize)) stop("You must specify 'cellsize' for continuous prediction.")
-
-  coords <- para_est$S.coord
-  covmat <- para_est$cov
-  S.mean <- para_est$S_mean
-  Xbeta <- para_est$X_beta
-
-  if (continuous) {
-    # Define prediction region
-    if (is.null(bound)) {
-      bound <- sf::st_as_sf(para_est$boundary)
-    }
-    bound <- sf::st_union(bound)
-
-    # Create prediction grid
-    bbox <- sf::st_bbox(bound)
-    pred_grid <- sf::st_make_grid(bound, cellsize = cellsize, what = "centers")
-    pred_pts <- sf::st_as_sf(data.frame(geometry = pred_grid))
-
-    # Keep only points inside the boundary
-    inside <- sf::st_intersects(pred_pts, bound, sparse = FALSE)[, 1]
-    pred_pts <- pred_pts[inside, ]
-    xy_pred <- sf::st_coordinates(pred_pts)
-
-    # Compute spatial covariance between prediction and observation locations
-    distmat <- as.matrix(stats::dist(rbind(coords, xy_pred)))
-    n1 <- nrow(coords)
-    n2 <- nrow(xy_pred)
-
-    # Use Matérn correlation or exponential — currently exponential assumed
-    phi <- para_est$phi_opt
-    sigma2 <- para_est$sigma2_opt
-    cov_full <- sigma2 * exp(-distmat / phi)
-
-    cov12 <- cov_full[1:n1, (n1 + 1):(n1 + n2), drop = FALSE]
-    cov22 <- cov_full[(n1 + 1):(n1 + n2), (n1 + 1):(n1 + n2), drop = FALSE]
-
-    pred_mean <- as.numeric(t(cov12) %*% solve(covmat, S.mean))
-    pred_se <- sqrt(diag(cov22 - t(cov12) %*% solve(covmat, cov12)))
-
-    result <- list(xy = xy_pred, relrisk = exp(pred_mean),
-                   SErelrisk = exp(pred_se), S = pred_mean, SE = pred_se)
-
-  } else {
-    # Region-specific prediction (discrete)
-    relrisk <- exp(S.mean)
-    SErelrisk <- sqrt(diag(covmat))
-    incidence <- exp(Xbeta + S.mean)
-    SEincidence <- sqrt((SErelrisk^2) * incidence^2)
-
-    result <- list(xy = coords,
-                   incidence = incidence,
-                   SEincidence = SEincidence,
-                   CovAdjRelRisk = relrisk,
-                   SECovAdjRelRisk = SErelrisk)
+##' @title Spatial prediction using plug-in of MCML estimates
+##' @description This function performs spatial continuous and discrete prediction, fixing the model parameters at the Monte Carlo maximum likelihood estimates of a SDALGCP model.
+##' @param para_est an object of class "SDALGCP" obtained as a result of a call to \code{\link{SDALGCPMCML}}.
+##' @param cellsize the size of the computational grid
+##' @param pred.loc optional, the dataframe of the predictive grid.
+##' @param continuous logical; to choose which prediction to do perform, discrete or continuous. the default is continuous.
+##' @param control.mcmc output from \code{\link{controlmcmcSDA}}, if not provided, it uses the values used for the parameter estimation
+##' @param divisor optional, the value to use to convert the dimension of the polygon, default is 1 which implies no conversion
+##' @param plot.correlogram logical; if plot.correlogram=TRUE the autocorrelation plot of the conditional simulations is displayed.
+##' @param messages logical; if messages=TRUE then status messages are printed on the screen (or output device) while the function is running. Default is messages=TRUE.
+##' @param parallel to parallelize some part of the function.
+##' @details The function perform prediction of the spatially discrete incidence and covariate adjusted relative risk, and spatially continuous relative risk. The discrete inference uses the Metropolis-Adjusted Langevin Hasting sampling from \code{\link{Laplace.sampling}}. And the continuous inference is typically change of support inference.
+##' @return pred.draw: the samples of the prediction
+##' @return pred: the prediction of the relative risk
+##' @return predSD: the standard error of the prediction
+##' @return Pred.loc: The coordinates of the predictive locations
+##' @examples
+##' ### Prepare the input of the model
+##' data(PBCshp)
+##' data <- as.data.frame(PBCshp@data)  #get the data
+##' ### Write the formula of the model
+##' FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime +
+##' Environment +  offset(log(pop))
+##' ### set the discretised phi
+##' phi <- seq(500, 1700, length.out = 20)
+##' #### get the initial parameter
+##' model <- glm(formula=FORM, family="poisson", data=data)
+##' beta.start <-coef(model)
+##' sigma2.start <- mean(model$residuals^2)
+##' phi.start <- median(phi)
+##' par0 <- c(beta.start, sigma2.start, phi.start)
+##' # setup the control arguments for the MCMC
+##' n <- 545
+##' h <- 1.65/(n^(1/6))
+##' control.mcmc <- controlmcmcSDA(n.sim = 10000, burnin = 2000,
+##'                  thin= 8, h=h, c1.h = 0.01, c2.h = 1e-04)
+##' ###Run the model
+##' \donttest{
+##' my_est <- SDALGCPMCML(formula=FORM, data=data, my_shp=PBCshp, delta=100, phi=phi, method=1,
+##'                      weighted=FALSE,  plot=TRUE, par0=par0, control.mcmc=control.mcmc)
+##' Con_pred <- SDALGCPPred(para_est=my_est,  cellsize=300, continuous=TRUE)
+##' }
+##' @author Olatunji O. Johnson \email{o.johnson@@lancaster.ac.uk}
+##' @author Emanuele Giorgi \email{e.giorgi@@lancaster.ac.uk}
+##' @author Peter J. Diggle \email{p.diggle@@lancaster.ac.uk}
+##' @references Banerjee, S., Carlin, B. P., & Gelfand, A. E. (2014). Hierarchical modeling and analysis for spatial data. CRC press.
+##' @seealso \link{plot.Pred.SDALGCP}, \link{SDAContinuousPred}, \link{SDADiscretePred}, \link{plot_continuous}, \link{plot_discrete}
+##' @importFrom sp spsample coordinates
+##' @importFrom Matrix solve chol
+##' @importFrom pdist pdist
+##' @importFrom stats median
+##' @export
+SDALGCPPred <- function(para_est, cellsize, continuous=TRUE, control.mcmc=NULL, pred.loc=NULL,
+                        divisor=1, plot.correlogram=F, messages=TRUE, parallel=FALSE){
+  #############prediction
+  if(class(para_est)!="SDALGCP") stop("para_est must be of class 'SDALGCP', that is be an output of SDALGCPMCML function")
+  if(continuous && length(cellsize)==0) stop("if continuous is TRUE, cellsize must be provided")
+  if (continuous){
+    Con_pred <- SDAContinuousPred(para_est=para_est,  cellsize=cellsize, pred.loc=pred.loc, parallel = parallel, divisor = divisor,
+                                  plot.correlogram = plot.correlogram, messages = messages, control.mcmc = control.mcmc)
+  }else{
+    Con_pred <- SDADiscretePred(para_est=para_est, control.mcmc = control.mcmc, divisor = divisor,
+                                plot.correlogram = plot.correlogram, messages = messages)
   }
-
-  attr(result, "continuous") <- continuous
-  class(result) <- "Pred.SDALGCP"
-  return(result)
+  Con_pred$call <- match.call()
+  attr(Con_pred, 'continuous') <- continuous
+  class(Con_pred) <- "Pred.SDALGCP"
+  return(Con_pred)
 }
 
 ############################################################################
@@ -1471,82 +1613,143 @@ print.summary.SDALGCP <- function(x, ...) {
 }
 
 #' @title Plot Discrete SDALGCP Predictions
-#' @description Plots region-specific predicted values from a fitted SDALGCP model using `sf` polygons.
-#' @param obj An object of class \code{"Pred.SDALGCP"} containing discrete predictions and associated spatial polygons.
-#' @param type Character string indicating what to plot. One of: \code{"incidence"}, \code{"SEincidence"}, \code{"CovAdjRelRisk"}, \code{"SECovAdjRelRisk"}.
-#' @param overlay Logical; if \code{TRUE}, overlays polygon borders.
+#'
+#' @description
+#' Plots polygon-level predictions or uncertainties from a fitted SDALGCP model. Supports plotting of posterior means and standard errors for incidence or covariate-adjusted relative risk.
+#'
+#' @param obj An object of class \code{"Pred.SDALGCP"} containing discrete predictions and an associated \code{sf} polygon layer.
+#' @param type Character string specifying what to plot. One of: \code{"incidence"}, \code{"SEincidence"}, \code{"CovAdjRelRisk"}, \code{"SECovAdjRelRisk"}.
+#' @param overlay Logical; if \code{TRUE}, overlays polygon borders. Default is \code{FALSE}.
 #' @param ... Additional arguments passed to \code{ggplot2::ggplot}.
-#' @return A \code{ggplot2} object visualizing spatial discrete predictions.
-#' @importFrom ggplot2 ggplot aes_string geom_sf scale_fill_viridis_c theme_minimal
+#'
+#' @return A \code{ggplot} object.
+#' @importFrom ggplot2 ggplot aes geom_sf scale_fill_viridis_c theme_minimal
 #' @importFrom sf st_as_sf
+#' @importFrom rlang sym !!
 #' @seealso \code{\link{plot.Pred.SDALGCP}}, \code{\link{SDALGCPPred}}
 #' @export
-
 plot_discrete <- function(obj, type = 'incidence', overlay = FALSE, ...) {
   if (!inherits(obj$my_shp, "sf")) {
     obj$my_shp <- sf::st_as_sf(obj$my_shp)
   }
 
-  plot_var <- switch(type,
-                     incidence = "pMean_RR",
-                     SEincidence = "pSD_RR",
-                     CovAdjRelRisk = "pMean_ARR",
-                     SECovAdjRelRisk = "pSD_ARR",
-                     stop("Unknown type specified."))
+  plot_var <- switch(
+    type,
+    incidence = "pMean_RR",
+    SEincidence = "pSD_RR",
+    CovAdjRelRisk = "pMean_ARR",
+    SECovAdjRelRisk = "pSD_ARR",
+    stop("Invalid 'type' argument. Must be one of: incidence, SEincidence, CovAdjRelRisk, SECovAdjRelRisk")
+  )
 
   obj$my_shp$plot_value <- obj$my_shp[[plot_var]]
 
-  gg <- ggplot2::ggplot(obj$my_shp) +
-    ggplot2::geom_sf(ggplot2::aes(fill = "plot_value"), color = NA) +
+  p <- ggplot2::ggplot(obj$my_shp, ...) +
+    ggplot2::geom_sf(aes(fill = plot_value), color = NA) +
     ggplot2::scale_fill_viridis_c(name = type) +
     ggplot2::theme_minimal()
 
   if (overlay) {
-    gg <- gg + ggplot2::geom_sf(fill = NA, color = "black")
+    p <- p + ggplot2::geom_sf(data = obj$my_shp, fill = NA, color = "black")
   }
 
-  print(gg)
+  return(p)
 }
 
 
 #' @title Plot Continuous SDALGCP Predictions
-#' @description Visualizes a continuous surface of relative risk or its standard error from a fitted SDALGCP model using `stars` and `ggplot2`.
-#' @param obj An object of class \code{"Pred.SDALGCP"} containing a continuous relative risk surface as a \code{stars} object.
-#' @param bound Optional boundary polygon as an \code{sf} object to overlay.
-#' @param type Character string: either \code{"relrisk"} for relative risk or \code{"SErelrisk"} for its standard error.
+#' @description Visualizes a continuous surface of relative risk or its standard error
+#' from a fitted SDALGCP model using stars and ggplot2. If a boundary is supplied,
+#' the raster is masked to that boundary.
+#' @param obj An object of class \code{"Pred.SDALGCP"} containing a continuous
+#' relative risk surface as a \code{stars} object stored in \code{obj$RR}.
+#' @param bound Optional boundary polygon as an \code{sf} object to clip/mask the raster
+#'   and optionally overlay its outline.
+#' @param type Character string: either \code{"relrisk"} (RRmean) or
+#'   \code{"SErelrisk"} (RRsd).
 #' @param overlay Logical; if \code{TRUE}, overlays the boundary outline.
-#' @param ... Further arguments passed to \code{ggplot2::ggplot}.
-#' @return A \code{ggplot2} plot of the spatially continuous prediction surface.
-#' @importFrom ggplot2 ggplot aes scale_fill_viridis_c theme_minimal
-#' @importFrom stars geom_stars
-#' @importFrom sf st_as_sf
-#' @seealso \code{\link{SDALGCPPred}}, \code{\link{plot.Pred.SDALGCP}}
+#' @param ... Additional arguments passed to ggplot.
+#' @return A \code{ggplot2} object of the clipped prediction surface.
+#' @importFrom ggplot2 ggplot aes geom_raster scale_fill_viridis_c theme_minimal coord_equal
+#' @importFrom stars st_as_stars
+#' @importFrom sf st_as_sf st_union st_combine st_make_valid
 #' @export
 
-plot_continuous <- function(obj, bound = NULL, type = "relrisk", overlay = FALSE, ...) {
-  rr_var <- switch(type,
-                   relrisk = "RRmean",
-                   SErelrisk = "RRsd",
-                   stop("Invalid `type` for continuous prediction"))
+plot_continuous <- function(obj, bound = NULL, type = "relrisk", overlay = FALSE, cellsize = NULL, ...) {
+  rr_var <- switch(
+    type,
+    relrisk = "RRmean",
+    SErelrisk = "RRsd",
+    stop("Invalid 'type'. Must be one of: 'relrisk', 'SErelrisk'")
+  )
 
   if (!inherits(obj$RR, "stars")) {
-    stop("Continuous surface must be a 'stars' object.")
+    stop("Continuous prediction surface must be a 'stars' object stored in obj$RR.")
   }
 
-  gg <- ggplot2::ggplot() +
-    stars::geom_stars(data = obj$RR, aes_string(fill = rr_var)) +
-    ggplot2::scale_fill_viridis_c(name = type) +
-    ggplot2::theme_minimal()
+  rr_stars <- obj$RR
+
+  # Convert to data.frame with coordinates
+  rr_df <- as.data.frame(rr_stars, xy = TRUE, na.rm = TRUE)
+
+  if ("geometry" %in% names(rr_df)) {
+    coords <- sf::st_coordinates(rr_df$geometry)
+    rr_df$x <- coords[, 1]
+    rr_df$y <- coords[, 2]
+    rr_df$geometry <- NULL
+  }
 
   if (!is.null(bound)) {
     if (!inherits(bound, "sf")) {
       bound <- sf::st_as_sf(bound)
     }
-    gg <- gg + ggplot2::geom_sf(data = bound, fill = NA, color = "black")
+  } else{
+    bound <- obj$my_shp
+    if (!inherits(bound, "sf")) {
+      bound <- sf::st_as_sf(bound)
+    }
   }
 
-  print(gg)
+
+    bound <- sf::st_make_valid(sf::st_combine(bound))
+
+    # If cellsize not given, estimate from grid resolution
+    if (is.null(cellsize)) {
+      xres <- mean(diff(sort(unique(rr_df$x))))
+      yres <- mean(diff(sort(unique(rr_df$y))))
+      cellsize <- min(xres, yres)
+    }
+
+    # Build polygons for each prediction cell
+    grid_polys <- sf::st_make_grid(bound, cellsize = cellsize, what = "polygons")
+    grid_sf <- sf::st_sf(geometry = grid_polys, rr_df)
+    inside <- sf::st_intersects(grid_sf, bound, sparse = FALSE)[, 1]
+
+    rr_df <- rr_df[inside, ]
+
+
+  # Plot raster-like map
+  p <- ggplot2::ggplot(rr_df, ggplot2::aes(x = x, y = y, fill = .data[[rr_var]])) +
+    ggplot2::geom_raster() +
+    ggplot2::scale_fill_viridis_c(name = type) +
+    ggplot2::coord_equal() +
+    ggplot2::theme_minimal()
+
+  # Add overlay boundary
+  if (!is.null(bound) && overlay) {
+    p <- p + ggplot2::geom_sf(
+      data = bound,
+      inherit.aes = FALSE,
+      fill = NA,
+      color = "black"
+    )
+  }
+
+  return(p)
 }
+
+
+
 
 
 #' @title Exceedance probability of the relative risk
@@ -1570,6 +1773,8 @@ SDALGCPexceedance <- function(obj, thresholds, continuous = TRUE) {
 }
 
 
+
+
 #' @title Plot Exceedance Probabilities from SDALGCP Predictions
 #' @description Plots exceedance probabilities from SDALGCP predictions, either continuous (`stars`) or discrete (`sf` polygons).
 #' @param obj An object of class \code{"Pred.SDALGCP"} containing exceedance probability results.
@@ -1587,12 +1792,19 @@ SDALGCPexceedance <- function(obj, thresholds, continuous = TRUE) {
 
 plot_SDALGCPexceedance <- function(obj, thresholds, bound = NULL, continuous = TRUE, overlay = FALSE, ...) {
   if (continuous) {
+
+    exceed_vals <- SDALGCPexceedance(obj, thresholds = thresholds, continuous = TRUE)
+    dims <- dim(obj$pred.draw)  # e.g. n.sim x n.grid
+    exceed_mat <- matrix(exceed_vals, ncol = 1)
+    obj$exceed <- stars::st_as_stars(list(exceed = exceed_mat),
+                              dimensions = stars::st_dimensions(obj$RR))
+
     if (!inherits(obj$exceed, "stars")) {
       stop("Expected exceedance to be a stars object for continuous.")
     }
 
     gg <- ggplot2::ggplot() +
-      stars::geom_stars(data = obj$exceed, aes(fill = "exceed")) +
+      stars::geom_stars(data = obj$exceed, aes(fill = exceed)) +
       ggplot2::scale_fill_viridis_c(name = "Exceed Prob") +
       ggplot2::theme_minimal()
 
@@ -1607,10 +1819,11 @@ plot_SDALGCPexceedance <- function(obj, thresholds, bound = NULL, continuous = T
     if (!inherits(obj$my_shp, "sf")) {
       obj$my_shp <- sf::st_as_sf(obj$my_shp)
     }
+    obj$my_shp$exceed <- SDALGCPexceedance(obj, thresholds=thresholds, continuous=FALSE)
 
     obj$my_shp$plot_value <- obj$my_shp$exceed
     gg <- ggplot2::ggplot(obj$my_shp) +
-      ggplot2::geom_sf(aes(fill = "plot_value"), color = NA) +
+      ggplot2::geom_sf(aes(fill = plot_value), color = NA) +
       ggplot2::scale_fill_viridis_c(name = "Exceed Prob") +
       ggplot2::theme_minimal()
 
@@ -1784,15 +1997,15 @@ phiCI <- function(obj, coverage = 0.95, plot = TRUE) {
   if (plot) {
     df_plot <- data.frame(phi = phi_grid, deviance = deviance_vals)
 
-    gg <- ggplot(df_plot, aes(x = "phi", y = "deviance")) +
-      geom_line(color = "black", linewidth = 1) +
-      geom_hline(yintercept = cutoff, linetype = "dashed", color = "red") +
-      geom_vline(xintercept = ci_bounds, linetype = "dotted", color = "blue") +
-      labs(title = "Profile Deviance for scale parameter",
+    gg <- ggplot2::ggplot(df_plot, aes(x = phi, y = deviance)) +
+      ggplot2::geom_line(color = "black", linewidth = 1) +
+      ggplot2::geom_hline(yintercept = cutoff, linetype = "dashed", color = "red") +
+      ggplot2::geom_vline(xintercept = ci_bounds, linetype = "dotted", color = "blue") +
+      ggplot2::labs(title = "Profile Deviance for scale parameter",
            subtitle = paste0("Confidence Interval (", round(coverage * 100), "%): [",
                              round(ci_bounds[1], 2), ", ", round(ci_bounds[2], 2), "]"),
            x = "Scale parameter", y = "Deviance") +
-      theme_minimal()
+      ggplot2::theme_minimal()
     print(gg)
   }
 

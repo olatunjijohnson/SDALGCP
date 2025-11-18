@@ -6,3 +6,7 @@
 ^cran-comments.md
 ^revdep
 ^SDALGCP-manual.tex$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
