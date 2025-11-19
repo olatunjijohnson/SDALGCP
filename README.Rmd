@@ -46,11 +46,11 @@ require(SDALGCP)
 ```
 load the data
 ```{r}
-data("PBCshp")
+data("PBCshp_sf")
 ```
 extract the dataframe containing data from the object loaded
 ```{r}
-data <- as.data.frame(PBCshp@data)
+data <- st_drop_geometry(PBCshp_sf)
 ```
 load the population density raster
 ```{r}
