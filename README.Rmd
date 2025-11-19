@@ -1,10 +1,5 @@
 ---
-title: "README"
-author: "Olatunji Johnson"
-date: "18 December 2018"
-output: 
-  md_document:
-    variant: markdown_github
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -23,17 +18,6 @@ To install the latest development of SDALGCP package use
 ```{r, eval=FALSE}
 devtools::install_github("olatunjijohnson/SDALGCP")
 ```
-
-<!-- SDALGCP provides an option to make parallel some matrix computation but the package that allows for this is not yet on cran. To install the parallel version of SDALGCP, install first the bigstatr from github -->
-
-<!-- ```{r, eval=FALSE} -->
-<!-- devtools::install_github("privefl/bigstatsr") -->
-<!-- ``` -->
-<!-- Then install SDALGCP from the branch using  -->
-
-<!-- ```{r, eval=FALSE} -->
-<!-- devtools::install_github("olatunjijohnson/SDALGCP#SDALGCPParallel") -->
-<!-- ``` -->
 
 
 # Example
@@ -62,8 +46,7 @@ pop_den[is.na(pop_den[])] <- 0
 ```
 write a formula of the model you want to fit
 ```{r}
-FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
-  Environment +  offset(log(pop))
+FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + Environment +  offset(log(pop))
 ```
 Now to proceed to fitting the model, note that there two types of model that can be fitted. One is when approximate the intensity of LGCP by taking the population weighted average and the other is by taking the simple average. We shall consider both cases in this tutorial, starting with population weighted since we have population density on a raster grid of 300m by 300m.
 

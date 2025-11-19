@@ -1,10 +1,13 @@
-SDALGCP
-=======
 
-SDALGCP provides a computationally efficient discrete approximation to log-Gaussian Cox process (LGCP) model for spatially aggregated disease count data. It uses Monte Carlo Maximum Likelihood for model parameter estimation and delivers prediction of spatially discrete and continuous relative risk.
+# SDALGCP
 
-Installation
-============
+SDALGCP provides a computationally efficient discrete approximation to
+log-Gaussian Cox process (LGCP) model for spatially aggregated disease
+count data. It uses Monte Carlo Maximum Likelihood for model parameter
+estimation and delivers prediction of spatially discrete and continuous
+relative risk.
+
+# Installation
 
 To install the latest development of SDALGCP package use
 
@@ -12,16 +15,7 @@ To install the latest development of SDALGCP package use
 devtools::install_github("olatunjijohnson/SDALGCP")
 ```
 
-<!-- SDALGCP provides an option to make parallel some matrix computation but the package that allows for this is not yet on cran. To install the parallel version of SDALGCP, install first the bigstatr from github -->
-<!-- ```{r, eval=FALSE} -->
-<!-- devtools::install_github("privefl/bigstatsr") -->
-<!-- ``` -->
-<!-- Then install SDALGCP from the branch using  -->
-<!-- ```{r, eval=FALSE} -->
-<!-- devtools::install_github("olatunjijohnson/SDALGCP#SDALGCPParallel") -->
-<!-- ``` -->
-Example
-=======
+# Example
 
 Here I present an illustrative example of how to use the package
 
@@ -34,13 +28,13 @@ require(SDALGCP)
 load the data
 
 ``` r
-data("PBCshp")
+data("PBCshp_sf")
 ```
 
 extract the dataframe containing data from the object loaded
 
 ``` r
-data <- as.data.frame(PBCshp@data)
+data <- st_drop_geometry(PBCshp_sf)
 ```
 
 load the population density raster
@@ -58,18 +52,21 @@ pop_den[is.na(pop_den[])] <- 0
 write a formula of the model you want to fit
 
 ``` r
-FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + 
-  Environment +  offset(log(pop))
+FORM <- X ~ propmale + Income + Employment + Education + Barriers + Crime + Environment +  offset(log(pop))
 ```
 
-Now to proceed to fitting the model, note that there two types of model that can be fitted. One is when approximate the intensity of LGCP by taking the population weighted average and the other is by taking the simple average. We shall consider both cases in this tutorial, starting with population weighted since we have population density on a raster grid of 300m by 300m.
+Now to proceed to fitting the model, note that there two types of model
+that can be fitted. One is when approximate the intensity of LGCP by
+taking the population weighted average and the other is by taking the
+simple average. We shall consider both cases in this tutorial, starting
+with population weighted since we have population density on a raster
+grid of 300m by 300m.
 
-SDALGCP I (population weighted)
--------------------------------
+## SDALGCP I (population weighted)
 
 Here we estimate the parameters of the model
 
-Discretise the value of scale parameter *ϕ*
+Discretise the value of scale parameter $\phi$
 
 ``` r
 phi <- seq(500, 1700, length.out = 20)
@@ -78,11 +75,12 @@ phi <- seq(500, 1700, length.out = 20)
 estimate the parameter using MCML
 
 ``` r
-my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=300, phi=phi, method=1, pop_shp=pop_den, 
+my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=300, phi=phi, method=1, pop_shp=terra::rast(pop_den), 
                       weighted=TRUE, par0=NULL, control.mcmc=NULL, messages = TRUE, plot_profile = TRUE)
 ```
 
-To print the summary of the parameter estimates as well as the confidence interval, use;
+To print the summary of the parameter estimates as well as the
+confidence interval, use;
 
 ``` r
 summary(my_est)
@@ -90,39 +88,47 @@ summary(my_est)
 confint(my_est)
 ```
 
-We create a function to compute the confidence interval of the scale parameter using the deviance method. It also provides the deviance plot.
+We create a function to compute the confidence interval of the scale
+parameter using the deviance method. It also provides the deviance plot.
 
 ``` r
 phiCI(my_est, coverage = 0.95, plot = TRUE)
 ```
 
-Having estimated the parameters of the model, one might be interested in area-level inference or spatially continuous inference.
+Having estimated the parameters of the model, one might be interested in
+area-level inference or spatially continuous inference.
 
-1.  If interested in STRICTLY area-level inference use the code below. This can either give either region-specific covariate-adjusted relative risk or region-specific incidence. This is achieved by simply setting in the function.
+1.  If interested in STRICTLY area-level inference use the code below.
+    This can either give either region-specific covariate-adjusted
+    relative risk or region-specific incidence. This is achieved by
+    simply setting in the function.
 
 ``` r
 Dis_pred <- SDALGCPPred(para_est=my_est,  continuous=FALSE)
 ```
 
-From this discrete inference one can map either the region-specific incidence or the covariate adjusted relative risk.
+From this discrete inference one can map either the region-specific
+incidence or the covariate adjusted relative risk.
 
 ``` r
 #to map the incidence
 plot(Dis_pred, type="incidence", continuous = FALSE)
 #and its standard error
-plot(Dis_pred, type="SDincidence", continuous = FALSE)
+plot(Dis_pred, type="SEincidence", continuous = FALSE)
 #to map the covariate adjusted relative risk
 plot(Dis_pred, type="CovAdjRelRisk", continuous = FALSE)
 #and its standard error
-plot(Dis_pred, type="SDCovAdjRelRisk", continuous = FALSE)
+plot(Dis_pred, type="SECovAdjRelRisk", continuous = FALSE)
 #to map the exceedance probability that the covariate-adjusted relative risk is greter than a particular threshold
-plot(Dis_pred, type="CovAdjRelRisk", continuous = FALSE, thresholds=3.0)
+plot(Dis_pred, type="CovAdjRelRisk", continuous = FALSE, thresholds=2.0)
 ```
 
-1.  If interested in spatially continuous prediction of the covariate adjusted relative risk. This is achieved by simply setting in the function.
+2.  If interested in spatially continuous prediction of the covariate
+    adjusted relative risk. This is achieved by simply setting in the
+    function.
 
 ``` r
-Con_pred <- SDALGCPPred(para_est=my_est, cellsize=300, continuous=TRUE)
+Con_pred <- SDALGCPPred(para_est=my_est, cellsize=2000, continuous=TRUE)
 ```
 
 Then we map the spatially continuous covariate adjusted relative risk.
@@ -133,50 +139,57 @@ plot(Con_pred, type="relrisk")
 #and its standard error
 plot(Con_pred, type="SErelrisk")
 #to map the exceedance probability that the relative risk is greter than a particular threshold
-plot(Dis_pred, type="relrisk", thresholds=2)
+plot(Con_pred, type="relrisk", thresholds=2)
 ```
 
-SDALGCP II (Unweighted)
------------------------
+## SDALGCP II (Unweighted)
 
-As for the unweighted which is typically by taking the simple average of the intensity an LGCP model, the entire code in the weighted can be used by just setting in the line below.
+As for the unweighted which is typically by taking the simple average of
+the intensity an LGCP model, the entire code in the weighted can be used
+by just setting in the line below.
 
 ``` r
-my_est <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=300, phi=phi, method=1, 
+my_est2 <- SDALGCPMCML(data=data, formula=FORM, my_shp=PBCshp, delta=300, phi=phi, method=2, 
                       weighted=FALSE, par0=NULL, control.mcmc=NULL, messages = TRUE, plot_profile = TRUE)
 ```
 
-Spatio-temporal SDALGCP
-=======================
+# Spatio-temporal SDALGCP
 
 Download the dataset
 
 ``` r
-require(rgdal)
-require(sp)
+library(sf)
+
+# Read CSV
 ohiorespMort <- read.csv("https://raw.githubusercontent.com/olatunjijohnson/dataset/master/OhioRespMort.csv")
-download.file("https://github.com/olatunjijohnson/dataset/raw/master/ohio_shapefile.zip", "ohio_shapefile.zip")
+
+# Download and unzip shapefile
+download.file("https://github.com/olatunjijohnson/dataset/raw/master/ohio_shapefile.zip", 
+              destfile = "ohio_shapefile.zip")
 unzip("ohio_shapefile.zip")
-ohio_shp <- rgdal::readOGR("ohio_shapefile/","tl_2010_39_county00")
-# and for windows use ohio_shp <- rgdal::readOGR("ohio_shapefile","tl_2010_39_county00")
-ohio_shp <- sp::spTransform(ohio_shp, sp::CRS("+init=epsg:32617"))
+
+# Read shapefile directly with sf
+ohio_shp <- sf::st_read("ohio_shapefile/tl_2010_39_county00.shp")
+
+# Reproject to EPSG:32617
+ohio_shp <- sf::st_transform(ohio_shp, 32617)
 ```
 
-create a spacetime object as an input of the spatio-temporal SDALGCP model
+create a spacetime object as an input of the spatio-temporal SDALGCP
+model
 
 ``` r
-m <- length(ohio_shp)
-TT <- 21
-Y <- ohiorespMort$y
-X <- ohiorespMort$year
-pop <- ohiorespMort$n
-E <- ohiorespMort$E
-data <- data.frame(Y=Y, X=X, pop=pop, E=E)
-formula <- Y ~  X + offset(log(E))
-phi <- seq(10, 300, length.out = 10)
-control.mcmc <- list(n.sim=10000, burnin=2000, thin=80, h=1.65/((m*TT)^(1/6)), c1.h=0.01, c2.h=0.0001)
-time <- as.POSIXct(paste(1968:1988, "-01-01", sep = ""), tz = "")
-st_data <- spacetime::STFDF(sp = ohio_shp, time = time, data = data)
+library(dplyr)
+
+# --- Join attributes ---
+# Merge data with shapefile by county name and year
+ohio_sf <- ohiorespMort %>%
+  left_join(ohio_shp, by = c("NAME" = "NAME00")) %>%
+  st_as_sf()  # convert to sf
+
+# --- Add time column as Date ---
+ohio_sf <- ohio_sf %>%
+  mutate(time = as.Date(paste0(year + 1967, "-01-01")))
 ```
 
 Plot the spatio-temporal count data
@@ -188,7 +201,12 @@ spacetime::stplot(st_data[,,"Y"])
 Parameter estimation
 
 ``` r
-model.fit <- SDALGCPMCML_ST(formula=formula, st_data = st_data,  delta=800, 
+m <- nrow(ohio_shp)
+TT <- nrow(ohio_sf)/m
+formula <- y ~ year + offset(log(E))
+phi <- seq(10, 300, length.out = 10)
+control.mcmc <- list(n.sim=10000, burnin=2000, thin=80, h=1.65/((m*TT)^(1/6)), c1.h=0.01, c2.h=0.0001)
+model.fit <- SDALGCPMCML_ST(formula=formula, st_data = ohio_sf,  delta=1200, 
                             phi=phi, method=2, pop_shp=NULL,  kappa=0.5,
                             weighted=FALSE, par0=NULL, control.mcmc=control.mcmc, 
                             plot=TRUE, plot_profile=TRUE, rho=NULL,
@@ -202,7 +220,8 @@ Area-level of the spatio-temporal prediction
 dis_pred <- SDALGCPPred_ST(para_est = model.fit, continuous = FALSE)
 ```
 
-Ploting the area-level incidence and the covariate adjusted relative risk
+Ploting the area-level incidence and the covariate adjusted relative
+risk
 
 ``` r
 plot(dis_pred, type="CovAdjRelRisk", main="Relative Risk", continuous=FALSE)
