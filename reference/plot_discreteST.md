@@ -33,7 +33,7 @@ plot_discreteST(obj, type = "incidence", overlay = FALSE, ...)
 - ...:
 
   further arguments passed to
-  [`plot`](https://rdrr.io/r/graphics/plot.default.html).
+  [`plot`](https://r-spatial.github.io/sf/reference/plot.html).
 
 ## Value
 
